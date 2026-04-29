@@ -1,0 +1,3038 @@
+<!DOCTYPE html><html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Rizzz v4</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#000;color:#fff;overflow:hidden;}
+
+/* HEADER */
+header{position:fixed;top:0;left:0;width:100%;height:56px;padding:10px 14px;background:rgba(0, 0, 0, 0.6);backdrop-filter: blur(12px);-webkit-backdrop-filter: blur(12px);border-bottom: 1px solid rgba(255, 255, 255, 0.08);z-index:50;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #111;transition:.35s ease;}
+header.hide{
+transform:translateY(-100%);
+opacity:.7;
+}
+header b{
+animation:logoPulse 2s infinite;
+}
+@keyframes logoPulse{
+50%{transform:scale(1.09);}
+}
+#topDp{width:34px;height:34px;border-radius:50%;object-fit:cover;}
+/* PAGES */
+.page{display:none;position:absolute;top:50px;left:0;width:100%;height:calc(100vh - 116px);overflow:auto;background:#000;animation: fadeInUp 0.4s ease forwards;transition: 0.35s ease;}
+.page.show {opacity: 1;transform: translateY(0) scale(1);pointer-events: auto;}
+@keyframes fadeInUp {from { opacity: 0; transform: translateY(20px); }to { opacity: 1; transform: none; }}
+.show{display:block;}
+
+@keyframes slide{from{transform:translateX(20px);opacity:.5}to{transform:translateX(0);opacity:1}}
+/* STORIES */
+#storiesBar{position:fixed;top:10px;left:0;width:100%;height:90px;display:flex;gap:14px;overflow-x:auto;padding:10px;background:#050505;z-index:30;border-top-right-radius: 20px;}
+
+.story{min-width:72px;text-align:center;}
+
+.storyRing{width:62px;height:62px;border-radius:50%;padding:2.3px;  animation: ringPulse 2s infinite ease-in-out;background:linear-gradient(45deg,#feda75,#fa7e1e,#d62976,#962fbf,#4f5bd5);}
+@keyframes ringPulse {0%, 100% { box-shadow: 0 0 0 0 rgba(255,45,85,0.7);}
+  70% { box-shadow: 0 0 0 12px rgba(255,45,85,0); }}
+.storyRing img{width:100%;height:100%;border-radius:50%;object-fit:cover;border:2px solid #000;}
+
+
+.small{font-size:11px;color:#ccc;margin-top:4px;}
+/* HOME */
+#home {top: 146px;height: calc(100vh - 206px);overflow: hidden;}
+#profile,#chat,#upload,#notify{top:56px;height:calc(100vh - 116px);}
+.reelsWrap{height: 100%; overflow-y: scroll;scroll-snap-type: y mandatory;scroll-behavior: smooth;
+-webkit-overflow-scrolling:touch;
+overscroll-behavior-y:contain;     scroll-snap-stop:always;}
+
+
+.reel{height: 100%;position: relative;scroll-snap-align: start;       /* Snap to the top of each reel */scroll-snap-stop: always;flex-shrink: 0;animation:reelUp .3s ease;}
+@keyframes reelUp{
+from{
+opacity:0;
+transform:translateY(45px);
+}
+to{
+opacity:1;
+transform:none;
+}
+}
+.reel video{width:100%;height:100%;object-fit:cover;}
+
+.overlay{position:absolute;left:10px;right:10px;bottom:18px;animation:slideUp .4s ease;
+}
+@keyframes slideUp{
+from{opacity:0;transform:translateY(23px);}
+to{opacity:1;transform:none;}
+}
+.btn {
+  border: none;
+  padding: 9px 14px;
+  border-radius: 14px;
+  background: linear-gradient(45deg, #ff2d55, #ff0066, #ff6a00);
+  color: #fff;
+  margin-top: 6px;
+  font-weight: 600;
+  box-shadow: 0 0 16px rgba(255, 45, 85, .35);
+  transition: .25s ease;
+}
+
+.btn:active {
+  transform: scale(.94);
+}
+
+.card{background:#121212;margin:10px;padding:12px;border-radius:14px;animation: popIn 0.3s ease;
+  position:relative;
+overflow:hidden;
+}
+
+h3,b{
+animation:textFade .45s ease;
+}
+
+@keyframes textFade{
+from{
+opacity:0;
+letter-spacing:5px;
+}
+to{
+opacity:1;
+letter-spacing:0;
+}
+}
+.card::before{
+content:"";
+position:absolute;
+top:0;
+left:-100%;
+width:60%;
+height:100%;
+}
+
+.inp {
+  width: 100%;
+  padding: 13px;
+  margin: 6px 0;
+  border: none;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, .06);
+  backdrop-filter: blur(12px);
+  color: #fff;
+  outline: none;
+  border: 1px solid rgba(255, 255, 255, .05);
+}
+
+/* PROFILE */
+.profileTop{text-align:center;padding:15px;}
+
+.profileTop img{width:90px;height:90px;border-radius:50%;object-fit:cover;border:3px solid #ff2d55;}
+
+#profileBig{
+animation:profileGlow 3s infinite ease-in-out;
+}
+
+@keyframes profileGlow{
+0%,100%{
+box-shadow:0 0 0px #ff2d55;
+}
+50%{
+box-shadow:0 0 24px #ff2d55;
+}
+}
+.statRow{display:flex;justify-content:space-around;margin-top:10px;}
+.statRow div{text-align:center;}
+/* NAV */
+.nav{position:fixed;bottom:0;left:0;width:100%;height:60px;background: rgba(10, 10, 10, 0.7);backdrop-filter: blur(15px);box-shadow: 0 -5px 20px rgba(255, 45, 85, 0.08);display:flex;justify-content:space-around;align-items:center;z-index:60;border-top:1px solid #111;}
+
+.nav span {
+  font-size: 24px;
+  transition: .25s cubic-bezier(.2, .8, .2, 1);
+}
+
+.nav span:active {
+  transform: translateY(-6px) scale(1.18);
+  color: #ff2d55;
+  text-shadow: 0 0 14px #ff2d55;
+}
+
+/* PROFILE GRID */
+#myPosts {display: grid;grid-template-columns: repeat(3, 1fr);gap: 4px;margin-top: 20px;width:70px;
+}
+
+.postMini {aspect-ratio: 1/1;width: 100%;object-fit: cover;border-radius: 8px;}
+
+
+@keyframes heartPop {0% { transform: scale(0); opacity: 0; }40% { transform: scale(1.4); opacity: 1; }100% { transform: scale(1); opacity: 0; }}
+
+.heart {animation: heartPop 0.6s ease;filter: drop-shadow(0 0 10px red);}
+
+
+@keyframes popIn {from { transform: scale(0.5); opacity: 0; }to { transform: scale(1); opacity: 1; }}
+
+
+#storyProgress div {
+  flex: 1;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.3);
+  overflow: hidden;
+  border-radius: 10px;
+}
+
+#storyProgress div span {
+  display: block;
+  height: 100%;
+  width: 0%;
+  background: #fff;
+}
+
+#storyViewer{
+animation:zoomIn .25s ease;
+}
+@keyframes zoomIn{
+from{opacity:0;transform:scale(.92);}
+to{opacity:1;transform:scale(1);}
+}
+
+.small {
+  font-size: 11px;
+  color: #D2D2D2;
+  margin-left: -7px;
+  margin-top: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width:600px) {
+  .overlay {
+    bottom: 65px;
+  }
+  
+  .nav {
+    height: 60px;
+    bottom: 3px;
+  }
+}
+
+
+.chatContainer {
+  height: calc(100vh - 230px);
+  overflow-y: auto;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  scroll-behavior: smooth;
+}
+
+.chatInputArea {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  gap: 10px;
+  padding: 10px;
+  background: #111;
+  border-top: 1px solid #222;
+  z-index: 999;
+}
+
+.chatInputArea input {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 10px;
+  background: #222;
+  color: #fff;
+}
+
+.chatInputArea button {
+  padding: 10px 14px;
+  border: none;
+  border-radius: 10px;
+  background: #ff2d55;
+  color: #fff;
+}
+
+
+.uploadCard{
+  background:#111;
+  padding:16px;
+  border-radius:16px;
+  box-shadow:0 0 15px rgba(0,0,0,.4);
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+.inp{
+  padding:12px;
+  border-radius:10px;
+  border:none;
+  background:#1c1c1c;
+  color:#fff;
+}
+
+.btn{
+  padding:12px;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+  font-weight:600;
+  transition:.3s;
+}
+
+.primary{
+  background:linear-gradient(45deg,#ff2d55,#ff6b81);
+  color:#fff;
+}
+
+.secondary{
+  background:#222;
+  color:#fff;
+}
+
+.btn:disabled{
+  opacity:.6;
+  cursor:not-allowed;
+}
+
+.status{
+  font-size:12px;
+  color:#aaa;
+  min-height:18px;
+}
+
+.uploadIconBtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  
+  width: 90px;
+  height: 90px;
+  
+  margin: 10px 0;
+  
+  border-radius: 18px;
+  background: #1c1c1c;
+  color: #ff2d55;
+  
+  cursor: pointer;
+  transition: .3s;
+  
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.uploadIconBtn span {
+  font-size: 12px;
+  color: #aaa;
+}
+
+.uploadIconBtn:hover {
+  background: #2a2a2a;
+  transform: scale(1.05);
+}
+
+/* comment delete animation*/
+.comment-item {
+  transition: all 0.25s ease;
+}
+
+.comment-delete-anim {
+  opacity: 0;
+  transform: translateX(40px);
+}
+
+#emojibtns button{
+  width:35px;
+  height: 25px;
+}
+#emojibtns button:hover{
+  height: 30px;
+  background: #CCCCCC;
+  border:none;
+  border-radius:10px;
+}
+
+/*like comment button bottom height*/
+
+
+.actionBar .btn {
+  
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(10px);
+  border-radius: 25px;
+  padding: 10px 14px;
+  font-size: 14px;
+  color: white;
+  margin-bottom: 3.4rem;
+}
+</style></head><body>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<header>
+<b>Rizzz</b>
+<span id="userBox">Guest</span>
+<img
+    id="topDp"
+    src="https://i.imgur.com/6VBx3io.png"
+    style="width:34px;height:34px;border-radius:50%;object-fit:cover">
+</header><div id='storiesBar' style='margin-top:52px;display:flex;gap:10px;overflow:auto;padding:10px;background:#050505'></div>
+<section id='home' class='page show'>
+  <div id="postsSection" style="display:none;">
+  <div id="postsGrid"
+  style="
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:4px;">
+  </div>
+
+</div>
+  <div style="
+display:flex;
+gap:10px;
+height:50px;
+padding:10px;
+background:#050505;
+position:sticky;
+z-index:10;">
+
+<button onclick="switchHomeTab('reels')"
+id="tab-reels"
+style="
+flex:1;
+padding:10px;
+border:none;
+border-bottom:2px solid #ff2d55;
+background:none;
+color:#fff;">
+Reels
+</button>
+
+  <button onclick="switchHomeTab('posts')"
+    id="tab-posts"
+    style="
+    flex:1;
+    padding:10px;
+    border:none;
+    border-bottom:2px solid transparent;
+    background:none;
+    color:#fff;">
+    Posts
+    </button>
+
+</div>
+
+  <!-- Global reels refresh button -->
+<button id="refreshFeedBtn"
+onclick="refreshCurrentReel()"
+style="position:fixed;top:75px;right:12px;z-index:9999;background:rgba(0,0,0,.65);color:#fff;border:none;width:42px;height:42px;border-radius:50%;font-size:20px;display:flex;align-items:center;justify-content:center;padding:0;line-height:1;backdrop-filter: blur(8px);box-shadow:0 8px 20px rgba(0,0,0,.35);
+">
+⟳</button>
+
+  <div id='reels' class='reelsWrap'></div></section>
+  
+  <section id='notify' class='page'><div id='notiList'></div></section>
+  
+  
+<section id='upload' class='page'>
+  <div class='card'>
+    
+    <input id='caption' class='inp' placeholder='Caption'>
+    
+    <!-- POST UPLOAD -->
+    <input id='file' type='file' accept='image/*,video/*' hidden>
+    
+    <label for="file" class="uploadIconBtn">
+      <i class="fa-solid fa-cloud-arrow-up"></i>
+      <span>Post</span>
+    </label>
+    
+    <button class='btn' onclick='uploadVideo()'>Upload Post</button>
+    
+    <hr style="margin:12px 0;border:1px solid #222">
+    
+    <!-- STORY UPLOAD -->
+    <h4> Upload Story (24h)</h4>
+    
+    <input id='storyFile' type='file' accept='image/*,video/*' hidden>
+    
+    <label for="storyFile" class="uploadIconBtn">
+      <i class="fa-solid fa-circle-plus"></i>
+      <span>Story</span>
+    </label>
+    
+    <button class='btn' onclick='uploadStory()'>Upload Story</button>
+    
+  </div>
+</section>
+<section id='chat' class='page'>
+  <div id='msgs' class="chatContainer"></div>
+  <button id="scrollBtn" onclick="scrollToBottom()"
+    style="
+      position:fixed;
+      bottom:90px;
+      right:15px;
+      z-index:9999;
+      background:#ff2d55;
+      border:none;
+      color:#fff;
+      width:42px;
+      height:42px;
+      border-radius:50%;
+      font-size:18px;
+      display:none;
+      box-shadow:0 5px 15px rgba(0,0,0,.3);
+    ">
+    ↓
+  </button>
+  <div class="chatInputArea card">
+    <input id='msg' class='inp' placeholder='Type a message...' maxlength="500">
+    <button class='btn sendBtn' onclick='sendMsg()'>Send</button>
+  </div>
+</section>
+
+<section id='profile' class='page'>
+  
+<button id="backMyProfileBtn"
+  class="btn"
+  style="display:none; margin-top:10px;"
+  onclick="backToMyProfile()">
+  ← Back to My Profile
+</button>
+
+  <div class="profileTop">
+
+    <img id="profileBig" src="https://i.imgur.com/6VBx3io.png">
+    <h3 id="profileName">User</h3>
+  </div>
+<div class="statRow">
+  
+  <div onclick="openUserPosts('posts')" style="cursor:pointer;">
+    <b id="postCount">0</b><br>
+    <span>Posts</span>
+  </div>
+  
+  <div onclick="openFollowers()" style="cursor:pointer;">
+    <b id="followerCount">0</b><br>
+    <span>Followers</span>
+  </div>
+  
+  <div onclick="openFollowing()" style="cursor:pointer;">
+    <b id="followingCount">0</b><br>
+    <span>Following</span>
+  </div>
+  
+</div>
+  </div>
+
+  <div class="card">
+<input id="searchUser" class="inp"placeholder="Search users"oninput="searchUsers()"style="margin-bottom:2rem">
+
+<div id="searchRes"></div>
+
+    <!-- profile posts grid -->
+   
+<div id="ownerControls">
+  
+  <input id="newName" class="inp" placeholder="Enter display name">
+  <input id="dpFile" type="file" class="inp" accept="image/*">
+  
+  <button class="btn" onclick="saveProfile()">Save Profile</button>
+     <button class="btn" onclick="logout()">
+      Logout
+    </button> 
+</div>
+
+  </div>
+
+<div id="myPosts" style="display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:14px;height:50px;width:100%"></div>
+
+</section>
+<!-- REPLACE YOUR <nav> WITH THIS -->
+<nav class='nav'>
+  <span onclick="go('home')">⌂</span>
+  <span onclick="go('upload')">＋</span>
+  <span onclick="go('chat')">✉</span>
+  <span onclick="go('notify')">♡</span>
+  <span onclick="go('profile')">˙⋆✮</span>
+</nav>
+<script type='module'>
+
+
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+/* REPLACE FIREBASE AUTH IMPORT */
+
+import {getAuth,signInWithPopup,GoogleAuthProvider,onAuthStateChanged,signOut,signInWithEmailAndPassword,createUserWithEmailAndPassword,setPersistence,browserLocalPersistence} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+
+import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, updateDoc, deleteDoc, setDoc ,getDocs,arrayUnion,increment}from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+const firebaseConfig = {apiKey: "AIzaSyA_sBTAt90Y-RrLo6Hfs_7-Y1VM_ASix34",authDomain: "brosmarket-9b3b0.firebaseapp.com",projectId: "brosmarket-9b3b0",databaseURL: "https://brosmarket-9b3b0-default-rtdb.firebaseio.com/"
+};
+let soundOn = false;
+
+const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app);
+
+
+let GLOBAL_AUDIO = {
+  reels: false,
+  story: false
+};
+
+let stories = [];
+let storyIndex = 0;
+
+
+let storyTimer = null;
+let storyPaused = false;
+
+let storySound = false;
+let storyUsers = {};
+
+function updateAllAudio() {
+  
+  // reels control
+  document.querySelectorAll('.reelVideo').forEach(v => {
+    v.muted = !GLOBAL_AUDIO.reels;
+  });
+  
+  // story control
+  if (storyVideo) {
+    storyVideo.muted = !GLOBAL_AUDIO.story;
+  }
+}
+
+window.stopAllReels = () => {
+  
+  document.querySelectorAll(".reelVideo").forEach(v => {
+    v.pause();
+    v.muted = true;
+  });
+  
+  reelsSound = false;
+  activeReelVideo = null;
+};
+
+
+/* ADD BELOW auth init */
+setPersistence(auth, browserLocalPersistence);
+
+window.stopAllReels = () => {
+  
+  document.querySelectorAll(".reelVideo").forEach(v => {
+    v.pause();
+    v.muted = true;
+  });
+  
+  reelsSound = false;
+  activeReelVideo = null;
+};
+
+const postsGrid = document.getElementById("postsGrid");
+
+window.go = (id) => {
+  
+  document.querySelectorAll(".page")
+    .forEach(p => p.classList.remove("show"));
+  
+  document.getElementById(id)
+    .classList.add("show");
+  
+  /* leaving home = stop reel sound/video */
+  if (id !== "home") {
+    stopAllReels();
+  }
+  
+  /* show only home items */
+  if (id === "home") {
+    
+    storiesBar.style.display = "flex";
+    reels.style.display = "block";
+    
+    setTimeout(initAutoPlay, 150);
+    
+  } else {
+    
+    storiesBar.style.display = "none";
+    reels.style.display = "none";
+    
+  }
+};
+window.logout = () => signOut(auth);
+/* GOOGLE LOGIN */
+window.login = async () => {
+  try {
+    await signInWithPopup(
+      auth,
+      new GoogleAuthProvider()
+    );
+  } catch (e) {
+    alert(e.message);
+  }};
+/* EMAIL LOGIN */
+window.emailLoginFn = async () => {
+  try {
+    await signInWithEmailAndPassword(
+      auth,
+      emailLogin.value.trim(),
+      passLogin.value.trim()
+    );
+  } catch (e) {
+    alert("Wrong Email or Password");
+  }};
+/* SIGNUP */
+window.signupFn = async () => {
+  try {
+    await createUserWithEmailAndPassword(
+      auth,
+      emailLogin.value.trim(),
+      passLogin.value.trim()
+    );
+    alert("Account Created ✅");
+  } catch (e) {
+    alert(e.message);
+  }};
+import { getDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+/* splash hide only once */
+setTimeout(() => {
+  if (typeof splash !== "undefined") {
+    splash.style.opacity = "0";
+    setTimeout(() => {
+      splash.style.display = "none";
+    }, 600);
+  }
+}, 1800);
+onAuthStateChanged(auth, async u => {
+  /* NOT LOGIN */
+  if (!u) {
+    
+    if (typeof loginScreen !== "undefined") {
+      loginScreen.style.display = "flex";
+    }
+    
+    document.querySelectorAll('.page')
+      .forEach(p => p.style.display = "none");
+    
+    storiesBar.style.display = "none";
+    
+    return;
+  }
+  /* LOGIN SUCCESS */
+  loginScreen.style.display = "none";
+  
+  document.querySelectorAll('.page')
+    .forEach(p => p.style.display = "");
+  
+  go("home");
+  await setDoc(doc(db, 'users', u.uid), {
+    email: u.email || "",
+    uid: u.uid
+  }, { merge: true });
+  const snap = await getDoc(doc(db, 'users', u.uid));
+  
+  if (snap.exists()) {
+    
+    const data = snap.data();
+    
+    const finalName =
+      data.name ||
+      (u.email ? u.email.split('@')[0] : "User");
+    
+    const finalPhoto =
+      data.photo ||
+      "https://i.imgur.com/6VBx3io.png";
+    
+    userBox.textContent = finalName;
+    topDp.src = finalPhoto;
+    profileBig.src = finalPhoto;
+    profileName.textContent = finalName;
+    }
+  loadMine();
+  loadStories();
+  loadFollowStats();
+  
+});
+onAuthStateChanged(auth, (u) => {
+  
+  if (u) {
+    setOnlineStatus(true);
+  }
+  
+});
+
+//scroll chat
+const scrollBtn = document.getElementById("scrollBtn");
+const msgsBox = document.getElementById("msgs");
+
+function scrollToBottom() {
+  msgsBox.scrollTop = msgsBox.scrollHeight;
+}
+
+/* show scroll button */
+msgsBox.addEventListener("scroll", () => {
+  const nearBottom =
+    msgsBox.scrollHeight - msgsBox.scrollTop - msgsBox.clientHeight < 80;
+  
+  scrollBtn.style.display = nearBottom ? "none" : "block";
+});
+
+/* auto scroll on new message */
+function autoScrollChat() {
+  msgsBox.scrollTop = msgsBox.scrollHeight;
+}
+window.scrollToBottom = function() {
+  const msgsBox = document.getElementById("msgs");
+  if (!msgsBox) return;
+  msgsBox.scrollTop = msgsBox.scrollHeight;
+};
+
+//end scroll 
+
+//profile 
+function updateProfileUI(uid) {
+  
+  const isMe = uid === auth.currentUser.uid;
+  
+  const owner = document.getElementById("ownerControls");
+  
+  if (!owner) return;
+  
+  if (isMe) {
+    owner.style.display = "block";
+  } else {
+    owner.style.display = "none";
+  }
+}
+
+/* 5. OPTIONAL PHOTO UPLOAD SUPPORT */
+/* REPLACE uploadVideo() */
+
+window.uploadVideo = async () => {
+  
+  const f = file.files[0];
+  if (!f) return;
+  const isImg = f.type.startsWith("image");
+  const fd = new FormData();
+  fd.append("file", f);
+  fd.append("upload_preset", "Fiveer");
+  const url = isImg ?
+    "https://api.cloudinary.com/v1_1/dlsfr0ies/image/upload" :
+    "https://api.cloudinary.com/v1_1/dlsfr0ies/video/upload";
+  const r = await fetch(url, {
+    method: "POST",
+    body: fd
+    
+    
+  });
+  const d = await r.json();
+  await addDoc(collection(db, 'posts'), {
+    user: auth.currentUser.email,
+    caption: caption.value,
+    photo: isImg ? d.secure_url : "",
+    video: isImg ? "" : d.secure_url,
+    likes: 0,
+    time: serverTimestamp()
+  });
+  
+};
+let reelObserver;
+
+const pq = query(collection(db, "posts"), orderBy("time", "desc"));
+
+onSnapshot(pq, (s) => {
+  
+  if (skipNextPostsRefresh) return;
+  
+  const oldTop = reels.scrollTop;
+  
+  let html = "";
+  
+  s.forEach(x => {
+    const p = x.data();
+    
+    html += `
+    <div class="reel">
+
+      <div class="heart"
+      style="display:none;position:absolute;top:40%;left:45%;font-size:60px;z-index:9;">❤️</div>
+
+      <video
+        class="reelVideo"
+        data-src="${p.video}"
+        muted
+        playsinline
+        loop
+        preload="none"
+        onclick="toggleSound(this)"
+        ondblclick="dblLike('${x.id}',${p.likes||0},this)">
+      </video>
+
+<div class="overlay">
+
+  <b>@${p.name || p.user.split("@")[0]}</b>
+  <div>${p.caption || ""}</div>
+
+  <!-- BOTTOM ACTION BAR -->
+  <div class="actionBar">
+
+    <button class="btn"
+    onclick="likePost('${x.id}')">
+      ❤️ <span id="like-${x.id}">${p.likes || 0}</span>
+    </button>
+
+    <button class="btn"
+    onclick="commentPost('${x.id}')">
+      💬
+    </button>
+
+    ${
+      auth.currentUser &&
+      auth.currentUser.email === p.user
+      ? `<button class="btn"
+          onclick="delPost('${x.id}')">✖</button>`
+      : ""
+    }
+
+  </div>
+
+</div>
+    `;
+  });
+  
+  reels.innerHTML = html;
+  
+  // ✅ IMPORTANT: restore scroll position
+  requestAnimationFrame(() => {
+    reels.scrollTop = oldTop;
+  });
+  
+  setTimeout(initAutoPlay, 150);
+  setTimeout(startReelWatchdog, 1000);
+});
+
+window.delPost = async (id) => {
+  if (confirm("Delete post?")) {
+    await deleteDoc(doc(db, "posts", id));
+  }
+};
+
+
+window.dblLike = async (id, n, el) => {
+  
+  const heart = el.parentElement.querySelector(".heart");
+  
+  heart.style.display = "block";
+  
+  setTimeout(() => {
+    heart.style.display = "none";
+  }, 700);
+  
+  await likePost(id);
+};
+
+let skipNextPostsRefresh = false;
+
+
+window.likePost = async (postId) => {
+  
+  const user = auth.currentUser?.email;
+  if (!user) return;
+  
+  const likeRef = doc(db, "posts", postId, "likes", user);
+  const postRef = doc(db, "posts", postId);
+  const countEl = document.getElementById("like-" + postId);
+  
+  const liked = await getDoc(likeRef);
+  
+  skipNextPostsRefresh = true;
+  
+  if (liked.exists()) {
+    
+    await deleteDoc(likeRef);
+    await updateDoc(postRef, {
+      likes: increment(-1)
+    });
+    
+    if (countEl) countEl.innerText =
+      Math.max(0, (+countEl.innerText - 1));
+    
+  } else {
+    
+    await setDoc(likeRef, {
+      user,
+      time: serverTimestamp()
+    });
+    
+    await updateDoc(postRef, {
+      likes: increment(1)
+    });
+    
+    if (countEl) countEl.innerText =
+      (+countEl.innerText + 1);
+  }
+  
+  setTimeout(() => {
+    skipNextPostsRefresh = false;
+  }, 1200);
+};
+
+let currentCommentPost = "";
+
+window.commentPost = async (id) => {
+  
+  currentCommentPost = id;
+  
+  commentBackdrop.style.display = "block";
+  commentBox.style.display = "block";
+  
+  requestAnimationFrame(() => {
+    commentBackdrop.style.opacity = "1";
+    commentBox.style.transform = "translateY(0)";
+  });
+  
+  commentInput.value = "";
+  
+  const q = query(
+    collection(db, "posts", id, "comments"),
+    orderBy("time", "asc")
+  );
+  
+  
+  onSnapshot(q, (s) => {
+  
+  let html = "";
+  
+  s.forEach(x => {
+    const d = x.data();
+    
+    const name =
+      d.name ||
+      (d.u ? d.u.split("@")[0] : "user");
+    
+    html += `
+<div id="comment-${x.id}" class="comment-item" style="
+display:flex;
+gap:10px;
+padding:10px 0;
+border-bottom:1px solid #222;
+align-items:flex-start;
+transition:0.25s;">
+
+  <img id="img-${x.id}"
+  src="https://i.imgur.com/6VBx3io.png"
+  style="
+  width:32px;
+  height:32px;
+  border-radius:50%;
+  object-fit:cover;">
+
+  <div style="flex:1;position:relative;">
+
+    <b style="font-size:13px;">
+      ${name}
+    </b>
+
+    <div style="font-size:14px;margin-top:2px;">
+      ${d.t || ""}
+    </div>
+
+    ${
+      d.u === auth.currentUser.email
+      ? `
+      <button
+      onclick="deleteComment('${currentCommentPost}','${x.id}')"
+      style="
+      position:absolute;
+      right:0;
+      top:0;
+      background:none;
+      border:none;
+      color:#fff;
+      font-size:16px;">
+      🗑
+      </button>
+      `
+      : ""
+    }
+
+  </div>
+
+</div>`;
+  });
+  
+  commentList.innerHTML = html || "No comments yet";
+  
+  // 🔥 LOAD REAL PROFILE PICS AFTER RENDER
+  setTimeout(async () => {
+  
+  s.forEach(async x => {
+    
+    const d = x.data();
+    const img = document.getElementById("img-" + x.id);
+    
+    if (!img) return;
+    
+    try {
+      
+      // SAFE UID check
+      if (!d.uid && !d.u) return;
+      
+      const uidToUse = d.uid || d.u;
+      
+      const userSnap = await getDoc(doc(db, "users", uidToUse));
+      
+      if (userSnap.exists()) {
+        const data = userSnap.data();
+        
+        if (data.photo) {
+          img.src = data.photo;
+        }
+      }
+      
+    } catch (e) {
+      // don’t crash app
+      console.log("profile image load failed for:", d.u || d.uid);
+    }
+    
+  });
+  
+}, 0);
+  
+});
+};
+
+window.deleteComment = async (postId, commentId) => {
+  
+  const el = document.getElementById("comment-" + commentId);
+  if (!el) return;
+  
+  // 🔥 animate first
+  el.classList.add("comment-delete-anim");
+  
+  setTimeout(async () => {
+    try {
+      await deleteDoc(
+        doc(db, "posts", postId, "comments", commentId)
+      );
+    } catch (e) {
+      console.log("delete failed", e);
+    }
+  }, 250);
+  
+};
+
+window.addEmoji = (emo) => {
+  commentInput.value += emo;
+  commentInput.focus();
+};
+
+const userCache = {};
+
+window.getUserProfile = async (uid, email) => {
+  
+  const key = uid || email;
+  
+  if (userCache[key]) return userCache[key];
+  
+  try {
+    
+    const snap = await getDoc(doc(db, "users", uid));
+    
+    if (snap.exists()) {
+      userCache[key] = snap.data();
+      return userCache[key];
+    }
+    
+  } catch (e) {
+    console.log("profile fetch error", e);
+  }
+  
+  return null;
+};
+
+window.sendComment = async () => {
+  
+  const t = commentInput.value.trim();
+  if (!t) return;
+  
+  const user = auth.currentUser;
+  
+  // always fetch latest profile
+  const userSnap = await getDoc(doc(db, "users", user.uid));
+  
+  const userData = userSnap.exists() ? userSnap.data() : {};
+  
+  await addDoc(
+    collection(db, "posts", currentCommentPost, "comments"),
+    {
+      u: user.email,
+      uid: user.uid,
+      name: userData.name || user.email.split("@")[0],
+      t,
+      time: serverTimestamp()
+    }
+  );
+  
+  commentInput.value = "";
+};
+
+
+window.closeCommentBox = () => {
+  
+  commentBackdrop.style.opacity = "0";
+  commentBox.style.transform = "translateY(100%)";
+  
+  setTimeout(() => {
+    commentBackdrop.style.display = "none";
+    commentBox.style.display = "none";
+  }, 260);
+};
+
+
+let startY = 0;
+
+commentBox.addEventListener("touchstart", e => {
+  startY = e.touches[0].clientY;
+});
+
+commentBox.addEventListener("touchmove", e => {
+  
+  const moveY = e.touches[0].clientY - startY;
+  
+  if (moveY > 0) {
+    commentBox.style.transform =
+      `translateY(${moveY}px)`;
+  }
+  
+});
+
+commentBox.addEventListener("touchend", e => {
+  
+  const moved =
+    parseInt(
+      commentBox.style.transform
+      .replace(/[^\d]/g, "")
+    ) || 0;
+  
+  if (moved > 120) {
+    closeCommentBox();
+  } else {
+    commentBox.style.transform =
+      "translateY(0)";
+  }
+  
+});
+
+
+/* =========================================
+PASTE ONLY THIS CLEAN FINAL CODE
+========================================= */
+let userMap = {};
+let searchUnsub = null;
+let activeReelVideo = null;
+let reelsSound = false;
+/* FOLLOW / UNFOLLOW */
+window.followUser = async (targetUid) => {
+  const myUid = auth.currentUser.uid;
+  
+  const snap = await getDocs(collection(db, "follows"));
+  
+  let foundId = null;
+  
+  snap.forEach(x => {
+    const d = x.data();
+    if (d.from === myUid && d.to === targetUid) {
+      foundId = x.id;
+    }
+  });
+  
+  if (foundId) {
+    await deleteDoc(doc(db, "follows", foundId));
+  } else {
+    await addDoc(collection(db, "follows"), {
+      from: myUid,
+      to: targetUid,
+      time: serverTimestamp()
+    });
+  }
+  
+  loadFollowStats();
+};
+/* FOLLOWERS + FOLLOWING COUNT */
+
+let FOLLOW_CACHE = new Set();
+let FOLLOWING_SET = new Set();
+let followStatsUnsub = null;
+
+function loadFollowStats() {
+  if (!auth.currentUser) return;
+  
+  const myUid = auth.currentUser.uid;
+  
+  if (followStatsUnsub) followStatsUnsub();
+  
+  followStatsUnsub = onSnapshot(collection(db, "follows"), (snap) => {
+    
+    let followers = 0;
+    let following = 0;
+    
+    FOLLOWING_SET.clear(); // 🔥 reset cache
+    
+    snap.forEach(docu => {
+      const d = docu.data();
+      
+      if (d.to === myUid) followers++;
+      
+      if (d.from === myUid) {
+        following++;
+        FOLLOWING_SET.add(d.to); // 🔥 store who I follow
+      }
+    });
+    
+    followerCount.textContent = followers;
+    followingCount.textContent = following;
+    
+    // 🔥 IMPORTANT: refresh search UI instantly
+    if (searchUser.value.trim()) {
+      searchUsers();
+    }
+  });
+}
+/* follows */
+/* SEARCH USERS */
+window.searchUsers = async () => {
+  const q = searchUser.value.trim().toLowerCase();
+  
+  if (searchUnsub) searchUnsub();
+  searchRes.innerHTML = "";
+  if (!q) return;
+  
+  searchUnsub = onSnapshot(collection(db, "users"), async usersSnap => {
+    
+    const followSnap = await getDocs(collection(db, "follows"));
+    
+    
+    
+    searchRes.innerHTML = "";
+    const shown = new Set();
+    
+    usersSnap.forEach(x => {
+      const u = x.data();
+      
+      const uid = u.uid;
+      const name = u.name || "";
+      const email = u.email || "";
+      
+      if (
+        auth.currentUser.uid !== uid &&
+        !shown.has(uid) &&
+        (
+          email.toLowerCase().includes(q) ||
+          name.toLowerCase().includes(q)
+        )
+      ) {
+        shown.add(uid);
+        
+        const following = FOLLOWING_SET.has(uid);
+
+searchRes.innerHTML += `<div class="card"><b>${name || email.split("@")[0]}</b><br><small>${email}</small><br>
+
+  <button class="btn" onclick="followUser('${uid}')">
+    ${following ? "Unfollow" : "Follow"}
+  </button>
+</div>`;
+      }
+    });});};
+window.storyUpload=()=>alert('Story UI enabled');
+
+/* ========= USER ONLINE ========= */
+
+async function setOnlineStatus(v) {
+  if (!auth.currentUser) return;
+
+  await setDoc(
+    doc(db, "status", auth.currentUser.uid),
+    {
+      uid: auth.currentUser.uid,
+      email: auth.currentUser.email,
+      online: v,
+      lastSeen: serverTimestamp()
+    },
+    { merge: true }
+  );
+}
+
+/* when app opens */
+window.addEventListener("load", () => setOnlineStatus(true));
+
+window.addEventListener("beforeunload", () => {
+  navigator.sendBeacon?.("");
+  setOnlineStatus(false);
+});
+
+document.addEventListener("visibilitychange", () => {
+  if (!auth.currentUser) return;
+  setOnlineStatus(!document.hidden);
+});
+
+
+/* ========= SHOW ONLY REAL ONLINE USERS ========= */
+
+onSnapshot(collection(db, "status"), (snap) => {
+
+  let onlineCount = 0;
+
+  snap.forEach(x => {
+
+    const d = x.data();
+
+    if (
+      d.online === true &&
+      d.uid !== auth.currentUser.uid
+    ) {
+      onlineCount++;
+    }
+
+  });
+  /* show in chat top */
+  let typingEl =
+    document.getElementById("typingBox");
+
+  if (!typingEl) return;
+
+  if (onlineCount > 0) {
+    typingEl.textContent =
+      onlineCount + " user online";
+  } else {
+    typingEl.textContent = "";
+  }
+
+});
+
+
+
+/* REPLACE YOUR OLD CHAT CODE WITH THIS PREMIUM CHAT VERSION */
+
+window.sendMsg = async () => {
+  const text = msg.value.trim();
+  if (!text) return;
+
+  await addDoc(collection(db, "chat"), {
+    uid: auth.currentUser.uid,
+    u: auth.currentUser.email,
+    name:
+      profileName.innerText.trim() ||
+      auth.currentUser.email.split("@")[0],
+    t: text,
+    seen: false,
+    time: serverTimestamp()
+  });
+
+  msg.value = "";
+
+  await addDoc(collection(db, "chat"), {
+  u: auth.currentUser.email,
+  uid: auth.currentUser.uid,
+  name: uname,
+  t: text,
+  seen: false,
+  time: serverTimestamp()
+});
+};
+
+function formatTime(ts) {
+  
+  if (!ts) return "";
+  
+  let date;
+  
+  if (ts.toDate) {
+    date = ts.toDate();
+  } else {
+    date = new Date(ts);
+  }
+  
+  let h = date.getHours();
+  let m = date.getMinutes();
+  
+  let ampm = h >= 12 ? "PM" : "AM";
+  h = h % 12;
+  h = h ? h : 12;
+  
+  m = m < 10 ? "0" + m : m;
+  
+  return `${h}:${m} ${ampm}`;
+}
+
+
+
+function ensureChatInfoBoxes() {
+  let onlineBox = document.getElementById("onlineBox");
+  let typingBox = document.getElementById("typingBox");
+  
+  if (!onlineBox) {
+    onlineBox = document.createElement("div");
+    onlineBox.id = "onlineBox";
+    onlineBox.style.padding = "6px 14px";
+    onlineBox.style.fontSize = "12px";
+    onlineBox.style.color = "#00ff00";
+    msgs.parentNode.insertBefore(onlineBox, msgs);
+  }
+  
+  if (!typingBox) {
+    typingBox = document.createElement("div");
+    typingBox.id = "typingBox";
+    typingBox.style.padding = "0 14px 6px";
+    typingBox.style.fontSize = "12px";
+    typingBox.style.color = "#aaa";
+    msgs.parentNode.insertBefore(typingBox, msgs);
+  }
+}
+
+ensureChatInfoBoxes();
+autoScrollChat();
+
+/* FIX: YOU HARDCODED EVERY CHAT MESSAGE AS ONLINE*/
+/* ===============================
+USE THIS FULL FIX
+=============================== */
+
+/* cache real online users */
+let ONLINE_USERS = new Set();
+let STATUS_TIME = {};
+
+onSnapshot(collection(db, "status"), (snap) => {
+  
+  ONLINE_USERS.clear();
+  STATUS_TIME = {};
+  
+  const now = Date.now();
+  
+  snap.forEach(x => {
+    
+    const d = x.data();
+    if (!d.uid) return;
+    
+    let last = 0;
+    
+    if (d.lastSeen?.toDate) {
+      last = d.lastSeen.toDate().getTime();
+    } else if (d.lastSeen?.seconds) {
+      last = d.lastSeen.seconds * 1000;
+    }
+    
+    STATUS_TIME[d.uid] = last;
+    
+    // 👉 SAFE ONLINE RULE (IMPORTANT FIX)
+    const isOnline =
+      d.online === true &&
+      (now - last < 120000); // 🔥 2 minutes instead of 60 sec
+    
+    if (isOnline) {
+      ONLINE_USERS.add(d.uid);
+    }
+    
+  });
+  
+  updateOnlineUI(); // 🔥 MUST CALL
+});
+function updateOnlineUI() {
+  
+  const typingEl = document.getElementById("typingBox");
+  if (!typingEl) return;
+  
+  const count = ONLINE_USERS.size;
+  
+  if (count > 0) {
+    typingEl.textContent = `● ${count} user online`;
+  } else {
+    typingEl.textContent = `● No one online`;
+  }
+}
+
+/* ========= CHAT LOAD ========= */
+
+let USER_CACHE = {};
+
+onSnapshot(collection(db, "users"), (snap) => {
+
+  USER_CACHE = {};
+
+  snap.forEach(docu => {
+    const d = docu.data();
+
+    if (d.uid) {
+      USER_CACHE[d.uid] = {
+        name:
+          d.name ||
+          (d.email
+            ? d.email.split("@")[0]
+            : "User")
+      };
+    }
+  });
+
+});
+
+
+onSnapshot(
+  query(collection(db, "chat"), orderBy("time", "asc")),
+  async (snap) => {
+
+    msgs.innerHTML = "";
+
+    for (const m of snap.docs) {
+
+      const d = m.data();
+      const mine =
+        d.uid === auth.currentUser.uid;
+
+      if (!mine && !d.seen) {
+        updateDoc(doc(db, "chat", m.id), {
+          seen: true
+        });
+      }
+
+      const showName =
+  d.name?.trim() ||
+  USER_CACHE[d.uid]?.name ||
+  d.u?.split("@")[0] ||
+  "User";
+
+      let status = "";
+
+      if (!mine) {
+        status = ONLINE_USERS.has(d.uid)
+          ? "● Online"
+          : "● Offline";
+      }
+
+      msgs.innerHTML += `
+<div style="
+padding:7px;
+display:flex;
+margin-left:20px;
+flex-direction:column;
+align-items:${mine ? "flex-end":"flex-start"};">
+
+<div style="
+max-width:79%;
+padding:12px 24px;
+border-radius:17px;
+background:${mine ? "#ff2d55":"#111"};
+color:#fff;
+position:relative;">
+
+${mine ? `
+<button onclick="deleteChatMsg('${m.id}')"
+style="
+position:absolute;
+top:3px;
+font-size:17px;
+right:8px;
+background:none;
+border:none;
+color:#fff;">✗</button>` : ""}
+
+<b style="font-size:13px;">${showName} : </b><br>
+${d.t}
+<div style="
+font-size:7px;
+color:#aaa;
+margin-top:4px;
+text-align:right;">
+  
+  ${formatTime(d.time)}
+  
+</div>
+
+</div>
+
+<div style="
+font-size:11px;
+color:#aaa;
+margin-top:4px;">
+
+${mine
+ ? (d.seen ? "✓✓ Seen" : "✓ Sent")
+ : status}
+
+</div></div>`;}
+ msgs.scrollTop = msgs.scrollHeight;
+});
+
+/* ADD BELOW ALL CHAT CODE */
+window.deleteChatMsg = async (id) => {
+  if (confirm("Delete message?")) {
+    await deleteDoc(doc(db, "chat", id));
+  }
+};
+
+/* TYPING STATUS */
+msg.addEventListener("input", async () => {
+  await setDoc(
+    doc(db, "typing", auth.currentUser.uid),
+    {
+      name: auth.currentUser.email,
+      typing: msg.value.trim().length > 0
+    }
+  );
+});
+
+onSnapshot(collection(db, "typing"), (snap) => {
+  
+  let txt = "";
+  
+  snap.forEach(x => {
+    const d = x.data();
+    
+    if (
+      auth.currentUser &&
+      d.name !== auth.currentUser.email &&
+      d.typing
+    ) {
+      txt =
+        d.name.split("@")[0] +
+        " typing...";
+    }
+  });
+  
+  document.getElementById("typingBox").textContent = txt;
+});
+
+/* REPLACE loadStories() */
+async function cleanOldStories() {
+  const snap = await getDocs(collection(db, "stories"));
+  const now = Date.now();
+  
+  snap.forEach(async (x) => {
+    const d = x.data();
+    if (!d.time) return;
+    
+    let created = 0;
+    
+    if (d.time.toDate) {
+      created = d.time.toDate().getTime();
+    } else if (d.time.seconds) {
+      created = d.time.seconds * 1000;
+    }
+    
+    if (created && now - created >= 24 * 60 * 60 * 1000) {
+      await deleteDoc(doc(db, "stories", x.id));
+    }
+  });
+}
+/* TOP OF SCRIPT (only once) */
+let seenStories = JSON.parse(
+  localStorage.getItem("seenStories") || "{}"
+);
+
+function loadStories() {
+  onSnapshot(collection(db, "stories"), async (snap) => {
+    
+    await cleanOldStories();
+    
+    storiesBar.innerHTML = "";
+    
+    const usersSnap = await getDocs(collection(db, "users"));
+    
+    const userMap = {};
+    
+    usersSnap.forEach(u => {
+      const d = u.data();
+      
+      if (d.uid) {
+        userMap[d.uid] = {
+          photo: d.photo || "https://i.imgur.com/6VBx3io.png",
+          name: d.name || (d.email ? d.email.split("@")[0] : "User")
+        };
+      }
+    });
+    
+    const shown = new Set();
+    const now = Date.now();
+    
+    snap.forEach(s => {
+      const d = s.data();
+      if (!d.uid) return;
+      let created = 0;
+      
+      if (d.time?.toDate) {
+        created = d.time.toDate().getTime();
+      } else if (d.time?.seconds) {
+        created = d.time.seconds * 1000;
+      }
+      if (created && now - created >= 24 * 60 * 60 * 1000) return;
+      
+      if (shown.has(d.uid)) return;
+      shown.add(d.uid);
+      
+      const user = userMap[d.uid] || {
+        photo: "https://i.imgur.com/6VBx3io.png",
+        name: "User"
+      };
+      
+      storiesBar.innerHTML += `
+<div class="story" onclick="openStory('${d.uid}')" style="position:relative;min-width:72px;text-align:center;">
+
+  <!-- TIME ON TOP -->
+<div style="position:absolute;top:-8px;left:50%;transform:translateX(-50%);font-size:10px;padding:2px 7px;border-radius:12px;background:linear-gradient(45deg,#111,#222);box-shadow:0 0 8px rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.06);backdrop-filter:blur(10px);color:#fff;font-weight:600;white-space:nowrap;z-index:5;">
+  ${timeAgo(d.time)}
+</div>
+
+  <div class="storyRing">
+    <img src="${user.photo}">
+  </div>
+
+  <div class="small">${user.name}</div>
+
+</div>
+`;
+    });
+    
+  });
+}
+
+setInterval(cleanOldStories, 10 * 60 * 1000);
+
+function timeAgo(ts) {
+  if (!ts) return "";
+  
+  let ms = 0;
+  
+  if (ts.toDate) {
+    ms = ts.toDate().getTime();
+  } else if (ts.seconds) {
+    ms = ts.seconds * 1000;
+  } else {
+    ms = new Date(ts).getTime();
+  }
+  
+  const diff = Math.floor((Date.now() - ms) / 1000);
+  
+  if (diff < 60) return diff + "s ago";
+  
+  const min = Math.floor(diff / 60);
+  if (min < 60) return min + "m ago";
+  
+  const hr = Math.floor(min / 60);
+  if (hr < 24) return hr + "h ago";
+  
+  const day = Math.floor(hr / 24);
+  return day + "d ago";
+}
+
+/* 3. REPLACE loadMine() */
+function loadMine() {
+  onSnapshot(
+    query(collection(db, 'posts'), orderBy('time', 'desc')),
+    s => {
+      
+      myPosts.innerHTML = '';
+      let count = 0;
+      
+      s.forEach(x => {
+        let p = x.data();
+        
+        if (auth.currentUser && p.user === auth.currentUser.email) {
+          
+          count++;
+          
+          if (p.video) {
+            myPosts.innerHTML += `
+<video
+class="postMini"
+src="${p.video}"
+onclick="openMedia('${p.video}','video')"
+muted>
+</video>`;
+          } else if (p.photo) {
+            myPosts.innerHTML += `
+<img
+class="postMini"
+src="${p.photo}"
+onclick="openMedia('${p.photo}','img')">`;
+          }
+          
+        }
+      });
+      postCount.textContent = count;
+      });}
+window.toggleSound = (video) => {
+  
+  reelsSound = !reelsSound;
+  
+  if (reelsSound) {
+    
+    document.querySelectorAll(".reelVideo").forEach(v => {
+      v.muted = true;
+    });
+    
+    video.muted = false;
+    activeReelVideo = video;
+    video.play().catch(() => {});
+    
+  } else {
+    
+    document.querySelectorAll(".reelVideo").forEach(v => {
+      v.muted = true;
+    });
+    
+    activeReelVideo = null;
+  }
+};
+
+const observer = new IntersectionObserver((entries) => {
+  
+  entries.forEach(entry => {
+    
+    const v = entry.target;
+    
+    if (entry.isIntersecting && entry.intersectionRatio > 0.7) {
+      
+      // pause others
+      document.querySelectorAll('.reelVideo').forEach(x => {
+        if (x !== v) x.pause();
+      });
+      
+      v.play().catch(() => {});
+      
+      // 🔥 AUTO SWITCH ACTIVE VIDEO
+      activeReelVideo = v;
+      
+      syncReelAudio();
+      
+    } else {
+      v.pause();
+    }
+    
+  });
+  
+}, { threshold: [0.7] });
+
+function muteAllExceptCurrent() {
+  document.querySelectorAll('.reelVideo').forEach(v => {
+    v.muted = !(reelsSound && v === activeReelVideo);
+  });
+}
+
+window.initAutoPlay = () => {
+  
+  if (reelObserver) reelObserver.disconnect();
+  
+  const vids = document.querySelectorAll(".reelVideo");
+  
+  reelObserver = new IntersectionObserver((entries) => {
+    
+    entries.forEach(entry => {
+      
+      const v = entry.target;
+      
+      if (entry.isIntersecting && entry.intersectionRatio > 0.75) {
+        
+        // load only current reel
+        if (!v.src) {
+          v.src = v.dataset.src;
+          v.load();
+        }
+        
+        // sound mode
+        if (reelsSound) {
+          vids.forEach(x => x.muted = true);
+          v.muted = false;
+        } else {
+          v.muted = true;
+        }
+        
+        v.play().catch(() => {});
+        
+      } else {
+        
+        v.pause();
+      }
+      
+    });
+    
+  }, { threshold: 0.75 });
+  
+  vids.forEach(v => reelObserver.observe(v));
+};
+//profile edit
+window.saveProfile = async () => {
+  
+  const user = auth.currentUser;
+  if (!user) return alert("Login first");
+  
+  let photoURL = "";
+  
+  const file = dpFile.files[0];
+  
+  if (file) {
+    const fd = new FormData();
+    fd.append("file", file);
+    fd.append("upload_preset", "Fiveer");
+    
+    const res = await fetch(
+      "https://api.cloudinary.com/v1_1/dlsfr0ies/image/upload",
+      {
+        method: "POST",
+        body: fd
+      }
+    );
+    
+    const data = await res.json();
+    photoURL = data.secure_url || "";
+  }
+  
+  const finalName =
+    newName.value ||
+    user.email.split("@")[0];
+  
+  // save in users collection
+  await setDoc(doc(db, "users", user.uid), {
+    uid: user.uid,
+    email: user.email,
+    name: finalName,
+    photo: photoURL
+  }, { merge: true });
+  
+  // cache locally
+  localStorage.setItem("myName", finalName);
+  
+  userBox.textContent = finalName;
+  
+  if (photoURL) topDp.src = photoURL;
+  
+  loadStories();
+  
+  alert("Profile Updated ✅");
+};
+/* 4. ADD THIS NEW FUNCTION */
+
+window.openMedia=(src,type)=>{
+viewer.style.display='flex';
+bigVideo.style.display='none';
+bigImg.style.display='none';
+if(type==='video'){
+bigVideo.src=src;
+bigVideo.style.display='block';
+bigVideo.play();
+}else{
+bigImg.src=src;
+bigImg.style.display='block';
+}};
+window.openViewer = (url, type) => {
+  viewer.style.display = "flex";
+  
+  const vid = document.getElementById("bigVideo");
+  const img = document.getElementById("bigImg");
+  
+  img.style.display = "none";
+  vid.style.display = "none";
+  
+  if (type === "video") {
+    vid.src = url;
+    vid.style.display = "block";
+    vid.play();
+  } else {
+    img.src = url;
+    img.style.display = "block";
+  }
+};
+
+window.closeStory = () => {
+  const vid = document.getElementById("storyVideo");
+  
+  // ❌ STOP VIDEO + SOUND
+  if (vid) {
+    vid.pause();
+    vid.src = "";
+    vid.muted = true;
+    GLOBAL_AUDIO.story = false;
+updateAllAudio();
+  }
+  
+  // reset UI
+  document.getElementById("storyViewer").style.display = "none";
+  storyIndex = 0;
+  
+  // reset sound state
+  storySound = false;
+};
+window.toggleSound = (video) => {
+  
+  reelsSound = !reelsSound;
+  
+  if (reelsSound) {
+    activeReelVideo = video;
+  } else {
+    activeReelVideo = null;
+  }
+  
+  syncReelAudio();
+};
+function syncReelAudio() {
+  
+  document.querySelectorAll('.reelVideo').forEach(v => {
+    
+    // only active video gets sound
+    if (reelsSound && v === activeReelVideo) {
+      v.muted = false;
+    } else {
+      v.muted = true;
+    }
+    
+  });
+}
+//story
+/* ===== STORY FULL FIX ===== */
+/* OPEN STORY */
+window.openStory = async (uid) => {
+  clearInterval(storyTimer);
+  
+  storyViewer.style.display = "block";
+  stories = [];
+  storyIndex = 0;
+  GLOBAL_AUDIO.reels = false;
+updateAllAudio();
+  /* load users */
+  const usersSnap = await getDocs(collection(db, "users"));
+  storyUsers = {};
+  
+  usersSnap.forEach(x => {
+    const d = x.data();
+    if (d.uid) {
+      storyUsers[d.uid] = {
+        name: d.name || "User",
+        photo: d.photo || "https://i.imgur.com/6VBx3io.png"
+      };
+    }
+  });
+  
+  /* load stories */
+  const snap = await getDocs(collection(db, "stories"));
+  
+  snap.forEach(docu => {
+    const d = docu.data();
+    
+    if (d.uid === uid) {
+      stories.push({ ...d, id: docu.id });
+    }
+  });
+  
+  if (!stories.length) {
+    alert("No stories");
+    closeStory();
+    return;
+  }
+  
+  showStory();
+};
+
+/* SHOW STORY */
+function showStory() {
+  clearInterval(storyTimer);
+  
+  const s = stories[storyIndex];
+  if (!s) return;
+  
+  // hide media first
+  storyImg.style.display = "none";
+  storyVideo.style.display = "none";
+  
+  /* user info */
+  const u = storyUsers[s.uid] || {
+    name: "User",
+    photo: "https://i.imgur.com/6VBx3io.png"
+  };
+  
+  storyUserName.innerText = u.name;
+  storyUserPic.src = u.photo;
+  
+  /* progress bar */
+  storyProgress.innerHTML = "";
+  
+  stories.forEach((x, i) => {
+    storyProgress.innerHTML += `<div><span id="bar${i}"></span></div>`;
+  });
+  
+  /* 🔥 DELETE BUTTON FIX (OUTSIDE LOOP) */
+  const delBtn = document.getElementById("storyDeleteBtn");
+  
+  if (delBtn) {
+    if (String(s.uid) === String(auth.currentUser.uid)) {
+      delBtn.style.display = "block";
+    } else {
+      delBtn.style.display = "none";
+    }
+  }
+  
+  /* media load */
+  if (s.type === "video") {
+    storyVideo.src = s.url;
+    storyVideo.style.display = "block";
+    storyVideo.muted = !storySound;
+    storyVideo.play().catch(() => {});
+  } else {
+    storyImg.src = s.url;
+    storyImg.style.display = "block";
+  }
+  
+  /* progress timer */
+  let p = 0;
+  
+  clearInterval(storyTimer);
+  
+  storyTimer = setInterval(() => {
+    
+    if (storyPaused) return;
+    
+    p += 1;
+    
+    const bar = document.getElementById("bar" + storyIndex);
+    if (bar) bar.style.width = p + "%";
+    
+    if (p >= 100) {
+      nextStory();
+    }
+    
+  }, 185);
+}
+/* NEXT */
+window.nextStory = () => {
+  storyPaused = false;
+  clearInterval(storyTimer);
+  
+  if (storyIndex < stories.length - 1) {
+    storyIndex++;
+    showStory();
+  } else {
+    closeStory();
+  }
+};
+
+window.prevStory = () => {
+  storyPaused = false;
+  clearInterval(storyTimer);
+  
+  if (storyIndex > 0) {
+    storyIndex--;
+    showStory();
+  }
+};
+
+/* CLOSE */
+window.closeStory = () => {
+  clearInterval(storyTimer);
+  
+  const vid = document.getElementById("storyVideo");
+  if (vid) {
+    vid.pause();
+    vid.src = "";
+    vid.muted = true;
+  }
+  
+  document.getElementById("storyViewer").style.display = "none";
+  
+  stories = [];
+  storyIndex = 0;
+  storyPaused = false;
+  storySound = false;
+};
+/* SOUND */
+window.toggleStorySound = () => {
+  if (storyVideo.style.display !== "block") return;
+  
+  storySound = !storySound;
+  storyVideo.muted = !storySound;
+  
+  // update button text
+  const btn = document.getElementById("soundBtn");
+  
+  if (storySound) {
+    btn.innerText = "🔊 Sound ON";
+  } else {
+    btn.innerText = "🔇 Sound OFF";
+  }
+  
+  storyVideo.play().catch(() => {});
+};
+//atory upload code
+
+window.uploadStory = async () => {
+  const f = storyFile.files[0];
+  if (!f) return;
+  
+  const isImg = f.type.startsWith("image");
+  
+  const fd = new FormData();
+  fd.append("file", f);
+  fd.append("upload_preset", "Fiveer");
+  
+  const url = isImg ?
+    "https://api.cloudinary.com/v1_1/dlsfr0ies/image/upload" :
+    "https://api.cloudinary.com/v1_1/dlsfr0ies/video/upload";
+  
+  const r = await fetch(url, { method: "POST", body: fd });
+  const d = await r.json();
+  
+  await addDoc(collection(db, "stories"), {
+    uid: auth.currentUser.uid,
+    url: d.secure_url,
+    type: isImg ? "image" : "video",
+    time: serverTimestamp(),
+    views: [] // 🔥 NEW
+  });
+  
+  alert("Story uploaded ✅");
+};
+//auto delete 24 hours.
+setInterval(async () => {
+  const snap = await getDocs(collection(db, "stories"));
+  
+  snap.forEach(async (d) => {
+    const data = d.data();
+    const time = data.time?.seconds * 1000;
+    
+    if (time && Date.now() - time > 24 * 60 * 60 * 1000) {
+      await deleteDoc(doc(db, "stories", d.id));
+    }
+  });
+  
+}, 60 * 60 * 1000); // runs every 1 hour
+
+
+window.showStoryViews = async () => {
+  
+  storyPaused = true;
+  
+  const current = stories[storyIndex];
+  if (!current) return;
+  
+  if (current.uid !== auth.currentUser.uid) {
+    alert("Only your story views are visible");
+    storyPaused = false;
+    return;
+  }
+  
+  const snap = await getDoc(doc(db, "stories", current.id));
+  
+  const views = snap.data()?.views || [];
+  
+  alert("👁 Views: " + views.length);
+  
+  storyPaused = false;
+};
+
+
+
+window.renderStory = (userMap) => {
+  const s = stories[storyIndex];
+  if (!s) return;
+  
+  const user = userMap[s.uid] || {
+    name: "User",
+    photo: "https://i.imgur.com/6VBx3io.png"
+  };
+  
+  const img = document.getElementById("storyImg");
+  const vid = document.getElementById("storyVideo");
+  
+  const nameEl = document.getElementById("storyUserName");
+  const picEl = document.getElementById("storyUserPic");
+  
+  img.style.display = "none";
+  vid.style.display = "none";
+  
+  if (s.type === "video") {
+    vid.src = s.url;
+    vid.style.display = "block";
+    vid.play();
+  } else {
+    img.src = s.url;
+    img.style.display = "block";
+  }
+  
+  // ✅ SAFE CHECK (prevents crash)
+  if (nameEl) nameEl.innerText = user.name;
+  if (picEl) picEl.src = user.photo;
+};
+
+
+window.closeViewer = () => {
+  viewer.style.display = "none";
+  
+  if (bigVideo) {
+    bigVideo.pause();
+    bigVideo.src = "";
+  }
+  
+  if (bigImg) {
+    bigImg.src = "";
+  }
+};
+
+
+window.deleteStory = async () => {
+  const s = stories[storyIndex];
+  if (!s) return;
+  
+  const ok = confirm("Delete this story?");
+  if (!ok) return;
+  
+  try {
+    await deleteDoc(doc(db, "stories", s.id));
+    
+    // remove from local array
+    stories.splice(storyIndex, 1);
+    
+    if (stories.length === 0) {
+      closeStory();
+    } else {
+      if (storyIndex >= stories.length) {
+        storyIndex = stories.length - 1;
+      }
+      showStory();
+    }
+    
+  } catch (e) {
+    alert("Delete failed");
+    console.log(e);
+  }
+};
+
+
+let userPostsUnsub = null;
+let currentProfileUid = null;
+//followers profile
+
+async function showUserList(list, title) {
+  
+  document.getElementById("userPopup").style.display = "block";
+  document.getElementById("popupTitle").innerText = title;
+  
+  const box = document.getElementById("popupList");
+  box.innerHTML = "";
+  
+  for (let uid of list) {
+    
+    const udoc = await getDoc(doc(db, "users", uid));
+    const u = udoc.data();
+    
+    box.innerHTML += `
+      <div class="card" onclick="openUserProfile('${uid}')" style="cursor:pointer;">
+        <b>${u?.name || "User"}</b><br>
+        <small>${u?.email || ""}</small>
+      </div>
+    `;
+  }
+}
+
+window.closeUserPopup = () => {
+  document.getElementById("userPopup").style.display = "none";
+};
+
+window.openMyProfile = async () => {
+  const uid = auth.currentUser.uid;
+  
+  currentProfileUid = uid;
+  
+  openUserProfile(uid);
+};
+
+window.backToMyProfile = async () => {
+  const user = auth.currentUser;
+  if (!user) return;
+  
+  const myUid = user.uid;
+  currentProfileUid = myUid;
+  
+  // open profile page
+  go("profile");
+  
+  // get latest my data
+  const snap = await getDoc(doc(db, "users", myUid));
+  
+  let finalName =
+    user.email ? user.email.split("@")[0] : "User";
+  
+  let finalPhoto =
+    "https://i.imgur.com/6VBx3io.png";
+  
+  if (snap.exists()) {
+    const data = snap.data();
+    
+    finalName =
+      data.name ||
+      finalName;
+    
+    finalPhoto =
+      data.photo ||
+      finalPhoto;
+  }
+  
+  // restore my UI
+  profileName.innerText = finalName;
+  profileBig.src = finalPhoto;
+  userBox.textContent = finalName;
+  topDp.src = finalPhoto;
+  
+  // show owner controls again
+  const owner = document.getElementById("ownerControls");
+  if (owner) owner.style.display = "block";
+  
+  // hide back button
+  const backBtn = document.getElementById("backMyProfileBtn");
+  if (backBtn) backBtn.style.display = "none";
+  
+  // reload my content
+  loadMine();
+  loadFollowStats();
+};
+
+
+window.openUserProfile = async (uid) => {
+  
+  if (!uid) return;
+  
+  currentProfileUid = uid;
+  
+  const userSnap = await getDoc(doc(db, "users", uid));
+  if (!userSnap.exists()) return;
+  
+  const u = userSnap.data();
+  
+  go("profile");
+  
+  // set basic info
+  document.getElementById("profileName").innerText =
+    u.name || u.email?.split("@")[0] || "User";
+  
+  document.getElementById("profileBig").src =
+    u.photo || "https://i.imgur.com/6VBx3io.png";
+  
+  // load data
+  loadUserPosts(uid);
+  loadUserFollowStats(uid);
+  
+  // 🔥 IMPORTANT: toggle UI properly
+  updateProfileUI(uid);
+  
+  // back button
+  const btn = document.getElementById("backMyProfileBtn");
+  
+  if (uid !== auth.currentUser.uid) {
+    btn.style.display = "block";
+  } else {
+    btn.style.display = "none";
+  }
+};
+
+
+window.loadUserFollowStats = async (uid) => {
+  const snap = await getDocs(collection(db, "follows"));
+  
+  let followers = 0;
+  let following = 0;
+  
+  snap.forEach(d => {
+    const x = d.data();
+    
+    if (x.to === uid) followers++;
+    if (x.from === uid) following++;
+  });
+  
+  followerCount.textContent = followers;
+  followingCount.textContent = following;
+};
+
+
+window.loadUserPosts = (uid) => {
+  
+  // 🔥 STOP OLD LISTENER (VERY IMPORTANT)
+  if (userPostsUnsub) {
+    userPostsUnsub();
+  }
+  
+  const q = query(collection(db, "posts"), orderBy("time", "desc"));
+  
+  userPostsUnsub = onSnapshot(q, (snap) => {
+    
+    const box = document.getElementById("myPosts");
+    if (!box) return;
+    
+    box.innerHTML = "";
+    
+    let count = 0;
+    
+    snap.forEach((x) => {
+      const p = x.data();
+      
+      const match =
+        p.userUid === uid ||
+        p.uid === uid ||
+        p.user === uid ||
+        p.email === uid;
+      
+      if (match) {
+        count++;
+        
+        if (p.video) {
+          box.innerHTML += `
+            <video class="postMini" src="${p.video}" muted></video>
+          `;
+        } else if (p.photo) {
+          box.innerHTML += `
+            <img class="postMini" src="${p.photo}">
+          `;
+        }
+      }
+    });
+    
+    const postCountEl = document.getElementById("postCount");
+    if (postCountEl) postCountEl.textContent = count;
+    
+  });
+};
+
+
+
+window.openFollowers = async () => {
+  const uid = auth.currentUser.uid;
+  
+  const snap = await getDocs(collection(db, "follows"));
+  
+  const list = [];
+  
+  snap.forEach(d => {
+    const data = d.data();
+    if (data.to === uid) list.push(data.from);
+  });
+  
+  showUserList(list, "Followers");
+};
+
+window.openFollowing = async () => {
+  const uid = auth.currentUser.uid;
+  
+  const snap = await getDocs(collection(db, "follows"));
+  
+  const list = [];
+  
+  snap.forEach(d => {
+    const data = d.data();
+    if (data.from === uid) list.push(data.to);
+  });
+  
+  showUserList(list, "Following");
+};
+
+
+//refresh reel
+window.refreshCurrentReel = () => {
+  
+  const btn = document.getElementById("refreshFeedBtn");
+  const vids = document.querySelectorAll(".reelVideo");
+  
+  let active = null;
+  
+  vids.forEach(v => {
+    const rect = v.getBoundingClientRect();
+    
+    if (rect.top >= 0 && rect.top < window.innerHeight * 0.7) {
+      active = v;
+    }
+  });
+  
+  if (!active) return;
+  
+  btn.innerText = "⏳";
+  
+  const src = active.dataset.src || active.src;
+  
+  active.pause();
+  active.removeAttribute("src");
+  active.load();
+  
+  setTimeout(() => {
+    
+    active.src = src;
+    active.load();
+    
+    active.muted = !reelsSound;
+    
+    active.play().catch(() => {});
+    
+    btn.innerText = "⟳";
+    
+  }, 300);
+};
+
+
+//auto detects load
+let reelWatchdog;
+
+window.startReelWatchdog = () => {
+  
+  clearInterval(reelWatchdog);
+  
+  reelWatchdog = setInterval(() => {
+    
+    const vids = document.querySelectorAll(".reelVideo");
+    
+    vids.forEach(v => {
+      
+      const rect = v.getBoundingClientRect();
+      
+      const visible =
+        rect.top >= -100 &&
+        rect.top < window.innerHeight * 0.7;
+      
+      if (!visible) return;
+      
+      // visible but not playing / stuck
+      const stuck =
+        v.paused ||
+        v.readyState < 2 ||
+        (v.currentTime === 0 && !v.ended);
+      
+      if (stuck) {
+        
+        const src = v.dataset.src || v.src;
+        
+        v.pause();
+        v.removeAttribute("src");
+        v.load();
+        
+        setTimeout(() => {
+          
+          v.src = src;
+          v.load();
+          
+          v.muted = !reelsSound;
+          
+          v.play().catch(() => {});
+          
+        }, 300);
+      }
+      
+    });
+    
+  }, 3500); // checks every 3.5 sec
+};
+
+
+//tab switchHome
+window.switchHomeTab = (tab) => {
+  
+  const reels = document.getElementById("reels");
+  const postsSection = document.getElementById("postsSection");
+  
+  const tabReels = document.getElementById("tab-reels");
+  const tabPosts = document.getElementById("tab-posts");
+  
+  if (tab === "reels") {
+    
+    reels.style.display = "block";
+    postsSection.style.display = "none";
+    
+    tabReels.style.borderBottom = "2px solid #ff2d55";
+    tabPosts.style.borderBottom = "none";
+    
+  } else {
+    
+    reels.style.display = "none";
+    postsSection.style.display = "block";
+    
+    tabPosts.style.borderBottom = "2px solid #ff2d55";
+    tabReels.style.borderBottom = "none";
+  }
+};
+
+
+const postQ = query(
+  collection(db, "posts"),
+  orderBy("time", "desc")
+);
+
+onSnapshot(postQ, (s) => {
+  
+  if (!postsGrid) return; // safety
+  
+  let html = "";
+  
+  s.forEach(x => {
+    
+    const p = x.data();
+    
+    if (!p.photo) return;
+    
+    html += `
+    <img src="${p.photo}"
+    style="
+    width:100%;
+    aspect-ratio:1/1;
+    object-fit:cover;">
+    `;
+  });
+  
+  postsGrid.innerHTML = html;
+  
+});
+
+
+//new upgrade trys
+
+function getVisibleVideo() {
+  const videos = document.querySelectorAll(".reelVideo");
+  
+  let bestVideo = null;
+  let bestRatio = 0;
+  
+  videos.forEach(v => {
+    const rect = v.getBoundingClientRect();
+    
+    const visibleHeight =
+      Math.max(0,
+        Math.min(rect.bottom, window.innerHeight) -
+        Math.max(rect.top, 0)
+      );
+    
+    const ratio = visibleHeight / rect.height;
+    
+    if (ratio > bestRatio) {
+      bestRatio = ratio;
+      bestVideo = v;
+    }
+  });
+  
+  return bestVideo;
+}
+
+function controlReelsPlayback() {
+  
+  const videos = document.querySelectorAll(".reelVideo");
+  const active = getVisibleVideo();
+  
+  videos.forEach(v => {
+    if (v === active) v.play().catch(() => {});
+    else v.pause();
+  });
+}
+
+function preloadNext() {
+  
+  const videos = document.querySelectorAll(".reelVideo");
+  const active = getVisibleVideo();
+  
+  let found = false;
+  
+  videos.forEach(v => {
+    if (found) {
+      if (!v.dataset.loaded) {
+        v.load();
+        v.dataset.loaded = "1";
+      }
+      found = false;
+    }
+    
+    if (v === active) found = true;
+  });
+}
+
+window.addEventListener("scroll", () => {
+  controlReelsPlayback();
+  preloadNext();
+});
+
+
+</script></body>
+<span id="notiBadge">0</span>
+<div id="commentBackdrop"
+onclick="closeCommentBox()"
+style="
+display:none;
+position:fixed;
+inset:0;
+z-index:99998;
+background:rgba(0,0,0,.45);
+backdrop-filter:blur(6px);
+-webkit-backdrop-filter:blur(6px);
+opacity:0;
+transition:.25s;">
+</div>
+
+<div id="commentBox"
+style="
+display:none;
+position:fixed;
+left:0;
+right:0;
+bottom:0;
+height:70vh;
+z-index:99999;
+background:#111;
+border-radius:22px 22px 0 0;
+padding:14px;
+transform:translateY(100%);
+transition:transform .28s ease;
+box-shadow:0 -8px 30px rgba(0,0,0,.45);
+overflow:hidden;">
+
+<div id="dragBar"
+style="
+width:46px;
+height:5px;
+background:#555;
+border-radius:20px;
+margin:0 auto 12px;">
+</div>
+
+<b style="color:#fff;">Comments</b>
+
+<div id="commentList"
+style="
+max-height:290px;
+overflow:auto;
+color:#fff;
+margin:12px 0;">
+</div>
+
+<div style="display:flex;gap:6px;margin-bottom:8px;height:30px;"id="emojibtns">
+<button onclick="addEmoji('😂')">😂</button>
+<button onclick="addEmoji('🔥')">🔥</button>
+<button onclick="addEmoji('❤️')">❤️</button>
+<button onclick="addEmoji('😍')">😍</button>
+<button onclick="addEmoji('😭')">😭</button>
+</div>
+
+<div style="display:flex;gap:8px;">
+<input id="commentInput"
+placeholder="Write comment..."
+style="
+flex:1;
+padding:10px;
+border:none;
+border-radius:12px;
+background:#222;
+color:#fff;">
+
+<button onclick="sendComment()"
+style="
+background:#ff2d55;
+color:#fff;
+border:none;
+padding:10px 14px;
+border-radius:12px;">
+Send
+</button>
+</div>
+
+</div>
+
+
+
+<!--user popup-->
+<div id="userPopup" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#000;z-index:99999;overflow:auto;">
+  
+  <div style="padding:15px;display:flex;justify-content:space-between;align-items:center;">
+    <h3 id="popupTitle" style="color:#fff;">Users</h3>
+    <button onclick="closeUserPopup()" style="background:none;border:none;color:#fff;font-size:22px;">✕</button>
+  </div>
+  
+  <div id="popupList"></div>
+  
+</div>
+
+
+
+<!--vivers-->
+<div id="viewer"
+style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#000;z-index:9999;justify-content:center;align-items:center;">
+
+<button onclick="closeViewer()"
+style="position:absolute;top:12px;right:18px;font-size:30px;background:none;border:none;color:#fff;z-index:2;">✕</button>
+
+
+
+<video id="bigVideo"
+controls
+style="max-width:100%;max-height:100%;display:none;"></video>
+<img id="bigImg"
+style="max-width:100%;max-height:100%;display:none;"></div>
+<!-- ADD after <body> tag -->
+<div id="splash" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#000;z-index:999999;display:flex;justify-content:center;align-items:center;flex-direction:column;color:#fff;font-family:Arial;transition:.6s;">
+<div style="font-size:55px;">
+<img src="/images/logo.jpg"style="height:60px; width:60px;border-radius:50%;object-fit:cover";>
+</div>
+<h1 style="margin-top:-5px;">Rizz</h1>
+<i style="margin-top:5px;font-size:10px;color:orange;">Made By Pratik</i>
+</div>
+<div id="loginScreen" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#000;z-index:99999;display:none;justify-content:center;align-items:center;flex-direction:column;padding:25px;gap:12px;">
+
+<h1 style="color:#fff">Login</h1>
+
+<input id="emailLogin" placeholder="Email"style="width:100%;padding:14px;border:none;border-radius:12px;background:#111;color:#fff;max-width:340px;">
+<input id="passLogin" type="password" placeholder="Password"
+style="width:100%;padding:14px;border:none;border-radius:12px;background:#111;color:#fff;max-width:340px;">
+
+<button onclick="emailLoginFn()" style="width:100%;max-width:340px;padding:14px;border:none;border-radius:12px;background:#ff2d55;color:#fff;font-size:16px;">Login</button>
+<button onclick="signupFn()" style="width:100%;max-width:340px;padding:14px;border:none;border-radius:12px;background:#222;color:#fff;font-size:16px;">Create Account</button>
+
+<button onclick="login()" style="width:100%;max-width:340px;padding:14px;
+border:none;border-radius:12px;background:#4285F4;color:#fff;font-size:16px;">Continue with Google</button>
+</div>
+
+<!--story-->
+<div style="position:absolute;bottom:20px;left:15px;display:flex;align-items:center;gap:10px;z-index:5;">
+  
+  <img id="storyUserPic"
+  style="width:40px;height:40px;border-radius:50%;object-fit:cover;">
+  
+  <span id="storyUserName"
+  style="color:#fff;font-weight:600;"></span>
+
+</div>
+<div id="storyViewer" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#000;z-index:99999;overflow:hidden;">
+  
+<button id="storyDeleteBtn"
+onclick="deleteStory()"
+style="position:absolute;bottom:20px;left:15px;z-index:5;background:#ff2d55;border:none;color:#fff;padding:8px 12px;border-radius:10px;display:none;">
+× Delete
+</button>
+  <!-- Progress bars -->
+  <div id="storyProgress" style="position:absolute;top:10px;left:0;width:100%;display:flex;gap:4px;padding:5px 8px;"></div>
+
+  <!-- Close button -->
+<button onclick="event.stopPropagation(); closeStory()" 
+  style="position:absolute;top:18px;right:18px;font-size:26px;background:none;border:none;color:#fff;z-index:999;">
+✕
+</button>
+    
+    <!-- LEFT TAP (previous story) -->
+<div onclick="nextStory(event)"
+style="position:absolute;right:0;top:0;width:50%;height:100%;z-index:3;"></div>
+
+<div onclick="prevStory(event)"
+style="position:absolute;left:0;top:0;width:50%;height:100%;z-index:3;"></div>
+
+<button id="soundBtn"
+onclick="toggleStorySound()"
+style="position:absolute;bottom:70px;right:15px;z-index:5;background:#111;color:#fff;border:none;padding:8px 12px;border-radius:10px;">
+ 🔇Sound OFF
+</button>
+<!--views-->
+<button onclick="showStoryViews()" 
+style="position:absolute;bottom:20px;right:15px;background:#ff2d55;border:none;color:#fff;padding:8px 12px;border-radius:10px;">
+👁 Views
+</button>
+  <!-- Story media -->
+  <img id="storyImg" style="width:100%;height:100%;object-fit:cover;display:none;">
+  <video id="storyVideo" style="width:100%;height:100%;object-fit:cover;display:none;" autoplay playsinline></video>
+
+
+
+</body>
+</html>
