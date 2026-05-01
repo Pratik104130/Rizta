@@ -41,10 +41,13 @@ animation:logoPulse 2s infinite;
 /* HOME */
 #home {top: 146px;height: calc(100vh - 206px);overflow: hidden;}
 #profile,#chat,#upload,#notify{top:56px;height:calc(100vh - 116px);}
-.reelsWrap{height: 100%; overflow-y: scroll;scroll-snap-type: y mandatory;scroll-behavior: smooth;
+
+
+
+
+.reelsWrap{position: relative;height: 100%; overflow: hidden;overflow-y: scroll;scroll-snap-type: y mandatory;scroll-behavior: smooth;
 -webkit-overflow-scrolling:touch;
 overscroll-behavior-y:contain;     scroll-snap-stop:always;}
-
 
 .reel{height: 100%;position: relative;scroll-snap-align: start;       /* Snap to the top of each reel */scroll-snap-stop: always;flex-shrink: 0;animation:reelUp .3s ease;}
 @keyframes reelUp{
@@ -161,6 +164,17 @@ box-shadow:0 0 24px #ff2d55;
 
 .postMini {aspect-ratio: 1/1;width: 100%;object-fit: cover;border-radius: 8px;}
 
+#postsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 🔥 3 columns */
+  gap: 2px;
+}
+
+.postItem {
+  width: 100%;
+  aspect-ratio: 1/1;
+  object-fit: cover;
+}
 
 @keyframes heartPop {0% { transform: scale(0); opacity: 0; }40% { transform: scale(1.4); opacity: 1; }100% { transform: scale(1); opacity: 0; }}
 
@@ -232,6 +246,7 @@ to{opacity:1;transform:scale(1);}
   width: 100%;
   display: flex;
   gap: 10px;
+  margin-bottom: 3.5rem;
   padding: 10px;
   background: #111;
   border-top: 1px solid #222;
@@ -242,6 +257,7 @@ to{opacity:1;transform:scale(1);}
   flex: 1;
   padding: 10px;
   border: none;
+
   border-radius: 10px;
   background: #222;
   color: #fff;
@@ -371,9 +387,73 @@ to{opacity:1;transform:scale(1);}
   color: white;
   margin-bottom: 3.4rem;
 }
+
+.fadeOut {
+  opacity: 0;
+  transition: 0.5s;
+}
+
+
+/*toast message*/
+.toast {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-20px);
+  background: #111;
+  color: #fff;
+  padding: 12px 18px;
+  border-radius: 12px;
+  font-size: 14px;
+  opacity: 0;
+  transition: all 0.3s ease;
+  z-index: 99999; /* 🔥 important */
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+
+
+.pullRefresh {
+  position: absolute;
+  top: -60px;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  color: white;
+  z-index: 20;
+  transition: 0.2s;
+}
+
+
+
+#previewBox,
+#storyPreviewBox {
+  max-height: 210px;
+  overflow: hidden;
+}
+
+#previewImg,
+#previewVideo,
+#storyPreviewImg,
+#storyPreviewVideo {
+  width: 100%;
+  max-height: 220px;
+  object-fit: contain;
+}
+
+#upload .card{
+  overflow-y: auto;
+  margin-bottom: 70px;
+}
 </style></head><body>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <header>
+
+  
 <b>Rizzz</b>
 <span id="userBox">Guest</span>
 <img
@@ -381,6 +461,7 @@ to{opacity:1;transform:scale(1);}
     src="https://i.imgur.com/6VBx3io.png"
     style="width:34px;height:34px;border-radius:50%;object-fit:cover">
 </header><div id='storiesBar' style='margin-top:52px;display:flex;gap:10px;overflow:auto;padding:10px;background:#050505'></div>
+    <div id="globalToast" class="toast"></div>
 <section id='home' class='page show'>
   <div id="postsSection" style="display:none;">
   <div id="postsGrid"
@@ -391,14 +472,8 @@ to{opacity:1;transform:scale(1);}
   </div>
 
 </div>
-  <div style="
-display:flex;
-gap:10px;
-height:50px;
-padding:10px;
-background:#050505;
-position:sticky;
-z-index:10;">
+
+
 
 <button onclick="switchHomeTab('reels')"
 id="tab-reels"
@@ -433,48 +508,83 @@ style="position:fixed;top:75px;right:12px;z-index:9999;background:rgba(0,0,0,.65
 ">
 ⟳</button>
 
-  <div id='reels' class='reelsWrap'></div></section>
+
+<div id='reels' class='reelsWrap'>
   
+  <div id="pullRefresh" class="pullRefresh">↓ Refresh</div>
+  
+</div>
+  </section>
+
+ <div id="globalToast" class="toast"></div>
   <section id='notify' class='page'><div id='notiList'></div></section>
   
-  
+  <div id="globalToast" class="toast"></div>
 <section id='upload' class='page'>
   <div class='card'>
+    <h4>Upload Post</h4>
     
     <input id='caption' class='inp' placeholder='Caption'>
     
-    <!-- POST UPLOAD -->
-    <input id='file' type='file' accept='image/*,video/*' hidden>
+    <!-- FILE INPUT -->
+    <input id='file' type='file' accept='image/*,video/*' hidden onchange="previewMedia(event)">
     
+    <!-- UPLOAD BUTTON -->
     <label for="file" class="uploadIconBtn">
       <i class="fa-solid fa-cloud-arrow-up"></i>
-      <span>Post</span>
+      <span>Select</span>
     </label>
     
-    <button class='btn' onclick='uploadVideo()'>Upload Post</button>
+    <!-- 🔥 PREVIEW AREA -->
+    <div id="previewBox" style="display:none;margin-top:10px;">
+      <img id="previewImg" style="width:100%;border-radius:10px;display:none;">
+      <video id="previewVideo" style="width:100%;border-radius:10px;display:none;" controls></video>
+    </div>
+    
+    <!-- UPLOAD BUTTON -->
+    <button id="uploadBtn" class='btn' onclick='uploadVideo()'>
+      Upload Post
+    </button>
+    
+    <!-- STATUS -->
+    <div id="uploadStatus" style="font-size:12px;color:#aaa;margin-top:5px;"></div>
+    
     
     <hr style="margin:12px 0;border:1px solid #222">
     
     <!-- STORY UPLOAD -->
-    <h4> Upload Story (24h)</h4>
-    
-    <input id='storyFile' type='file' accept='image/*,video/*' hidden>
-    
-    <label for="storyFile" class="uploadIconBtn">
-      <i class="fa-solid fa-circle-plus"></i>
-      <span>Story</span>
-    </label>
-    
-    <button class='btn' onclick='uploadStory()'>Upload Story</button>
-    
+<h4>Upload Story (24h)</h4>
+
+<input id='storyFile' type='file' accept='image/*,video/*' hidden onchange="previewStory(event)">
+
+<label for="storyFile" class="uploadIconBtn">
+  <i class="fa-solid fa-circle-plus"></i>
+  <span>Select Story</span>
+</label>
+
+<!-- 🔥 PREVIEW -->
+<div id="storyPreviewBox" style="display:none;margin-top:10px;">
+  <img id="storyPreviewImg" style="width:100%;border-radius:10px;display:none;">
+  <video id="storyPreviewVideo" style="width:100%;border-radius:10px;display:none;" controls></video>
+</div>
+
+<!-- BUTTON -->
+<button id="storyUploadBtn" class='btn' onclick='uploadStory()'>
+  Upload Story
+</button>
+
+<!-- STATUS -->
+<div id="storyStatus" style="font-size:12px;color:#aaa;margin-top:5px;"></div>
+    </div>
   </div>
 </section>
+  <div id="globalToast" class="toast"></div>
 <section id='chat' class='page'>
   <div id='msgs' class="chatContainer"></div>
   <button id="scrollBtn" onclick="scrollToBottom()"
     style="
       position:fixed;
-      bottom:90px;
+      bottom:110px;
       right:15px;
       z-index:9999;
       background:#ff2d55;
@@ -495,8 +605,8 @@ style="position:fixed;top:75px;right:12px;z-index:9999;background:rgba(0,0,0,.65
   </div>
 </section>
 
+  <div id="globalToast" class="toast"></div>
 <section id='profile' class='page'>
-  
 <button id="backMyProfileBtn"
   class="btn"
   style="display:none; margin-top:10px;"
@@ -561,7 +671,121 @@ style="position:fixed;top:75px;right:12px;z-index:9999;background:rgba(0,0,0,.65
   <span onclick="go('profile')">˙⋆✮</span>
 </nav>
 <script type='module'>
+window.onload = () => {
+  initPullRefresh();
+};
+function initPullRefresh() {
+  
+  let startY = 0;
+  let currentY = 0;
+  let isPulling = false;
+  
+  const pull = document.getElementById("pullRefresh");
+  if (!reels || !pull) return;
+  
+  reels.addEventListener("touchstart", e => {
+    
+    if (reels.scrollTop > 0) return;
+    
+    startY = e.touches[0].clientY;
+    currentY = startY;
+    isPulling = true;
+  });
+  
+  reels.addEventListener("touchmove", e => {
+    
+    if (!isPulling) return;
+    
+    currentY = e.touches[0].clientY;
+    let diff = currentY - startY;
+    
+    if (diff > 0) {
+      
+      e.preventDefault();
+      
+      reels.style.transform = `translateY(${diff * 0.5}px)`;
+      pull.style.top = Math.min(diff - 50, 30) + "px";
+      
+      pull.innerText = diff > 80 ?
+        "Release to refresh" :
+        "↓ Refresh";
+    }
+    
+  }, { passive: false });
+  
+  reels.addEventListener("touchend", () => {
+    
+    if (!isPulling) return;
+    
+    let diff = currentY - startY;
+    
+    reels.style.transform = "translateY(0)";
+    pull.style.top = "-60px";
+    
+    if (diff > 80) {
+      triggerRefresh();
+    }
+    isPulling = false;
+  });
+}
 
+
+let unsubscribeReels = null;
+
+function startReelsListener() {
+  
+  unsubscribeReels = onSnapshot(pq, (s) => {
+    
+    if (skipNextPostsRefresh) return;
+    
+    s.docChanges().forEach(change => {
+      const id = change.doc.id;
+      const p = change.doc.data();
+      
+      if (change.type === "added") {
+        REELS_MAP.set(id, p);
+        REELS_LIST.push({ id, ...p });
+        addReelToDOM(id, p);
+      }
+      
+      if (change.type === "modified") {
+        const el = document.getElementById("like-" + id);
+        if (el) el.innerText = p.likes || 0;
+      }
+      
+      if (change.type === "removed") {
+        REELS_MAP.delete(id);
+        REELS_LIST = REELS_LIST.filter(r => r.id !== id);
+        document.getElementById("reel-" + id)?.remove();
+      }
+    });
+    
+    // 🔥 autoplay after updates
+    setTimeout(initAutoPlay, 200);
+    
+  });
+}
+
+function triggerRefresh() {
+  
+  const pull = document.getElementById("pullRefresh");
+  if (pull) pull.innerText = "Refreshing...";
+  
+  if (unsubscribeReels) {
+    unsubscribeReels();
+    unsubscribeReels = null;
+  }
+  
+  reels.innerHTML = "";
+  REELS_LIST = [];
+  REELS_MAP.clear();
+  
+  startReelsListener(); // ✅ only once
+  
+  setTimeout(() => {
+    if (pull) pull.innerText = "↓ Refresh";
+  }, 800);
+}
 
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 /* REPLACE FIREBASE AUTH IMPORT */
@@ -604,16 +828,7 @@ function updateAllAudio() {
   }
 }
 
-window.stopAllReels = () => {
-  
-  document.querySelectorAll(".reelVideo").forEach(v => {
-    v.pause();
-    v.muted = true;
-  });
-  
-  reelsSound = false;
-  activeReelVideo = null;
-};
+
 
 
 /* ADD BELOW auth init */
@@ -808,109 +1023,264 @@ function updateProfileUI(uid) {
 
 /* 5. OPTIONAL PHOTO UPLOAD SUPPORT */
 /* REPLACE uploadVideo() */
-
 window.uploadVideo = async () => {
-  
   const f = file.files[0];
-  if (!f) return;
-  const isImg = f.type.startsWith("image");
-  const fd = new FormData();
-  fd.append("file", f);
-  fd.append("upload_preset", "Fiveer");
-  const url = isImg ?
-    "https://api.cloudinary.com/v1_1/dlsfr0ies/image/upload" :
-    "https://api.cloudinary.com/v1_1/dlsfr0ies/video/upload";
-  const r = await fetch(url, {
-    method: "POST",
-    body: fd
-    
-    
-  });
-  const d = await r.json();
-  await addDoc(collection(db, 'posts'), {
-    user: auth.currentUser.email,
-    caption: caption.value,
-    photo: isImg ? d.secure_url : "",
-    video: isImg ? "" : d.secure_url,
-    likes: 0,
-    time: serverTimestamp()
-  });
+  if (!f) return alert("Select file first");
   
+  const btn = document.getElementById("uploadBtn");
+  const status = document.getElementById("uploadStatus");
+  
+  btn.innerText = "Uploading...";
+  btn.disabled = true;
+  status.innerText = "Starting...";
+  
+  try {
+    const isImg = f.type.startsWith("image");
+    
+    let thumbnail = "";
+    
+    // 🎥 THUMBNAIL
+    if (!isImg) {
+      status.innerText = "Generating thumbnail...";
+      
+      const video = document.createElement("video");
+      video.src = URL.createObjectURL(f);
+      video.muted = true;
+      
+      await new Promise((resolve) => {
+        video.onloadeddata = () => {
+          video.currentTime = Math.min(0.5, video.duration || 0.5);
+        };
+        
+        video.onseeked = () => {
+          try {
+            const canvas = document.createElement("canvas");
+            canvas.width = video.videoWidth || 320;
+            canvas.height = video.videoHeight || 180;
+            
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(video, 0, 0);
+            
+            thumbnail = canvas.toDataURL("image/jpeg", 0.6);
+          } catch (e) {
+            console.log("Thumbnail error", e);
+          }
+          resolve();
+        };
+        
+        setTimeout(resolve, 1500);
+      });
+    }
+    
+    status.innerText = "Uploading to server...";
+    
+    const fd = new FormData();
+    fd.append("file", f);
+    fd.append("upload_preset", "Fiveer");
+    
+    const url = isImg ?
+      "https://api.cloudinary.com/v1_1/dlsfr0ies/image/upload" :
+      "https://api.cloudinary.com/v1_1/dlsfr0ies/video/upload";
+    
+    const res = await fetch(url, {
+      method: "POST",
+      body: fd
+    });
+    
+    if (!res.ok) throw new Error("Upload failed");
+    
+    const data = await res.json();
+    if (!data.secure_url) throw new Error("No URL returned");
+    
+    status.innerText = "Saving post...";
+    
+    await addDoc(collection(db, "posts"), {
+  user: auth.currentUser.email,
+  uid: auth.currentUser.uid,
+  caption: caption.value,
+  photo: isImg ? data.secure_url : "",
+  video: isImg ? "" : data.secure_url,
+  thumbnail: thumbnail,
+  type: isImg ? "post" : "reel", // 🔥 ADD THIS
+  likes: 0,
+  time: serverTimestamp()
+});
+    
+    // ✅ SUCCESS (ONLY HERE)
+    status.innerText = "Uploaded ✅";
+    showToast("🎥 Video uploaded successfully");
+    btn.innerText = "Upload Post";
+    btn.disabled = false;
+    
+    file.value = "";
+    caption.value = "";
+    previewBox.style.display = "none";
+    
+    // ⏳ REMOVE AFTER 10s
+    setTimeout(() => {
+  status.classList.add("fadeOut");
+  
+  setTimeout(() => {
+    status.innerText = "";
+    status.classList.remove("fadeOut");
+  }, 500);
+  
+}, 9000);
+}catch (err) {
+    console.error(err);
+    
+    status.innerText = "Upload failed ❌";
+    btn.innerText = "Upload Post";
+    btn.disabled = false;
+    
+    alert("Upload failed: " + err.message);
+  }
 };
 let reelObserver;
 
 const pq = query(collection(db, "posts"), orderBy("time", "desc"));
 
+let REELS_MAP = new Map();
+let REELS_LIST = [];
+
 onSnapshot(pq, (s) => {
   
   if (skipNextPostsRefresh) return;
   
-  const oldTop = reels.scrollTop;
-  
-  let html = "";
-  
-  s.forEach(x => {
-    const p = x.data();
+  s.docChanges().forEach(change => {
     
-    html += `
-    <div class="reel">
+    const id = change.doc.id;
+    const p = change.doc.data();
+    
+    // 🟢 ADD NEW REEL
+    if (change.type === "added") {
+      
+      REELS_MAP.set(id, p);
+      REELS_LIST.push({id,...p,time: p.time?.seconds || 0});
+      REELS_LIST.sort((a, b) => b.time - a.time);
+      addReelToDOM(id, p);
+    }
+    
+    // 🟡 UPDATE ONLY LIKE COUNT (NO FULL RENDER)
+    if (change.type === "modified") {
+      
+      const countEl = document.getElementById("like-" + id);
+      if (countEl) {
+        countEl.innerText = p.likes || 0;
+      }
+    }
+    
+    // 🔴 REMOVE REEL
+    if (change.type === "removed") {
+      
+      REELS_MAP.delete(id);
+      REELS_LIST = REELS_LIST.filter(r => r.id !== id);
+      
+      const el = document.getElementById("reel-" + id);
+      if (el) el.remove();
+    }
+    
+  });
+  
+  initAutoPlay(); // only affects visible items
+  
+});
 
-      <div class="heart"
+function addReelToDOM(id, p) {
+  
+  const div = document.createElement("div");
+  div.className = "reel";
+  div.id = "reel-" + id;
+  
+  div.innerHTML = `
+    <div class="heart"
       style="display:none;position:absolute;top:40%;left:45%;font-size:60px;z-index:9;">❤️</div>
 
-      <video
-        class="reelVideo"
-        data-src="${p.video}"
-        muted
-        playsinline
-        loop
-        preload="none"
-        onclick="toggleSound(this)"
-        ondblclick="dblLike('${x.id}',${p.likes||0},this)">
-      </video>
+    <video
+      class="reelVideo"
+      data-src="${p.video}"
+      muted
+      playsinline
+      loop
+      preload="none"
+      onclick="toggleSound(this)"
+      ondblclick="dblLike('${id}',${p.likes||0},this)">
+    </video>
 
-<div class="overlay">
+    <div class="overlay">
 
-  <b>@${p.name || p.user.split("@")[0]}</b>
-  <div>${p.caption || ""}</div>
+      <b>@${p.name || p.user.split("@")[0]}</b>
+      <div>${p.caption || ""}</div>
 
-  <!-- BOTTOM ACTION BAR -->
-  <div class="actionBar">
+      <div class="actionBar">
 
-    <button class="btn"
-    onclick="likePost('${x.id}')">
-      ❤️ <span id="like-${x.id}">${p.likes || 0}</span>
-    </button>
+        <button class="btn"
+        onclick="likePost('${id}')">
+          ❤️ <span id="like-${id}">${p.likes || 0}</span>
+        </button>
 
-    <button class="btn"
-    onclick="commentPost('${x.id}')">
-      💬
-    </button>
+        <button class="btn"
+        onclick="commentPost('${id}')">
+          💬
+        </button>
 
-    ${
-      auth.currentUser &&
-      auth.currentUser.email === p.user
-      ? `<button class="btn"
-          onclick="delPost('${x.id}')">✖</button>`
-      : ""
+        ${
+          auth.currentUser &&
+          auth.currentUser.email === p.user
+          ? `<button class="btn"
+              onclick="delPost('${id}')">✖</button>`
+          : ""
+        }
+
+      </div>
+
+    </div>
+  `;
+  
+  // 🔥 add on top (like Instagram)
+  insertReelSorted(div, id);
+}
+
+function insertReelSorted(div, id) {
+  
+  const newItem = REELS_LIST.find(r => r.id === id);
+  if (!newItem) return;
+  
+  // 🔥 If it's newest → ALWAYS put on top
+  let isNewest = true;
+  
+  for (let r of REELS_LIST) {
+    if (r.id !== id && (r.time || 0) > (newItem.time || 0)) {
+      isNewest = false;
+      break;
     }
-
-  </div>
-
-</div>
-    `;
-  });
+  }
   
-  reels.innerHTML = html;
+  if (isNewest) {
+    reels.insertBefore(div, reels.firstChild);
+    return;
+  }
   
-  // ✅ IMPORTANT: restore scroll position
-  requestAnimationFrame(() => {
-    reels.scrollTop = oldTop;
-  });
+  // 🔥 Otherwise find correct position
+  const children = reels.children;
   
-  setTimeout(initAutoPlay, 150);
-  setTimeout(startReelWatchdog, 1000);
-});
+  for (let i = 0; i < children.length; i++) {
+    
+    const el = children[i];
+    const elId = el.id.replace("reel-", "");
+    const existing = REELS_LIST.find(r => r.id === elId);
+    
+    if (!existing) continue;
+    
+    if ((newItem.time || 0) > (existing.time || 0)) {
+      reels.insertBefore(div, el);
+      return;
+    }
+  }
+  
+  // fallback (older item)
+  reels.appendChild(div);
+}
 
 window.delPost = async (id) => {
   if (confirm("Delete post?")) {
@@ -1420,27 +1790,20 @@ window.sendMsg = async () => {
   if (!text) return;
 
   await addDoc(collection(db, "chat"), {
-    uid: auth.currentUser.uid,
-    u: auth.currentUser.email,
-    name:
-      profileName.innerText.trim() ||
-      auth.currentUser.email.split("@")[0],
-    t: text,
-    seen: false,
-    time: serverTimestamp()
-  });
-
-  msg.value = "";
-
-  await addDoc(collection(db, "chat"), {
-  u: auth.currentUser.email,
   uid: auth.currentUser.uid,
-  name: uname,
+  u: auth.currentUser.email,
+  name: profileName.innerText.trim(),
   t: text,
   seen: false,
   time: serverTimestamp()
 });
 };
+
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) {
+    stopAllReels();
+  }
+});
 
 function formatTime(ts) {
   
@@ -1844,7 +2207,7 @@ function loadMine() {
             myPosts.innerHTML += `
 <video
 class="postMini"
-src="${p.video}"
+data-src="${p.video}"
 onclick="openMedia('${p.video}','video')"
 muted>
 </video>`;
@@ -1860,29 +2223,7 @@ onclick="openMedia('${p.photo}','img')">`;
       });
       postCount.textContent = count;
       });}
-window.toggleSound = (video) => {
-  
-  reelsSound = !reelsSound;
-  
-  if (reelsSound) {
-    
-    document.querySelectorAll(".reelVideo").forEach(v => {
-      v.muted = true;
-    });
-    
-    video.muted = false;
-    activeReelVideo = video;
-    video.play().catch(() => {});
-    
-  } else {
-    
-    document.querySelectorAll(".reelVideo").forEach(v => {
-      v.muted = true;
-    });
-    
-    activeReelVideo = null;
-  }
-};
+
 
 const observer = new IntersectionObserver((entries) => {
   
@@ -1922,42 +2263,41 @@ window.initAutoPlay = () => {
   
   if (reelObserver) reelObserver.disconnect();
   
-  const vids = document.querySelectorAll(".reelVideo");
-  
   reelObserver = new IntersectionObserver((entries) => {
     
     entries.forEach(entry => {
-      
       const v = entry.target;
       
-      if (entry.isIntersecting && entry.intersectionRatio > 0.75) {
+      if (entry.isIntersecting && entry.intersectionRatio > 0.8) {
         
-        // load only current reel
+        // ✅ Load only once
         if (!v.src) {
           v.src = v.dataset.src;
-          v.load();
         }
         
-        // sound mode
-        if (reelsSound) {
-          vids.forEach(x => x.muted = true);
-          v.muted = false;
-        } else {
-          v.muted = true;
-        }
+        // ✅ Pause ALL videos (fresh query, not stale list)
+        document.querySelectorAll(".reelVideo").forEach(x => {
+          if (x !== v) x.pause();
+        });
         
+        // ✅ Play current
         v.play().catch(() => {});
         
-      } else {
+        // ✅ SOUND CONTROL
+        activeReelVideo = v;
+        syncReelAudio();
         
+      } else {
         v.pause();
       }
-      
     });
     
-  }, { threshold: 0.75 });
+  }, { threshold: [0.5, 0.8, 1] }); // smoother detection
   
-  vids.forEach(v => reelObserver.observe(v));
+  // ✅ Observe all videos
+  document.querySelectorAll(".reelVideo").forEach(v => {
+    reelObserver.observe(v);
+  });
 };
 //profile edit
 window.saveProfile = async () => {
@@ -2065,14 +2405,12 @@ window.toggleSound = (video) => {
   
   reelsSound = !reelsSound;
   
-  if (reelsSound) {
-    activeReelVideo = video;
-  } else {
-    activeReelVideo = null;
-  }
+  activeReelVideo = video;
   
   syncReelAudio();
+  
 };
+
 function syncReelAudio() {
   
   document.querySelectorAll('.reelVideo').forEach(v => {
@@ -2263,30 +2601,70 @@ window.toggleStorySound = () => {
 
 window.uploadStory = async () => {
   const f = storyFile.files[0];
-  if (!f) return;
+  if (!f) return showToast("Select file first", "error");
   
-  const isImg = f.type.startsWith("image");
+  const btn = document.getElementById("storyUploadBtn");
+  const status = document.getElementById("storyStatus");
   
-  const fd = new FormData();
-  fd.append("file", f);
-  fd.append("upload_preset", "Fiveer");
+  btn.innerText = "Uploading...";
+  btn.disabled = true;
+  status.innerText = "Starting...";
   
-  const url = isImg ?
-    "https://api.cloudinary.com/v1_1/dlsfr0ies/image/upload" :
-    "https://api.cloudinary.com/v1_1/dlsfr0ies/video/upload";
+  try {
+    const isImg = f.type.startsWith("image");
+    
+    const fd = new FormData();
+    fd.append("file", f);
+    fd.append("upload_preset", "Fiveer");
+    
+    const url = isImg ?
+      "https://api.cloudinary.com/v1_1/dlsfr0ies/image/upload" :
+      "https://api.cloudinary.com/v1_1/dlsfr0ies/video/upload";
+    
+    status.innerText = "Uploading to server...";
+    
+    const res = await fetch(url, {
+      method: "POST",
+      body: fd
+    });
+    
+    if (!res.ok) throw new Error("Upload failed");
+    
+    const data = await res.json();
+    if (!data.secure_url) throw new Error("No URL returned");
+    
+    status.innerText = "Saving story...";
+    
+    await addDoc(collection(db, "stories"), {
+      uid: auth.currentUser.uid,
+      url: data.secure_url,
+      type: isImg ? "image" : "video",
+      time: serverTimestamp(),
+      views: [],
+      expireAt: Date.now() + 86400000 // ⏳ 24h
+    });
+    
+    // ✅ SUCCESS
+    status.innerText = "Uploaded ✅";
+    showToast("📸 Story uploaded", "success");
+    
+    // reset
+    storyFile.value = "";
+    storyPreviewBox.style.display = "none";
+    
+    // auto clear
+    setTimeout(() => {
+      status.innerText = "";
+    }, 8000);
+    
+  } catch (err) {
+    console.error(err);
+    status.innerText = "Upload failed ❌";
+    showToast("Upload failed", "error");
+  }
   
-  const r = await fetch(url, { method: "POST", body: fd });
-  const d = await r.json();
-  
-  await addDoc(collection(db, "stories"), {
-    uid: auth.currentUser.uid,
-    url: d.secure_url,
-    type: isImg ? "image" : "video",
-    time: serverTimestamp(),
-    views: [] // 🔥 NEW
-  });
-  
-  alert("Story uploaded ✅");
+  btn.innerText = "Upload Story";
+  btn.disabled = false;
 };
 //auto delete 24 hours.
 setInterval(async () => {
@@ -2553,48 +2931,49 @@ window.loadUserPosts = (uid) => {
   
   // 🔥 STOP OLD LISTENER (VERY IMPORTANT)
   if (userPostsUnsub) {
-    userPostsUnsub();
-  }
+  userPostsUnsub();
+}
+
+const q = query(collection(db, "posts"), orderBy("time", "desc"));
+
+userPostsUnsub = onSnapshot(q, (snap) => {
   
-  const q = query(collection(db, "posts"), orderBy("time", "desc"));
+  const q = query(
+  collection(db, "posts"),
+  where("uid", "==", uid),
+  orderBy("time", "desc")
+);
+
+  const box = document.getElementById("myPosts");
+  if (!box) return;
   
-  userPostsUnsub = onSnapshot(q, (snap) => {
+  box.innerHTML = "";
+  
+  let count = 0;
+  
+  snap.forEach((x) => {
+    const p = x.data();
     
-    const box = document.getElementById("myPosts");
-    if (!box) return;
+    // ✅ CLEAN MATCH
+    if (p.uid !== uid) return;
     
-    box.innerHTML = "";
+    count++;
     
-    let count = 0;
-    
-    snap.forEach((x) => {
-      const p = x.data();
-      
-      const match =
-        p.userUid === uid ||
-        p.uid === uid ||
-        p.user === uid ||
-        p.email === uid;
-      
-      if (match) {
-        count++;
-        
-        if (p.video) {
-          box.innerHTML += `
-            <video class="postMini" src="${p.video}" muted></video>
-          `;
-        } else if (p.photo) {
-          box.innerHTML += `
-            <img class="postMini" src="${p.photo}">
-          `;
-        }
-      }
-    });
-    
-    const postCountEl = document.getElementById("postCount");
-    if (postCountEl) postCountEl.textContent = count;
-    
+    if (p.video) {
+      box.innerHTML += `
+        <video class="postMini" src="${p.video}" muted></video>
+      `;
+    } else if (p.photo) {
+      box.innerHTML += `
+        <img class="postMini" src="${p.photo}">
+      `;
+    }
   });
+  
+  const postCountEl = document.getElementById("postCount");
+  if (postCountEl) postCountEl.textContent = count;
+  
+});
 };
 
 
@@ -2733,6 +3112,13 @@ window.switchHomeTab = (tab) => {
   const tabReels = document.getElementById("tab-reels");
   const tabPosts = document.getElementById("tab-posts");
   
+  // 🔥 STOP ALL VIDEOS FIRST (IMPORTANT)
+  document.querySelectorAll("video").forEach(v => {
+    v.pause();
+    v.currentTime = 0;
+    v.muted = true;
+  });
+  
   if (tab === "reels") {
     
     reels.style.display = "block";
@@ -2751,7 +3137,6 @@ window.switchHomeTab = (tab) => {
   }
 };
 
-
 const postQ = query(
   collection(db, "posts"),
   orderBy("time", "desc")
@@ -2759,27 +3144,25 @@ const postQ = query(
 
 onSnapshot(postQ, (s) => {
   
-  if (!postsGrid) return; // safety
+  if (!postsGrid) return;
   
   let html = "";
   
   s.forEach(x => {
-    
     const p = x.data();
     
+    // ✅ ONLY IMAGES
     if (!p.photo) return;
     
     html += `
-    <img src="${p.photo}"
-    style="
-    width:100%;
-    aspect-ratio:1/1;
-    object-fit:cover;">
+      <img 
+        src="${p.photo}" 
+        class="postItem"
+      >
     `;
   });
   
   postsGrid.innerHTML = html;
-  
 });
 
 
@@ -2846,6 +3229,81 @@ window.addEventListener("scroll", () => {
   controlReelsPlayback();
   preloadNext();
 });
+
+window.previewMedia = (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  
+  const img = document.getElementById("previewImg");
+  const vid = document.getElementById("previewVideo");
+  const box = document.getElementById("previewBox");
+  
+  box.style.display = "block";
+  
+  if (file.type.startsWith("image")) {
+    img.src = URL.createObjectURL(file);
+    img.style.display = "block";
+    vid.style.display = "none";
+  } else {
+    vid.src = URL.createObjectURL(file);
+    vid.style.display = "block";
+    img.style.display = "none";
+  }
+};
+
+//preview story
+window.previewStory = (e) => {
+  const f = e.target.files[0];
+  if (!f) return;
+  
+  const img = document.getElementById("storyPreviewImg");
+  const vid = document.getElementById("storyPreviewVideo");
+  const box = document.getElementById("storyPreviewBox");
+  
+  box.style.display = "block";
+  
+  if (f.type.startsWith("image")) {
+    img.src = URL.createObjectURL(f);
+    img.style.display = "block";
+    vid.style.display = "none";
+  } else {
+    vid.src = URL.createObjectURL(f);
+    vid.style.display = "block";
+    img.style.display = "none";
+  }
+};
+
+
+//toast message upload 
+window.showToast = (msg, type = "default") => {
+  let t = document.getElementById("globalToast");
+  
+  if (!t) {
+    t = document.createElement("div");
+    t.id = "globalToast";
+    document.body.appendChild(t);
+  }
+  
+  t.innerText = msg;
+  
+  // 🎨 colors based on type
+  if (type === "success") t.style.background = "#16a34a";
+  else if (type === "error") t.style.background = "#dc2626";
+  else t.style.background = "#111";
+  
+  t.style.opacity = "1";
+  t.style.transform = "translateX(-50%) translateY(0)";
+  
+  setTimeout(() => {
+    t.style.opacity = "0";
+    t.style.transform = "translateX(-50%) translateY(-20px)";
+  }, 3000);
+  
+  if (navigator.vibrate) navigator.vibrate(50);
+};
+
+
+//reload all page
 
 
 </script></body>
