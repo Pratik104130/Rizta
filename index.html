@@ -3,11 +3,23 @@
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Rizzz v4</title>
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
+html, body {
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+* {-webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  box-sizing:border-box;margin:0;padding:0;}
+
+:root {
+  --ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
 body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#000;color:#fff;overflow:hidden;}
 
 /* HEADER */
-header{position:fixed;top:0;left:0;width:100%;height:56px;padding:10px 14px;background:rgba(0, 0, 0, 0.6);backdrop-filter: blur(12px);-webkit-backdrop-filter: blur(12px);border-bottom: 1px solid rgba(255, 255, 255, 0.08);z-index:50;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #111;transition:.35s ease;}
+header{position:fixed;top:0;left:0;width:100%;height:56px;padding:10px 14px;background:rgba(0, 0, 0, 0.6);-webkit-backdrop-filter: blur(12px);border-bottom: 1px solid rgba(255, 255, 255, 0.08);z-index:50;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #111;transition: transform 0.35s var(--ease-smooth), opacity 0.3s ease;}
 header.hide{
 transform:translateY(-100%);
 opacity:.7;
@@ -21,6 +33,7 @@ animation:logoPulse 2s infinite;
 #topDp{width:34px;height:34px;border-radius:50%;object-fit:cover;}
 /* PAGES */
 .page{display:none;position:absolute;top:50px;left:0;width:100%;height:calc(100vh - 116px);overflow:auto;background:#000;animation: fadeInUp 0.4s ease forwards;transition: 0.35s ease;}
+
 .page.show {opacity: 1;transform: translateY(0) scale(1);pointer-events: auto;}
 @keyframes fadeInUp {from { opacity: 0; transform: translateY(20px); }to { opacity: 1; transform: none; }}
 .show{display:block;}
@@ -47,9 +60,15 @@ animation:logoPulse 2s infinite;
 
 .reelsWrap{position: relative;height: 100%; overflow: hidden;overflow-y: scroll;scroll-snap-type: y mandatory;scroll-behavior: smooth;
 -webkit-overflow-scrolling:touch;
-overscroll-behavior-y:contain;     scroll-snap-stop:always;}
+overscroll-behavior-y:contain;     scroll-snap-stop:always;
+scroll-behavior: auto;
+  
+}
 
-.reel{height: 100%;position: relative;scroll-snap-align: start;       /* Snap to the top of each reel */scroll-snap-stop: always;flex-shrink: 0;animation:reelUp .3s ease;}
+.reel{height: 100%;position: relative;scroll-snap-align: start;       /* Snap to the top of each reel */scroll-snap-stop: always;flex-shrink: 0;animation:reelUp .3s ease;
+will-change: transform;
+transform: translateZ(0);
+}
 @keyframes reelUp{
 from{
 opacity:0;
@@ -60,7 +79,8 @@ opacity:1;
 transform:none;
 }
 }
-.reel video{width:100%;height:100%;object-fit:cover;}
+.reel video{width:100%;height:100%;object-fit:cover;
+  will-change: transform;}
 
 .overlay{position:absolute;left:10px;right:10px;bottom:18px;animation:slideUp .4s ease;
 }
@@ -374,13 +394,14 @@ to{opacity:1;transform:scale(1);}
   border-radius:10px;
 }
 
-/*like comment button bottom height*/
 
+
+/*like comment button bottom height*/
 
 .actionBar .btn {
   
   background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(10px);
+  
   border-radius: 25px;
   padding: 10px 14px;
   font-size: 14px;
@@ -423,9 +444,12 @@ to{opacity:1;transform:scale(1);}
   left: 0;
   width: 100%;
   text-align: center;
-  color: white;
+  color: rgba(255, 255, 255, 0.85);
   z-index: 20;
-  transition: 0.2s;
+  transition: transform 0.25s var(--ease-smooth), top 0.25s var(--ease-smooth);
+  font-weight: 500;
+  font-size: 13px;
+  
 }
 
 
@@ -449,13 +473,172 @@ to{opacity:1;transform:scale(1);}
   overflow-y: auto;
   margin-bottom: 70px;
 }
+
+
+/*loader */
+.refreshLoader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  background: rgba(0,0,0,0.25);
+  z-index: 9999;
+}
+
+.refreshLoader.hidden {
+  display: none;
+}
+
+.spinner {
+  width: 42px;
+  height: 42px;
+  border: 3px solid rgba(255, 255, 255, 0.15);
+  border-top: 3px solid #fff;
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+/*settings*/
+.profileHeader {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  left: 10px;
+  display: flex;
+  justify-content: flex-end;
+  z-index: 100;
+}
+
+.settingsBtn {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: white;
+  font-size: 25px;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.settingsBtn:active {
+  transform: scale(0.92);
+}
+
+.profileMenu {
+  position: absolute;
+  top: 45px;
+  right: 0;
+  width: 160px;
+  background: rgba(20,20,20,0.95);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px;
+  overflow: hidden;
+  
+  animation: menuPop 0.2s ease;
+}
+
+.profileMenu div {
+  padding: 12px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.profileMenu div:hover {
+  background: rgba(255,255,255,0.08);
+}
+
+.hidden {
+  display: none;
+}
+
+@keyframes menuPop {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/*profile name changes hide*/
+#ownerControls {
+  display: none;
+  margin-top: 12px;
+  animation: uiIn 0.25s ease;
+}
+
+#ownerControls.show {
+  display: block;
+}
+
+/*timer sound*/
+.wave {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  height: 20px;
+}
+
+.wave span {
+  width: 3px;
+  height: 6px;
+  background: #ff2d55;
+  border-radius: 3px;
+  animation: waveAnim 1s infinite ease-in-out;
+}
+
+.wave span:nth-child(2){ animation-delay: 0.1s; }
+.wave span:nth-child(3){ animation-delay: 0.2s; }
+.wave span:nth-child(4){ animation-delay: 0.3s; }
+.wave span:nth-child(5){ animation-delay: 0.4s; }
+
+@keyframes waveAnim {
+  0%,100% { height: 6px; }
+  50% { height: 18px; }
+}
+
+/*delet button message*/
+.delBtn {
+  width: 100%;
+  padding: 12px;
+  margin: 6px 0;
+  border: none;
+  border-radius: 10px;
+  background: #222;
+  color: white;
+  font-size: 14px;
+}
+
+.delBtn:hover {
+  background: #333;
+}
+
+.cancel {
+  background: #ff2d55;
+}
+
+
 </style></head><body>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <header>
 
   
-<b>Rizzz</b>
+<b>Rizzzta</b>
 <span id="userBox">Guest</span>
+
 <img
     id="topDp"
     src="https://i.imgur.com/6VBx3io.png"
@@ -580,6 +763,39 @@ style="position:fixed;top:75px;right:12px;z-index:9999;background:rgba(0,0,0,.65
 </section>
   <div id="globalToast" class="toast"></div>
 <section id='chat' class='page'>
+  <button onclick="clearChatLocal()" style="
+  position:fixed;
+  top:5px;
+  right:10px;
+  z-index:9999;
+  background:#444;
+  color:#fff;
+  border:none;
+  padding:8px 12px;
+  border-radius:10px;
+">
+  📱 Clear All Chat
+</button>
+
+
+  <div id="deleteMenu" style="
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: #111;
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+  padding: 15px;
+  display: none;
+  z-index: 9999;
+">
+  
+  <button onclick="handleDelete('me')" class="delBtn">Delete for Me</button>
+  <button onclick="handleDelete('everyone')" class="delBtn">Delete for Everyone</button>
+  <button onclick="closeDeleteMenu()" class="delBtn cancel">Cancel</button>
+  
+</div>
   <div id='msgs' class="chatContainer"></div>
   <button id="scrollBtn" onclick="scrollToBottom()"
     style="
@@ -600,13 +816,33 @@ style="position:fixed;top:75px;right:12px;z-index:9999;background:rgba(0,0,0,.65
     ↓
   </button>
   <div class="chatInputArea card">
+    <div id="recordUI" style="display:none;align-items:center;gap:10px;">
+  <div id="wave" class="wave"></div>
+  <span id="recordTime">0:00</span>
+</div>
+
     <input id='msg' class='inp' placeholder='Type a message...' maxlength="500">
+    <button id="recordBtn" class="btn">🎤</button>
     <button class='btn sendBtn' onclick='sendMsg()'>Send</button>
   </div>
 </section>
 
   <div id="globalToast" class="toast"></div>
 <section id='profile' class='page'>
+  <div class="profileHeader">
+  <div class="profileTopLeft"></div>
+  
+  <div class="profileTopRight">
+    <button class="settingsBtn" onclick="toggleProfileMenu()">⋮</button>
+    
+    <div id="profileMenu" class="profileMenu hidden">
+      <div onclick="openSettings()">⚙️ Settings</div>
+      <div onclick="editProfile()">✏️ Edit Profile</div>
+      <div onclick="logout()">🚪 Logout</div>
+    </div>
+  </div>
+</div>
+
 <button id="backMyProfileBtn"
   class="btn"
   style="display:none; margin-top:10px;"
@@ -674,118 +910,7 @@ style="position:fixed;top:75px;right:12px;z-index:9999;background:rgba(0,0,0,.65
 window.onload = () => {
   initPullRefresh();
 };
-function initPullRefresh() {
-  
-  let startY = 0;
-  let currentY = 0;
-  let isPulling = false;
-  
-  const pull = document.getElementById("pullRefresh");
-  if (!reels || !pull) return;
-  
-  reels.addEventListener("touchstart", e => {
-    
-    if (reels.scrollTop > 0) return;
-    
-    startY = e.touches[0].clientY;
-    currentY = startY;
-    isPulling = true;
-  });
-  
-  reels.addEventListener("touchmove", e => {
-    
-    if (!isPulling) return;
-    
-    currentY = e.touches[0].clientY;
-    let diff = currentY - startY;
-    
-    if (diff > 0) {
-      
-      e.preventDefault();
-      
-      reels.style.transform = `translateY(${diff * 0.5}px)`;
-      pull.style.top = Math.min(diff - 50, 30) + "px";
-      
-      pull.innerText = diff > 80 ?
-        "Release to refresh" :
-        "↓ Refresh";
-    }
-    
-  }, { passive: false });
-  
-  reels.addEventListener("touchend", () => {
-    
-    if (!isPulling) return;
-    
-    let diff = currentY - startY;
-    
-    reels.style.transform = "translateY(0)";
-    pull.style.top = "-60px";
-    
-    if (diff > 80) {
-      triggerRefresh();
-    }
-    isPulling = false;
-  });
-}
 
-
-let unsubscribeReels = null;
-
-function startReelsListener() {
-  
-  unsubscribeReels = onSnapshot(pq, (s) => {
-    
-    if (skipNextPostsRefresh) return;
-    
-    s.docChanges().forEach(change => {
-      const id = change.doc.id;
-      const p = change.doc.data();
-      
-      if (change.type === "added") {
-        REELS_MAP.set(id, p);
-        REELS_LIST.push({ id, ...p });
-        addReelToDOM(id, p);
-      }
-      
-      if (change.type === "modified") {
-        const el = document.getElementById("like-" + id);
-        if (el) el.innerText = p.likes || 0;
-      }
-      
-      if (change.type === "removed") {
-        REELS_MAP.delete(id);
-        REELS_LIST = REELS_LIST.filter(r => r.id !== id);
-        document.getElementById("reel-" + id)?.remove();
-      }
-    });
-    
-    // 🔥 autoplay after updates
-    setTimeout(initAutoPlay, 200);
-    
-  });
-}
-
-function triggerRefresh() {
-  
-  const pull = document.getElementById("pullRefresh");
-  if (pull) pull.innerText = "Refreshing...";
-  
-  if (unsubscribeReels) {
-    unsubscribeReels();
-    unsubscribeReels = null;
-  }
-  
-  reels.innerHTML = "";
-  REELS_LIST = [];
-  REELS_MAP.clear();
-  
-  startReelsListener(); // ✅ only once
-  
-  setTimeout(() => {
-    if (pull) pull.innerText = "↓ Refresh";
-  }, 800);
-}
 
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 /* REPLACE FIREBASE AUTH IMPORT */
@@ -799,6 +924,8 @@ let soundOn = false;
 
 const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app);
 
+//chat delete 
+let localClearedAt = Number(localStorage.getItem("chatClearedAt")) || null;
 
 let GLOBAL_AUDIO = {
   reels: false,
@@ -1145,32 +1272,38 @@ let REELS_LIST = [];
 
 onSnapshot(pq, (s) => {
   
-  if (skipNextPostsRefresh) return;
+  const shouldSkipRender = skipNextPostsRefresh;
   
   s.docChanges().forEach(change => {
     
     const id = change.doc.id;
     const p = change.doc.data();
     
-    // 🟢 ADD NEW REEL
+    // 🟢 ADD
     if (change.type === "added") {
       
       REELS_MAP.set(id, p);
-      REELS_LIST.push({id,...p,time: p.time?.seconds || 0});
-      REELS_LIST.sort((a, b) => b.time - a.time);
-      addReelToDOM(id, p);
-    }
-    
-    // 🟡 UPDATE ONLY LIKE COUNT (NO FULL RENDER)
-    if (change.type === "modified") {
       
-      const countEl = document.getElementById("like-" + id);
-      if (countEl) {
-        countEl.innerText = p.likes || 0;
+      REELS_LIST.push({
+        id,
+        ...p,
+        time: p.time?.seconds || 0
+      });
+      
+      REELS_LIST.sort((a, b) => b.time - a.time);
+      
+      if (!shouldSkipRender) {
+        addReelToDOM(id, p);
       }
     }
     
-    // 🔴 REMOVE REEL
+    // 🟡 UPDATE
+    if (change.type === "modified") {
+      const countEl = document.getElementById("like-" + id);
+      if (countEl) countEl.innerText = p.likes || 0;
+    }
+    
+    // 🔴 DELETE
     if (change.type === "removed") {
       
       REELS_MAP.delete(id);
@@ -1179,11 +1312,9 @@ onSnapshot(pq, (s) => {
       const el = document.getElementById("reel-" + id);
       if (el) el.remove();
     }
-    
   });
   
-  initAutoPlay(); // only affects visible items
-  
+  initAutoPlay();
 });
 
 function addReelToDOM(id, p) {
@@ -1420,8 +1551,8 @@ transition:0.25s;">
       background:none;
       border:none;
       color:#fff;
-      font-size:16px;">
-      🗑
+      font-size:19px;">
+      ✖
       </button>
       `
       : ""
@@ -1797,6 +1928,7 @@ window.sendMsg = async () => {
   seen: false,
   time: serverTimestamp()
 });
+msg.value = "";
 };
 
 document.addEventListener("visibilitychange", () => {
@@ -1943,36 +2075,46 @@ onSnapshot(collection(db, "users"), (snap) => {
 onSnapshot(
   query(collection(db, "chat"), orderBy("time", "asc")),
   async (snap) => {
-
-    msgs.innerHTML = "";
-
+    
+    let html = ""; // ✅ build once
+    
     for (const m of snap.docs) {
-
+      
       const d = m.data();
-      const mine =
-        d.uid === auth.currentUser.uid;
+const mine = d.uid === auth.currentUser.uid;
 
+// ✅ SAFE TIME (VERY IMPORTANT)
+const msgTime = d.time?.toMillis?.() || 0;
+
+// 🔥 DEVICE CLEAR FILTER
+if (localClearedAt && msgTime < localClearedAt) {
+  continue;
+}
+
+// 🔥 DELETE FOR ME
+if (d.deletedFor?.includes(auth.currentUser.uid)) {
+  continue;
+}
+      
+      // 🔥 seen update (optimized)
       if (!mine && !d.seen) {
-        updateDoc(doc(db, "chat", m.id), {
-          seen: true
-        });
+        updateDoc(doc(db, "chat", m.id), { seen: true });
       }
-
+      
       const showName =
-  d.name?.trim() ||
-  USER_CACHE[d.uid]?.name ||
-  d.u?.split("@")[0] ||
-  "User";
-
+        d.name?.trim() ||
+        USER_CACHE[d.uid]?.name ||
+        d.u?.split("@")[0] ||
+        "User";
+      
       let status = "";
-
       if (!mine) {
-        status = ONLINE_USERS.has(d.uid)
-          ? "● Online"
-          : "● Offline";
+        status = ONLINE_USERS.has(d.uid) ?
+          "● Online" :
+          "● Offline";
       }
-
-      msgs.innerHTML += `
+      
+      html += `
 <div style="
 padding:7px;
 display:flex;
@@ -1989,7 +2131,7 @@ color:#fff;
 position:relative;">
 
 ${mine ? `
-<button onclick="deleteChatMsg('${m.id}')"
+<button onclick="openDeleteOptions('${m.id}')"
 style="
 position:absolute;
 top:3px;
@@ -2000,15 +2142,18 @@ border:none;
 color:#fff;">✗</button>` : ""}
 
 <b style="font-size:13px;">${showName} : </b><br>
-${d.t}
+
+${d.audio
+? `<audio controls src="${d.audio}" style="width:180px;"></audio>`
+: d.t
+}
+
 <div style="
 font-size:7px;
 color:#aaa;
 margin-top:4px;
 text-align:right;">
-  
-  ${formatTime(d.time)}
-  
+${formatTime(d.time)}
 </div>
 
 </div>
@@ -2017,14 +2162,22 @@ text-align:right;">
 font-size:11px;
 color:#aaa;
 margin-top:4px;">
-
 ${mine
  ? (d.seen ? "✓✓ Seen" : "✓ Sent")
  : status}
+</div>
 
-</div></div>`;}
- msgs.scrollTop = msgs.scrollHeight;
-});
+</div>`;
+    }
+    
+    // ✅ single DOM update (fast)
+    msgs.innerHTML = html;
+    
+    // ✅ smooth scroll (no jump)
+    requestAnimationFrame(() => {
+      msgs.scrollTop = msgs.scrollHeight;
+    });
+  });
 
 /* ADD BELOW ALL CHAT CODE */
 window.deleteChatMsg = async (id) => {
@@ -2033,15 +2186,65 @@ window.deleteChatMsg = async (id) => {
   }
 };
 
+let selectedMsgId = null;
+
+// open menu
+window.openDeleteOptions = (id) => {
+  selectedMsgId = id;
+  document.getElementById("deleteMenu").style.display = "block";
+};
+
+// close menu
+window.closeDeleteMenu = function() {
+  document.getElementById("deleteMenu").style.display = "none";
+  selectedMsgId = null;
+};
+
+// handle choice
+window.handleDelete = (type) => {
+  
+  if (!selectedMsgId) return;
+  
+  if (type === "me") {
+    deleteForMe(selectedMsgId);
+  } else if (type === "everyone") {
+    deleteForEveryone(selectedMsgId);
+  }
+  
+  closeDeleteMenu();
+};
+
+window.deleteForMe = async (id) => {
+  
+  const ref = doc(db, "chat", id);
+  
+  await updateDoc(ref, {
+    deletedFor: arrayUnion(auth.currentUser.uid)
+  });
+};
+
+window.deleteForEveryone = async (id) => {
+  
+  await deleteDoc(doc(db, "chat", id));
+  
+};
+
 /* TYPING STATUS */
-msg.addEventListener("input", async () => {
-  await setDoc(
-    doc(db, "typing", auth.currentUser.uid),
-    {
+requestAnimationFrame(() => {
+  msgs.scrollTop = msgs.scrollHeight;
+});
+
+let typingTimer;
+
+msg.addEventListener("input", () => {
+  clearTimeout(typingTimer);
+  
+  typingTimer = setTimeout(async () => {
+    await setDoc(doc(db, "typing", auth.currentUser.uid), {
       name: auth.currentUser.email,
       typing: msg.value.trim().length > 0
-    }
-  );
+    });
+  }, 400);
 });
 
 onSnapshot(collection(db, "typing"), (snap) => {
@@ -2141,7 +2344,7 @@ function loadStories() {
 <div class="story" onclick="openStory('${d.uid}')" style="position:relative;min-width:72px;text-align:center;">
 
   <!-- TIME ON TOP -->
-<div style="position:absolute;top:-8px;left:50%;transform:translateX(-50%);font-size:10px;padding:2px 7px;border-radius:12px;background:linear-gradient(45deg,#111,#222);box-shadow:0 0 8px rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.06);backdrop-filter:blur(10px);color:#fff;font-weight:600;white-space:nowrap;z-index:5;">
+<div style="position:absolute;top:-8px;left:50%;transform:translateX(-50%);font-size:10px;padding:2px 7px;border-radius:12px;background:linear-gradient(45deg,#111,#222);box-shadow:0 0 8px rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.06);color:#fff;font-weight:600;white-space:nowrap;z-index:5;">
   ${timeAgo(d.time)}
 </div>
 
@@ -2259,6 +2462,45 @@ function muteAllExceptCurrent() {
   });
 }
 
+//preload video
+function preloadNextVideo(currentVideo) {
+  const currentReel = currentVideo.closest(".reel");
+  if (!currentReel) return;
+  
+  const nextReel = currentReel.nextElementSibling;
+  if (!nextReel) return;
+  
+  const nextVideo = nextReel.querySelector(".reelVideo");
+  
+  // already loaded → skip
+  if (!nextVideo || nextVideo.src) return;
+  
+  // 🔥 preload silently
+  nextVideo.src = nextVideo.dataset.src;
+  nextVideo.load();
+}
+
+//cloase watch video
+function cleanupOldVideos(currentVideo) {
+  document.querySelectorAll(".reelVideo").forEach(v => {
+    if (v !== currentVideo) {
+      const reel = v.closest(".reel");
+      const currentReel = currentVideo.closest(".reel");
+
+      const distance =
+        Math.abs([...reel.parentNode.children].indexOf(reel) -
+                 [...currentReel.parentNode.children].indexOf(currentReel));
+
+      // keep only nearby videos
+      if (distance > 2) {
+        v.pause();
+        v.removeAttribute("src");
+        v.load();
+      }
+    }
+  });
+}
+
 window.initAutoPlay = () => {
   
   if (reelObserver) reelObserver.disconnect();
@@ -2273,6 +2515,7 @@ window.initAutoPlay = () => {
         // ✅ Load only once
         if (!v.src) {
           v.src = v.dataset.src;
+          v.load();
         }
         
         // ✅ Pause ALL videos (fresh query, not stale list)
@@ -2282,10 +2525,16 @@ window.initAutoPlay = () => {
         
         // ✅ Play current
         v.play().catch(() => {});
-        
-        // ✅ SOUND CONTROL
-        activeReelVideo = v;
-        syncReelAudio();
+
+// 🔥 SET ACTIVE VIDEO (VERY IMPORTANT FIX)
+activeReelVideo = v;
+
+// 🔥 PRELOAD NEXT
+preloadNextVideo(v);
+cleanupOldVideos(v);
+
+// ✅ KEEP SOUND STATE AFTER SCROLL
+syncReelAudio();
         
       } else {
         v.pause();
@@ -2682,7 +2931,13 @@ setInterval(async () => {
 }, 60 * 60 * 1000); // runs every 1 hour
 
 
-window.showStoryViews = async () => {
+window.showStoryViews = async (e) => {
+  
+  if (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    e.stopImmediatePropagation(); // 🔥 IMPORTANT FIX
+  }
   
   storyPaused = true;
   
@@ -2696,15 +2951,12 @@ window.showStoryViews = async () => {
   }
   
   const snap = await getDoc(doc(db, "stories", current.id));
-  
   const views = snap.data()?.views || [];
   
   alert("👁 Views: " + views.length);
   
   storyPaused = false;
 };
-
-
 
 window.renderStory = (userMap) => {
   const s = stories[storyIndex];
@@ -2751,7 +3003,6 @@ window.closeViewer = () => {
     bigImg.src = "";
   }
 };
-
 
 window.deleteStory = async () => {
   const s = stories[storyIndex];
@@ -3061,47 +3312,49 @@ window.startReelWatchdog = () => {
     
     const vids = document.querySelectorAll(".reelVideo");
     
+    let activeVideo = null;
+    
     vids.forEach(v => {
       
       const rect = v.getBoundingClientRect();
       
-      const visible =
-        rect.top >= -100 &&
-        rect.top < window.innerHeight * 0.7;
+      const isVisible =
+        rect.top < window.innerHeight * 0.6 &&
+        rect.bottom > window.innerHeight * 0.2;
       
-      if (!visible) return;
-      
-      // visible but not playing / stuck
-      const stuck =
-        v.paused ||
-        v.readyState < 2 ||
-        (v.currentTime === 0 && !v.ended);
-      
-      if (stuck) {
-        
-        const src = v.dataset.src || v.src;
-        
-        v.pause();
-        v.removeAttribute("src");
-        v.load();
-        
-        setTimeout(() => {
-          
-          v.src = src;
-          v.load();
-          
-          v.muted = !reelsSound;
-          
-          v.play().catch(() => {});
-          
-        }, 300);
+      if (isVisible && !activeVideo) {
+        activeVideo = v;
       }
-      
     });
     
-  }, 3500); // checks every 3.5 sec
+    if (!activeVideo) return;
+    
+    const v = activeVideo;
+    
+    const isStuck =
+      v.networkState === 3 || // network failure
+      (v.paused && v.readyState < 3);
+    
+    if (isStuck) {
+      
+      const src = v.dataset.src || v.src;
+      if (!src) return;
+      
+      v.pause();
+      
+      // lightweight recovery (no full destroy)
+      v.currentTime = 0;
+      
+      setTimeout(() => {
+        v.muted = !reelsSound;
+        
+        v.play().catch(() => {});
+        
+      }, 200);
+    }
+    
+  }, 4000);
 };
-
 
 //tab switchHome
 window.switchHomeTab = (tab) => {
@@ -3205,25 +3458,7 @@ function controlReelsPlayback() {
   });
 }
 
-function preloadNext() {
-  
-  const videos = document.querySelectorAll(".reelVideo");
-  const active = getVisibleVideo();
-  
-  let found = false;
-  
-  videos.forEach(v => {
-    if (found) {
-      if (!v.dataset.loaded) {
-        v.load();
-        v.dataset.loaded = "1";
-      }
-      found = false;
-    }
-    
-    if (v === active) found = true;
-  });
-}
+
 
 window.addEventListener("scroll", () => {
   controlReelsPlayback();
@@ -3306,7 +3541,329 @@ window.showToast = (msg, type = "default") => {
 //reload all page
 
 
+function initPullRefresh() {
+  
+  let startY = 0;
+  let currentY = 0;
+  let isPulling = false;
+  
+  const pull = document.getElementById("pullRefresh");
+  if (!reels || !pull) return;
+  
+  reels.addEventListener("touchstart", e => {
+    
+    if (reels.scrollTop > 0) return;
+    
+    startY = e.touches[0].clientY;
+    currentY = startY;
+    isPulling = true;
+  });
+  
+  reels.addEventListener("touchmove", e => {
+    
+    if (!isPulling) return;
+    
+    currentY = e.touches[0].clientY;
+    let diff = currentY - startY;
+    
+    if (diff > 0) {
+      
+      e.preventDefault();
+      
+      reels.style.transform = `translateY(${diff * 0.5}px)`;
+      pull.style.top = Math.min(diff - 50, 30) + "px";
+      
+      pull.innerText = diff > 80 ?
+        "Release to refresh" :
+        "↓ Refresh";
+    }
+    
+  }, { passive: false });
+  
+  reels.addEventListener("touchend", () => {
+    
+    if (!isPulling) return;
+    
+    let diff = currentY - startY;
+    
+    reels.style.transform = "translateY(0)";
+    pull.style.top = "-60px";
+    
+    if (diff > 80) {
+      triggerRefresh();
+    }
+    isPulling = false;
+  });
+}
+
+
+let unsubscribeReels = null;
+
+function startReelsListener() {
+  
+  unsubscribeReels = onSnapshot(pq, (s) => {
+    
+    if (skipNextPostsRefresh) return;
+    
+    s.docChanges().forEach(change => {
+      const id = change.doc.id;
+      const p = change.doc.data();
+      
+      if (change.type === "added") {
+        REELS_MAP.set(id, p);
+        REELS_LIST.push({ id, ...p });
+        addReelToDOM(id, p);
+      }
+      
+      if (change.type === "modified") {
+        const el = document.getElementById("like-" + id);
+        if (el) el.innerText = p.likes || 0;
+      }
+      
+      if (change.type === "removed") {
+        REELS_MAP.delete(id);
+        REELS_LIST = REELS_LIST.filter(r => r.id !== id);
+        document.getElementById("reel-" + id)?.remove();
+      }
+    });
+    
+    // 🔥 autoplay after updates
+    setTimeout(initAutoPlay, 200);
+    
+  });
+}
+
+function triggerRefresh() {
+  
+  const pull = document.getElementById("pullRefresh");
+  const loader = document.getElementById("refreshLoader");
+  
+  // show loader
+  if (loader) loader.classList.remove("hidden");
+  
+  if (pull) pull.innerText = "Refreshing...";
+  
+  if (unsubscribeReels) {
+    unsubscribeReels();
+    unsubscribeReels = null;
+  }
+  
+  reels.innerHTML = "";
+  REELS_LIST = [];
+  REELS_MAP.clear();
+  
+  startReelsListener();
+  
+  setTimeout(() => {
+    
+    if (pull) pull.innerText = "↓ Refresh";
+    
+    // hide loader
+    if (loader) loader.classList.add("hidden");
+    
+  }, 800);
+}
+
+//setting js
+function toggleProfileMenu() {
+  const menu = document.getElementById("profileMenu");
+  menu.classList.toggle("hidden");
+}
+
+// close when clicking outside
+document.addEventListener("click", function(e) {
+  const menu = document.getElementById("profileMenu");
+  const btn = document.querySelector(".settingsBtn");
+  
+  if (!menu.contains(e.target) && !btn.contains(e.target)) {
+    menu.classList.add("hidden");
+  }
+});
+window.toggleProfileMenu = function() {
+  const menu = document.getElementById("profileMenu");
+  menu.classList.toggle("hidden");
+};
+
+window.openSettings = function() {
+  
+};
+
+window.closeSettings = function() {
+  document.getElementById("ownerControls").classList.remove("show");
+};
+
+window.editProfile = function() {
+  document.getElementById("profileMenu")?.classList.add("hidden");
+  
+  const panel = document.getElementById("ownerControls");
+  panel.classList.add("show");
+};
+
+
+
+//voice message 
+let mediaRecorder;
+let audioChunks = [];
+let isRecording = false;
+
+const recordBtn = document.getElementById("recordBtn");
+
+// 🎤 START RECORD
+recordBtn.addEventListener("mousedown", startRecording);
+recordBtn.addEventListener("touchstart", startRecording);
+
+// 🛑 STOP RECORD
+recordBtn.addEventListener("mouseup", stopRecording);
+recordBtn.addEventListener("touchend", stopRecording);
+
+async function startRecording(e) {
+  e.preventDefault();
+  
+  if (isRecording) return;
+  
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    
+    mediaRecorder = new MediaRecorder(stream);
+    audioChunks = [];
+    
+    mediaRecorder.ondataavailable = e => {
+      audioChunks.push(e.data);
+    };
+    
+    mediaRecorder.onstop = sendAudioMessage;
+    
+    mediaRecorder.start();
+    isRecording = true;
+    
+    recordUI.style.display = "flex";
+startTimer();
+    
+  } catch (err) {
+    alert("Mic permission denied");
+  }
+}
+
+function stopRecording(e) {
+  e.preventDefault();
+  
+  if (!isRecording) return;
+  
+  mediaRecorder.stop();
+  isRecording = false;
+  
+  recordUI.style.display = "none";
+stopTimer();
+recordTime.innerText = "0:00";
+}
+
+
+
+async function sendAudioMessage() {
+  
+  const blob = new Blob(audioChunks, { type: "audio/webm" });
+  
+  const fd = new FormData();
+  fd.append("file", blob);
+  fd.append("upload_preset", "Fiveer");
+  
+  try {
+    const res = await fetch(
+      "https://api.cloudinary.com/v1_1/dlsfr0ies/video/upload",
+      {
+        method: "POST",
+        body: fd
+      }
+    );
+    
+    const data = await res.json();
+    
+    if (!data.secure_url) throw new Error("Upload failed");
+    
+    // 🔥 SEND TO FIRESTORE
+    await addDoc(collection(db, "chat"), {
+      uid: auth.currentUser.uid,
+      u: auth.currentUser.email,
+      name: profileName.innerText.trim(),
+      audio: data.secure_url, // ✅ audio field
+      seen: false,
+      deletedFor: [], // 🔥 NEW
+      deletedForEveryone: false,//NEW
+      time: serverTimestamp()
+    });
+    
+  } catch (err) {
+    alert("Audio send failed");
+  }
+}
+
+
+let startX = 0;
+
+recordBtn.addEventListener("touchstart", e => {
+  startX = e.touches[0].clientX;
+});
+
+recordBtn.addEventListener("touchmove", e => {
+  const moveX = e.touches[0].clientX;
+  
+  if (startX - moveX > 80) {
+    // cancel recording
+    mediaRecorder.stop();
+    audioChunks = [];
+    isRecording = false;
+    recordBtn.innerText = "❌ Cancelled";
+    
+    setTimeout(() => recordBtn.innerText = "🎤", 1000);
+  }
+});
+
+
+const wave = document.getElementById("wave");
+wave.innerHTML = "<span></span><span></span><span></span><span></span><span></span>";
+
+let recordSeconds = 0;
+let recordTimer;
+
+function startTimer() {
+  recordSeconds = 0;
+  
+  recordTimer = setInterval(() => {
+    recordSeconds++;
+    
+    const m = Math.floor(recordSeconds / 60);
+    const s = recordSeconds % 60;
+    
+    recordTime.innerText =
+      `${m}:${s < 10 ? "0" + s : s}`;
+  }, 1000);
+}
+
+function stopTimer() {
+  clearInterval(recordTimer);
+}
+
+
+//caht clear 
+window.clearChatLocal = () => {
+  
+  if (!confirm("Clear chat only on this device?")) return;
+  
+  const now = Date.now();
+  
+  localStorage.setItem("chatClearedAt", now);
+  localClearedAt = now;
+  
+  
+  showToast("Cleared on this device 📱");
+};
+
 </script></body>
+
+<div id="refreshLoader" class="refreshLoader hidden">
+  <div class="spinner"></div>
+</div>
+
 <span id="notiBadge">0</span>
 <div id="commentBackdrop"
 onclick="closeCommentBox()"
@@ -3316,7 +3873,6 @@ position:fixed;
 inset:0;
 z-index:99998;
 background:rgba(0,0,0,.45);
-backdrop-filter:blur(6px);
 -webkit-backdrop-filter:blur(6px);
 opacity:0;
 transition:.25s;">
@@ -3422,6 +3978,7 @@ style="max-width:100%;max-height:100%;display:none;"></video>
 style="max-width:100%;max-height:100%;display:none;"></div>
 <!-- ADD after <body> tag -->
 <div id="splash" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#000;z-index:999999;display:flex;justify-content:center;align-items:center;flex-direction:column;color:#fff;font-family:Arial;transition:.6s;">
+  
 <div style="font-size:55px;">
 <img src="/images/logo.jpg"style="height:60px; width:60px;border-radius:50%;object-fit:cover";>
 </div>
@@ -3482,15 +4039,13 @@ style="position:absolute;bottom:70px;right:15px;z-index:5;background:#111;color:
  🔇Sound OFF
 </button>
 <!--views-->
-<button onclick="showStoryViews()" 
+<button onclick="showStoryViews(event)"
 style="position:absolute;bottom:20px;right:15px;background:#ff2d55;border:none;color:#fff;padding:8px 12px;border-radius:10px;">
 👁 Views
 </button>
   <!-- Story media -->
   <img id="storyImg" style="width:100%;height:100%;object-fit:cover;display:none;">
   <video id="storyVideo" style="width:100%;height:100%;object-fit:cover;display:none;" autoplay playsinline></video>
-
-
 
 </body>
 </html>
