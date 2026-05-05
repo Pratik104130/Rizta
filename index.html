@@ -917,7 +917,7 @@ import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/fireba
 
 import {getAuth,signInWithPopup,GoogleAuthProvider,onAuthStateChanged,signOut,signInWithEmailAndPassword,createUserWithEmailAndPassword,setPersistence,browserLocalPersistence} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 
-import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, updateDoc, deleteDoc, setDoc ,getDocs,arrayUnion,increment}from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, updateDoc, deleteDoc, setDoc ,getDocs,arrayUnion,increment,where}from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 const firebaseConfig = {apiKey: "AIzaSyA_sBTAt90Y-RrLo6Hfs_7-Y1VM_ASix34",authDomain: "brosmarket-9b3b0.firebaseapp.com",projectId: "brosmarket-9b3b0",databaseURL: "https://brosmarket-9b3b0-default-rtdb.firebaseio.com/"
 };
 let soundOn = false;
@@ -941,6 +941,7 @@ let storyPaused = false;
 
 let storySound = false;
 let storyUsers = {};
+
 
 function updateAllAudio() {
   
@@ -3071,54 +3072,67 @@ window.openMyProfile = async () => {
   openUserProfile(uid);
 };
 
+let isGoingBackProfile = false;
+
 window.backToMyProfile = async () => {
+  // 🚫 prevent spam clicking
+  if (isGoingBackProfile) return;
+  isGoingBackProfile = true;
+  
   const user = auth.currentUser;
-  if (!user) return;
+  if (!user) {
+    isGoingBackProfile = false;
+    return;
+  }
   
   const myUid = user.uid;
   currentProfileUid = myUid;
   
-  // open profile page
+  // 🔥 instant UI switch (no delay feeling)
   go("profile");
   
-  // get latest my data
-  const snap = await getDoc(doc(db, "users", myUid));
-  
-  let finalName =
-    user.email ? user.email.split("@")[0] : "User";
-  
-  let finalPhoto =
-    "https://i.imgur.com/6VBx3io.png";
-  
-  if (snap.exists()) {
-    const data = snap.data();
+  try {
+    const snap = await getDoc(doc(db, "users", myUid));
     
-    finalName =
-      data.name ||
-      finalName;
+    let finalName = user.email ?
+      user.email.split("@")[0] :
+      "User";
     
-    finalPhoto =
-      data.photo ||
-      finalPhoto;
+    let finalPhoto =
+      "https://i.imgur.com/6VBx3io.png";
+    
+    if (snap.exists()) {
+      const data = snap.data();
+      finalName = data.name || finalName;
+      finalPhoto = data.photo || finalPhoto;
+    }
+    
+    // ✅ UI update
+    profileName.innerText = finalName;
+    profileBig.src = finalPhoto;
+    userBox.textContent = finalName;
+    topDp.src = finalPhoto;
+    
+    updateProfileUI(myUid);
+    
+    // ✅ hide back button
+    const backBtn = document.getElementById("backMyProfileBtn");
+    if (backBtn) backBtn.style.display = "none";
+    
+    // ✅ clear old content (IMPORTANT)
+    document.getElementById("myPosts").innerHTML = "";
+    
+    loadMine();
+    loadFollowStats();
+    
+  } catch (e) {
+    console.log("Back profile error:", e);
   }
   
-  // restore my UI
-  profileName.innerText = finalName;
-  profileBig.src = finalPhoto;
-  userBox.textContent = finalName;
-  topDp.src = finalPhoto;
-  
-  // show owner controls again
-  const owner = document.getElementById("ownerControls");
-  if (owner) owner.style.display = "block";
-  
-  // hide back button
-  const backBtn = document.getElementById("backMyProfileBtn");
-  if (backBtn) backBtn.style.display = "none";
-  
-  // reload my content
-  loadMine();
-  loadFollowStats();
+  // ✅ release lock after short delay
+  setTimeout(() => {
+    isGoingBackProfile = false;
+  }, 500);
 };
 
 
