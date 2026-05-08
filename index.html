@@ -24,71 +24,163 @@ header.hide{
 transform:translateY(-100%);
 opacity:.7;
 }
-header b{
-animation:logoPulse 2s infinite;
-}
-@keyframes logoPulse{
-50%{transform:scale(1.09);}
-}
+/* logoPulse animation removed — was causing constant GPU repaints on header */
 #topDp{width:34px;height:34px;border-radius:50%;object-fit:cover;}
-/* PAGES */
-.page{display:none;position:absolute;top:50px;left:0;width:100%;height:calc(100vh - 116px);overflow:auto;background:#000;animation: fadeInUp 0.4s ease forwards;transition: 0.35s ease;}
-
-.page.show {opacity: 1;transform: translateY(0) scale(1);pointer-events: auto;}
+/* ═══ PAGES — smooth slide transition system ═══ */
+.page{
+  display:none;
+  position:absolute;
+  top:50px;left:0;
+  width:100%;
+  height:calc(100vh - 116px);
+  overflow:auto;
+  background:#000;
+  opacity:0;
+  transform:translateX(22px);
+  pointer-events:none;
+  transition: opacity 0.28s cubic-bezier(0.22,1,0.36,1),
+              transform 0.28s cubic-bezier(0.22,1,0.36,1);
+  will-change:transform,opacity;
+}
+.page.show{
+  display:block;
+  opacity:1;
+  transform:translateX(0);
+  pointer-events:auto;
+}
+.page.slide-out{
+  opacity:0;
+  transform:translateX(-18px);
+}
 @keyframes fadeInUp {from { opacity: 0; transform: translateY(20px); }to { opacity: 1; transform: none; }}
-.show{display:block;}
-
 @keyframes slide{from{transform:translateX(20px);opacity:.5}to{transform:translateX(0);opacity:1}}
+
+/* ═══ SKELETON LOADING ═══ */
+@keyframes shimmer{
+  0%{background-position:-400px 0}
+  100%{background-position:400px 0}
+}
+.skel{
+  background:linear-gradient(90deg,#1a1a1a 25%,#2a2a2a 50%,#1a1a1a 75%);
+  background-size:800px 100%;
+  animation:shimmer 1.4s infinite linear;
+  border-radius:8px;
+}
+/* Reel skeleton */
+.skel-reel{
+  width:100%;height:100%;
+  background:linear-gradient(90deg,#111 25%,#1c1c1c 50%,#111 75%);
+  background-size:800px 100%;
+  animation:shimmer 1.6s infinite linear;
+  position:relative;
+}
+.skel-reel::after{
+  content:'';position:absolute;
+  bottom:80px;left:16px;right:16px;height:60px;
+  background:linear-gradient(90deg,#222 25%,#2d2d2d 50%,#222 75%);
+  background-size:800px 100%;
+  animation:shimmer 1.6s infinite linear;
+  border-radius:10px;
+}
+/* Post grid skeleton */
+.skel-post{
+  aspect-ratio:1/1;
+  width:100%;
+}
+/* Profile skeleton */
+.skel-avatar{
+  width:92px;height:92px;
+  border-radius:50%;
+  margin:0 auto 10px;
+}
+.skel-line{
+  height:14px;
+  margin:6px auto;
+  border-radius:6px;
+}
+.skel-line-sm{
+  height:10px;
+  margin:4px auto;
+  border-radius:6px;
+}
+/* Comment skeleton */
+.skel-comment{
+  display:flex;gap:10px;padding:10px 0;
+  border-bottom:1px solid #1a1a1a;
+}
+.skel-comment-avatar{
+  width:32px;height:32px;border-radius:50%;flex-shrink:0;
+}
+.skel-comment-body{
+  flex:1;
+}
+.skel-comment-line{
+  height:11px;border-radius:5px;margin-bottom:6px;
+}
+/* Story skeleton */
+.skel-story-ring{
+  width:62px;height:62px;border-radius:50%;
+}
+.skel-story-label{
+  height:9px;width:50px;border-radius:5px;margin:5px auto 0;
+}
 /* STORIES */
 #storiesBar{position:fixed;top:10px;left:0;width:100%;height:90px;display:flex;gap:14px;overflow-x:auto;padding:10px;background:#050505;z-index:30;border-top-right-radius: 20px;}
 
 .story{min-width:72px;text-align:center;}
 
-.storyRing{width:62px;height:62px;border-radius:50%;padding:2.3px;  animation: ringPulse 2s infinite ease-in-out;background:linear-gradient(45deg,#feda75,#fa7e1e,#d62976,#962fbf,#4f5bd5);}
+.storyRing{width:62px;height:62px;border-radius:50%;padding:2.3px;background:linear-gradient(45deg,#feda75,#fa7e1e,#d62976,#962fbf,#4f5bd5);will-change:box-shadow;}
 @keyframes ringPulse {0%, 100% { box-shadow: 0 0 0 0 rgba(255,45,85,0.7);}
   70% { box-shadow: 0 0 0 12px rgba(255,45,85,0); }}
+/* ringPulse only applied when needed, not auto-run on all rings */
 .storyRing img{width:100%;height:100%;border-radius:50%;object-fit:cover;border:2px solid #000;}
 
 
 .small{font-size:11px;color:#ccc;margin-top:4px;}
 /* HOME */
 #home {top: 146px;height: calc(100vh - 206px);overflow: hidden;}
+/* 🔥 FIX: reels wrap takes height minus the tab bar (~44px) */
+#home .reelsWrap { height: calc(100% - 44px); }
 #profile,#chat,#upload,#notify{top:56px;height:calc(100vh - 116px);}
 
 
 
 
-.reelsWrap{position: relative;height: 100%; overflow: hidden;overflow-y: scroll;scroll-snap-type: y mandatory;scroll-behavior: smooth;
--webkit-overflow-scrolling:touch;
-overscroll-behavior-y:contain;     scroll-snap-stop:always;
-scroll-behavior: auto;
-  
+.reelsWrap{
+  position:relative;
+  height:100%;
+  overflow:hidden;
+  overflow-y:scroll;
+  scroll-snap-type:y mandatory;
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior-y:contain;
+  scroll-snap-stop:always;
+  scroll-behavior:auto;
+  contain:paint layout;           /* isolate GPU repaints to this layer */
 }
 
-.reel{height: 100%;position: relative;scroll-snap-align: start;       /* Snap to the top of each reel */scroll-snap-stop: always;flex-shrink: 0;animation:reelUp .3s ease;
-will-change: transform;
-transform: translateZ(0);
+.reel{
+  height:100%;
+  position:relative;
+  scroll-snap-align:start;
+  scroll-snap-stop:always;
+  flex-shrink:0;
+  transform:translateZ(0);
+  backface-visibility:hidden;
+  contain:layout style;
 }
-@keyframes reelUp{
-from{
-opacity:0;
-transform:translateY(45px);
+/* reelUp animation removed — fired on every reel insertion causing layout thrash */
+.reel video{
+  width:100%;height:100%;
+  object-fit:cover;
+  transform:translateZ(0);        /* GPU layer — no will-change to save VRAM */
+  backface-visibility:hidden;
 }
-to{
-opacity:1;
-transform:none;
-}
-}
-.reel video{width:100%;height:100%;object-fit:cover;
-  will-change: transform;}
 
-.overlay{position:absolute;left:10px;right:10px;bottom:18px;animation:slideUp .4s ease;
-}
-@keyframes slideUp{
-from{opacity:0;transform:translateY(23px);}
-to{opacity:1;transform:none;}
-}
-.btn {
+.fadeOut {
+  opacity: 0;
+  transition: 0.5s;
+}.btn {
   border: none;
   padding: 9px 14px;
   border-radius: 14px;
@@ -104,25 +196,13 @@ to{opacity:1;transform:none;}
   transform: scale(.94);
 }
 
-.card{background:#121212;margin:10px;padding:12px;border-radius:14px;animation: popIn 0.3s ease;
+.card{background:#121212;margin:10px;padding:12px;border-radius:14px;
   position:relative;
-overflow:hidden;
+  overflow:hidden;
+  contain:layout style;
 }
 
-h3,b{
-animation:textFade .45s ease;
-}
-
-@keyframes textFade{
-from{
-opacity:0;
-letter-spacing:5px;
-}
-to{
-opacity:1;
-letter-spacing:0;
-}
-}
+/* h3,b textFade removed — was causing jank on every render */
 .card::before{
 content:"";
 position:absolute;
@@ -150,18 +230,7 @@ height:100%;
 
 .profileTop img{width:90px;height:90px;border-radius:50%;object-fit:cover;border:3px solid #ff2d55;}
 
-#profileBig{
-animation:profileGlow 3s infinite ease-in-out;
-}
-
-@keyframes profileGlow{
-0%,100%{
-box-shadow:0 0 0px #ff2d55;
-}
-50%{
-box-shadow:0 0 24px #ff2d55;
-}
-}
+/* profileGlow merged into profileGlow2 below */
 .statRow{display:flex;justify-content:space-around;margin-top:10px;}
 .statRow div{text-align:center;}
 /* NAV */
@@ -179,16 +248,16 @@ box-shadow:0 0 24px #ff2d55;
 }
 
 /* PROFILE GRID */
-#myPosts {display: grid;grid-template-columns: repeat(3, 1fr);gap: 4px;margin-top: 20px;width:70px;
+#myPosts {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 3px;
+  margin-top: 10px;
+  width: 100%;
+  contain: layout style;
 }
 
 .postMini {aspect-ratio: 1/1;width: 100%;object-fit: cover;border-radius: 8px;}
-
-#postsGrid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr); /* 🔥 3 columns */
-  gap: 2px;
-}
 
 .postItem {
   width: 100%;
@@ -238,10 +307,6 @@ to{opacity:1;transform:scale(1);}
 }
 
 @media (max-width:600px) {
-  .overlay {
-    bottom: 65px;
-  }
-  
   .nav {
     height: 60px;
     bottom: 3px;
@@ -398,15 +463,33 @@ to{opacity:1;transform:scale(1);}
 
 /*like comment button bottom height*/
 
+.actionBar {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 0;
+}
+
 .actionBar .btn {
-  
   background: rgba(0, 0, 0, 0.6);
-  
   border-radius: 25px;
   padding: 10px 14px;
   font-size: 14px;
   color: white;
-  margin-bottom: 3.4rem;
+  margin-bottom: 0;
+}
+
+.overlay {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 72px;
+  animation: slideUp .4s ease;
+}
+
+@keyframes slideUp{
+from{opacity:0;transform:translateY(23px);}
+to{opacity:1;transform:none;}
 }
 
 .fadeOut {
@@ -573,7 +656,68 @@ to{opacity:1;transform:scale(1);}
   }
 }
 
-/*profile name changes hide*/
+/* 🔥 PERF FIX: Posts section scrollable */
+#postsSection {
+  height: calc(100% - 44px);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
+  contain: layout style;
+}
+
+#postsGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 0px;
+  padding: 0;
+  width: 100%;
+}
+
+/* Instagram-style post card */
+.ig-post-card {
+  background: #000;
+  border-bottom: 1px solid #222;
+  margin-bottom: 0;
+}
+.ig-post-header {
+  display: flex;
+  align-items: center;
+  padding: 10px 12px;
+  gap: 10px;
+}
+.ig-post-img {
+  width: 100%;
+  aspect-ratio: 1/1;
+  object-fit: cover;
+  display: block;
+}
+.ig-post-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 12px 4px;
+}
+.ig-post-actions button {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 26px;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  transition: transform 0.15s ease;
+}
+.ig-post-actions button:active { transform: scale(0.85); }
+.ig-post-likes {
+  padding: 0 12px 4px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.ig-post-caption {
+  padding: 0 12px 10px;
+  font-size: 13px;
+  color: #ccc;
+}
 #ownerControls {
   display: none;
   margin-top: 12px;
@@ -631,6 +775,46 @@ to{opacity:1;transform:scale(1);}
 }
 
 
+
+/* ─── IMPROVED PROFILE ─── */
+#profileBig { animation: profileGlow2 3s infinite ease-in-out; }
+@keyframes profileGlow2 {
+  0%,100% { box-shadow: 0 0 10px rgba(255,45,85,.4); }
+  50%      { box-shadow: 0 0 28px rgba(255,45,85,.85); }
+}
+.postMini {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 4px;
+  cursor: pointer;
+  display: block;
+  transition: opacity .2s, transform .15s;
+}
+.postMini:active { opacity: .7; transform: scale(.97); }
+
+/* 🔥 FIX 4: Notification badge */
+#notiBadge {
+  position: fixed;
+  bottom: 42px;
+  left: 50%;
+  transform: translateX(36px);
+  background: #ff2d55;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 99px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  z-index: 200;
+  pointer-events: none;
+}
+
+
 </style></head><body>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <header>
@@ -646,18 +830,9 @@ to{opacity:1;transform:scale(1);}
 </header><div id='storiesBar' style='margin-top:52px;display:flex;gap:10px;overflow:auto;padding:10px;background:#050505'></div>
     <div id="globalToast" class="toast"></div>
 <section id='home' class='page show'>
-  <div id="postsSection" style="display:none;">
-  <div id="postsGrid"
-  style="
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:4px;">
-  </div>
 
-</div>
-
-
-
+<!-- 🔥 FIX: Tabs at TOP, always visible -->
+<div style="display:flex;border-bottom:1px solid #222;background:#000;position:sticky;top:0;z-index:10;">
 <button onclick="switchHomeTab('reels')"
 id="tab-reels"
 style="
@@ -681,7 +856,11 @@ Reels
     color:#fff;">
     Posts
     </button>
+</div>
 
+  <!-- Posts feed section (hidden by default) -->
+  <div id="postsSection" style="display:none;">
+  <div id="postsGrid"></div>
 </div>
 
   <!-- Global reels refresh button -->
@@ -700,7 +879,13 @@ style="position:fixed;top:75px;right:12px;z-index:9999;background:rgba(0,0,0,.65
   </section>
 
  <div id="globalToast" class="toast"></div>
-  <section id='notify' class='page'><div id='notiList'></div></section>
+  <section id='notify' class='page'>
+  <div style="padding:14px 12px 6px;border-bottom:1px solid #222;display:flex;align-items:center;justify-content:space-between;">
+    <b style="font-size:17px;">Notifications</b>
+    <button onclick="markAllNotiRead()" style="background:none;border:none;color:#aaa;font-size:12px;cursor:pointer;">Mark all read</button>
+  </div>
+  <div id='notiList' style="overflow-y:auto;height:calc(100% - 50px);padding:8px 0;"></div>
+</section>
   
   <div id="globalToast" class="toast"></div>
 <section id='upload' class='page'>
@@ -721,7 +906,8 @@ style="position:fixed;top:75px;right:12px;z-index:9999;background:rgba(0,0,0,.65
     <!-- 🔥 PREVIEW AREA -->
     <div id="previewBox" style="display:none;margin-top:10px;">
       <img id="previewImg" style="width:100%;border-radius:10px;display:none;">
-      <video id="previewVideo" style="width:100%;border-radius:10px;display:none;" controls></video>
+      <video id="previewVideo" style="width:100%;border-radius:10px;display:none;" controls muted playsinline></video>
+      <button id="cancelPostPreview" onclick="cancelPostSelection()" style="width:100%;margin-top:8px;padding:10px;border:none;border-radius:10px;background:#333;color:#fff;font-size:14px;cursor:pointer;">✕ Cancel</button>
     </div>
     
     <!-- UPLOAD BUTTON -->
@@ -731,6 +917,14 @@ style="position:fixed;top:75px;right:12px;z-index:9999;background:rgba(0,0,0,.65
     
     <!-- STATUS -->
     <div id="uploadStatus" style="font-size:12px;color:#aaa;margin-top:5px;"></div>
+    
+    <!-- 🔥 REAL PROGRESS BAR -->
+    <div id="uploadProgressWrap" style="display:none;margin-top:8px;">
+      <div style="background:#222;border-radius:8px;overflow:hidden;height:8px;">
+        <div id="uploadProgressBar" style="height:100%;width:0%;background:linear-gradient(90deg,#ff2d55,#ff6a00);border-radius:8px;transition:width 0.2s ease;"></div>
+      </div>
+      <div id="uploadProgressText" style="font-size:11px;color:#aaa;margin-top:4px;text-align:center;">0%</div>
+    </div>
     
     
     <hr style="margin:12px 0;border:1px solid #222">
@@ -748,7 +942,8 @@ style="position:fixed;top:75px;right:12px;z-index:9999;background:rgba(0,0,0,.65
 <!-- 🔥 PREVIEW -->
 <div id="storyPreviewBox" style="display:none;margin-top:10px;">
   <img id="storyPreviewImg" style="width:100%;border-radius:10px;display:none;">
-  <video id="storyPreviewVideo" style="width:100%;border-radius:10px;display:none;" controls></video>
+  <video id="storyPreviewVideo" style="width:100%;border-radius:10px;display:none;" controls muted playsinline></video>
+  <button id="cancelStoryPreview" onclick="cancelStorySelection()" style="width:100%;margin-top:8px;padding:10px;border:none;border-radius:10px;background:#333;color:#fff;font-size:14px;cursor:pointer;">✕ Cancel</button>
 </div>
 
 <!-- BUTTON -->
@@ -758,153 +953,222 @@ style="position:fixed;top:75px;right:12px;z-index:9999;background:rgba(0,0,0,.65
 
 <!-- STATUS -->
 <div id="storyStatus" style="font-size:12px;color:#aaa;margin-top:5px;"></div>
+
+<!-- 🔥 REAL PROGRESS BAR (Story) -->
+<div id="storyProgressWrap" style="display:none;margin-top:8px;">
+  <div style="background:#222;border-radius:8px;overflow:hidden;height:8px;">
+    <div id="storyProgressBar" style="height:100%;width:0%;background:linear-gradient(90deg,#ff2d55,#ff6a00);border-radius:8px;transition:width 0.2s ease;"></div>
+  </div>
+  <div id="storyProgressText" style="font-size:11px;color:#aaa;margin-top:4px;text-align:center;">0%</div>
+</div>
     </div>
   </div>
 </section>
   <div id="globalToast" class="toast"></div>
+<!-- ===== CHAT HUB ===== -->
 <section id='chat' class='page'>
-  <button onclick="clearChatLocal()" style="
-  position:fixed;
-  top:5px;
-  right:10px;
-  z-index:9999;
-  background:#444;
-  color:#fff;
-  border:none;
-  padding:8px 12px;
-  border-radius:10px;
-">
-  📱 Clear All Chat
-</button>
+  <!-- Hub screen -->
+  <div id="chatHub" style="padding:10px;">
+    <div style="display:flex;gap:8px;margin-bottom:10px;">
+      <input id="dmSearch" class="inp" placeholder="Search users for DM…" oninput="searchDmUsers()" style="flex:1;">
+    </div>
+    <div id="dmSearchRes"></div>
 
+    <!-- Global Chat -->
+    <div class="card" onclick="openGroupRoom('global','',true)" style="cursor:pointer;display:flex;align-items:center;gap:12px;">
+      <div style="font-size:28px;">🌐</div>
+      <div><b>Global Chat</b><br><small style="color:#aaa;">Everyone can join</small></div>
+    </div>
 
-  <div id="deleteMenu" style="
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  background: #111;
-  border-top-left-radius: 16px;
-  border-top-right-radius: 16px;
-  padding: 15px;
-  display: none;
-  z-index: 9999;
-">
-  
-  <button onclick="handleDelete('me')" class="delBtn">Delete for Me</button>
-  <button onclick="handleDelete('everyone')" class="delBtn">Delete for Everyone</button>
-  <button onclick="closeDeleteMenu()" class="delBtn cancel">Cancel</button>
-  
-</div>
-  <div id='msgs' class="chatContainer"></div>
-  <button id="scrollBtn" onclick="scrollToBottom()"
-    style="
-      position:fixed;
-      bottom:110px;
-      right:15px;
-      z-index:9999;
-      background:#ff2d55;
-      border:none;
-      color:#fff;
-      width:42px;
-      height:42px;
-      border-radius:50%;
-      font-size:18px;
-      display:none;
-      box-shadow:0 5px 15px rgba(0,0,0,.3);
-    ">
-    ↓
-  </button>
-  <div class="chatInputArea card">
-    <div id="recordUI" style="display:none;align-items:center;gap:10px;">
-  <div id="wave" class="wave"></div>
-  <span id="recordTime">0:00</span>
-</div>
+    <!-- Create / Join Group -->
+    <div class="card" style="margin-top:8px;">
+      <b>🔒 Groups</b>
+      <div style="display:flex;gap:6px;margin-top:8px;">
+        <input id="grpNameInp" class="inp" placeholder="Room name" style="flex:1;">
+        <input id="grpPassInp" class="inp" placeholder="Password" type="password" style="flex:1;">
+      </div>
+      <div style="display:flex;gap:6px;margin-top:6px;">
+        <button class="btn" style="flex:1;" onclick="createGroup()">➕ Create</button>
+        <button class="btn" style="flex:1;background:#222;" onclick="joinGroup()">🔑 Join</button>
+      </div>
+    </div>
 
-    <input id='msg' class='inp' placeholder='Type a message...' maxlength="500">
-    <button id="recordBtn" class="btn">🎤</button>
-    <button class='btn sendBtn' onclick='sendMsg()'>Send</button>
+    <!-- Group list -->
+    <div id="groupList" style="margin-top:6px;"></div>
+
+    <!-- DM list -->
+    <div id="dmList" style="margin-top:6px;"></div>
+  </div>
+
+  <!-- Active chat view (shared for DM, global, group) -->
+  <div id="chatView" style="display:none;height:100%;display:none;flex-direction:column;">
+    <div id="chatViewHeader" style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#111;border-bottom:1px solid #222;position:sticky;top:0;z-index:10;">
+      <button onclick="backToHub()" style="background:none;border:none;color:#fff;font-size:20px;">←</button>
+      <div>
+        <b id="chatViewTitle">Chat</b><br>
+        <small id="typingBox" style="color:#aaa;font-size:11px;"></small>
+      </div>
+      <button onclick="clearChatLocal()" style="margin-left:auto;background:#333;color:#fff;border:none;padding:6px 10px;border-radius:8px;font-size:11px;">📱 Clear</button>
+    </div>
+
+    <div id='msgs' class="chatContainer" style="flex:1;"></div>
+
+    <button id="scrollBtn" onclick="scrollToBottom()"
+      style="position:fixed;bottom:110px;right:15px;z-index:9999;background:#ff2d55;border:none;color:#fff;width:42px;height:42px;border-radius:50%;font-size:18px;display:none;box-shadow:0 5px 15px rgba(0,0,0,.3);">↓</button>
+
+    <div class="chatInputArea card">
+      <div id="recordUI" style="display:none;align-items:center;gap:10px;">
+        <div id="wave" class="wave"></div>
+        <span id="recordTime">0:00</span>
+      </div>
+      <input id='msg' class='inp' placeholder='Type a message…' maxlength="500">
+      <button id="recordBtn" class="btn">🎤</button>
+      <button class='btn sendBtn' onclick='sendMsg()'>Send</button>
+    </div>
+  </div>
+
+  <!-- Delete menu -->
+  <div id="deleteMenu" style="position:fixed;bottom:0;left:0;width:100%;background:#111;border-top-left-radius:16px;border-top-right-radius:16px;padding:15px;display:none;z-index:9999;">
+    <button onclick="handleDelete('me')" class="delBtn">Delete for Me</button>
+    <button onclick="handleDelete('everyone')" class="delBtn">Delete for Everyone</button>
+    <button onclick="closeDeleteMenu()" class="delBtn cancel">Cancel</button>
   </div>
 </section>
 
   <div id="globalToast" class="toast"></div>
-<section id='profile' class='page'>
+<section id='profile' class='page' style="overflow-y:auto;padding-bottom:70px;">
+
+  <!-- ── Settings menu ── -->
   <div class="profileHeader">
-  <div class="profileTopLeft"></div>
-  
-  <div class="profileTopRight">
-    <button class="settingsBtn" onclick="toggleProfileMenu()">⋮</button>
-    
-    <div id="profileMenu" class="profileMenu hidden">
-      <div onclick="openSettings()">⚙️ Settings</div>
-      <div onclick="editProfile()">✏️ Edit Profile</div>
-      <div onclick="logout()">🚪 Logout</div>
+    <div class="profileTopRight">
+      <button class="settingsBtn" onclick="toggleProfileMenu()">⋮</button>
+      <div id="profileMenu" class="profileMenu hidden">
+        <div onclick="openSettings()">⚙️ Settings</div>
+        <div onclick="editProfile()">✏️ Edit Profile</div>
+        <div onclick="logout()">🚪 Logout</div>
+      </div>
     </div>
   </div>
-</div>
 
-<button id="backMyProfileBtn"
-  class="btn"
-  style="display:none; margin-top:10px;"
-  onclick="backToMyProfile()">
-  ← Back to My Profile
-</button>
+  <!-- ── Back button ── -->
+  <button id="backMyProfileBtn" class="btn"
+    style="display:none;margin:8px 12px 0;width:calc(100% - 24px);"
+    onclick="backToMyProfile()">← Back to My Profile</button>
 
-  <div class="profileTop">
+  <!-- ── Hero banner ── -->
+  <div style="position:relative;background:linear-gradient(160deg,#1a0010,#0d0d0d);padding:28px 16px 16px;text-align:center;">
 
-    <img id="profileBig" src="https://i.imgur.com/6VBx3io.png">
-    <h3 id="profileName">User</h3>
-  </div>
-<div class="statRow">
-  
-  <div onclick="openUserPosts('posts')" style="cursor:pointer;">
-    <b id="postCount">0</b><br>
-    <span>Posts</span>
-  </div>
-  
-  <div onclick="openFollowers()" style="cursor:pointer;">
-    <b id="followerCount">0</b><br>
-    <span>Followers</span>
-  </div>
-  
-  <div onclick="openFollowing()" style="cursor:pointer;">
-    <b id="followingCount">0</b><br>
-    <span>Following</span>
-  </div>
-  
-</div>
-  </div>
+    <!-- Avatar with glow -->
+    <div style="position:relative;display:inline-block;">
+      <img id="profileBig" src="https://i.imgur.com/6VBx3io.png"
+        decoding="async" loading="lazy"
+        style="width:92px;height:92px;border-radius:50%;object-fit:cover;border:3px solid #ff2d55;box-shadow:0 0 22px rgba(255,45,85,.5);">
+      <!-- online dot -->
+      <div id="profileOnlineDot" style="position:absolute;bottom:4px;right:4px;width:14px;height:14px;border-radius:50%;background:#555;border:2px solid #0d0d0d;"></div>
+    </div>
 
-  <div class="card">
-<input id="searchUser" class="inp"placeholder="Search users"oninput="searchUsers()"style="margin-bottom:2rem">
+    <h2 id="profileName" style="margin:10px 0 2px;font-size:20px;letter-spacing:.3px;">User</h2>
+    <p id="profileBio" style="color:#aaa;font-size:13px;margin:0 0 8px;min-height:18px;"></p>
 
-<div id="searchRes"></div>
+    <!-- Profile views -->
+    <div id="profileViewsRow" style="display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.06);padding:4px 12px;border-radius:20px;font-size:12px;color:#ccc;margin-bottom:12px;">
+      👁 <span id="profileViewsCount">0</span> profile views
+    </div>
 
-    <!-- profile posts grid -->
-   
-<div id="ownerControls">
-  
-  <input id="newName" class="inp" placeholder="Enter display name">
-  <input id="dpFile" type="file" class="inp" accept="image/*">
-  
-  <button class="btn" onclick="saveProfile()">Save Profile</button>
-     <button class="btn" onclick="logout()">
-      Logout
-    </button> 
-</div>
+    <!-- Stats row -->
+    <div style="display:flex;justify-content:space-around;margin-top:6px;">
+      <div onclick="openUserPosts('posts')" style="cursor:pointer;text-align:center;">
+        <b id="postCount" style="font-size:18px;">0</b><br>
+        <span style="font-size:11px;color:#aaa;">Posts</span>
+      </div>
+      <div onclick="openFollowersList()" style="cursor:pointer;text-align:center;">
+        <b id="followerCount" style="font-size:18px;">0</b><br>
+        <span style="font-size:11px;color:#aaa;">Followers</span>
+      </div>
+      <div onclick="openFollowingList()" style="cursor:pointer;text-align:center;">
+        <b id="followingCount" style="font-size:18px;">0</b><br>
+        <span style="font-size:11px;color:#aaa;">Following</span>
+      </div>
+    </div>
+
+    <!-- Follow / DM buttons (shown on other people's profiles) -->
+    <div id="profileActions" style="display:none;gap:8px;margin-top:12px;justify-content:center;display:none;">
+      <button id="followBtn" class="btn" onclick="followCurrentProfile()" style="min-width:110px;">Follow</button>
+      <button class="btn" onclick="dmCurrentProfile()" style="background:#222;min-width:110px;">💬 Message</button>
+    </div>
 
   </div>
 
-<div id="myPosts" style="display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:14px;height:50px;width:100%"></div>
+  <!-- ── Search + Edit ── -->
+  <div style="padding:10px 12px 0;">
+    <input id="searchUser" class="inp" placeholder="🔍 Search users…" oninput="searchUsers()">
+    <div id="searchRes" style="margin-top:6px;"></div>
+  </div>
+
+  <!-- ── Owner edit panel ── -->
+  <div id="ownerControls" style="display:none;padding:10px 12px;">
+    <div class="card" style="display:flex;flex-direction:column;gap:8px;">
+      <b style="font-size:14px;">✏️ Edit Profile</b>
+      <input id="newName" class="inp" placeholder="Display name">
+      <textarea id="newBio" class="inp" placeholder="Bio / about me…" rows="2"
+        style="resize:none;font-family:inherit;font-size:14px;"></textarea>
+      <input id="dpFile" type="file" class="inp" accept="image/*">
+      <button class="btn" onclick="saveProfile()">Save Profile</button>
+      <button class="btn" onclick="logout()" style="background:#222;">🚪 Logout</button>
+    </div>
+  </div>
+
+  <!-- ── Posts grid ── -->
+  <div id="myPosts" style="display:grid;grid-template-columns:repeat(3,1fr);gap:3px;margin-top:10px;width:100%;"></div>
 
 </section>
+
+<!-- ══ FOLLOWERS / FOLLOWING POPUP ══ -->
+<div id="followListPopup" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#000;z-index:99999;overflow:hidden;flex-direction:column;">
+
+  <div style="display:flex;align-items:center;padding:14px 12px;border-bottom:1px solid #222;">
+    <button onclick="closeFollowListPopup()" style="background:none;border:none;color:#fff;font-size:22px;margin-right:10px;">←</button>
+    <b id="followListTitle" style="font-size:16px;">Followers</b>
+  </div>
+
+  <div id="followListBody" style="overflow-y:auto;flex:1;padding:8px;"></div>
+</div>
+
+<!-- ══ MINI USER PROFILE POPUP (inside follow list) ══ -->
+<div id="miniProfilePopup" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#000;z-index:999999;overflow-y:auto;">
+
+  <div style="display:flex;align-items:center;padding:14px 12px;border-bottom:1px solid #222;position:sticky;top:0;background:#000;z-index:2;">
+    <button onclick="closeMiniProfile()" style="background:none;border:none;color:#fff;font-size:22px;margin-right:10px;">←</button>
+    <b id="miniProfileTitle">Profile</b>
+  </div>
+
+  <!-- hero -->
+  <div style="text-align:center;padding:24px 16px 16px;background:linear-gradient(160deg,#1a0010,#0d0d0d);">
+    <img id="miniProfilePhoto" src="https://i.imgur.com/6VBx3io.png"
+      style="width:84px;height:84px;border-radius:50%;object-fit:cover;border:3px solid #ff2d55;box-shadow:0 0 18px rgba(255,45,85,.4);">
+    <h3 id="miniProfileName" style="margin:10px 0 3px;"></h3>
+    <p id="miniProfileBio" style="color:#aaa;font-size:13px;margin:0 0 10px;min-height:16px;"></p>
+    <div style="display:flex;justify-content:space-around;margin-top:8px;">
+      <div style="text-align:center;"><b id="miniPostCount">0</b><br><span style="font-size:11px;color:#aaa;">Posts</span></div>
+      <div style="text-align:center;"><b id="miniFollowerCount">0</b><br><span style="font-size:11px;color:#aaa;">Followers</span></div>
+      <div style="text-align:center;"><b id="miniFollowingCount">0</b><br><span style="font-size:11px;color:#aaa;">Following</span></div>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:center;margin-top:12px;">
+      <button id="miniFollowBtn" class="btn" onclick="followMiniProfile()" style="min-width:110px;">Follow</button>
+      <button class="btn" onclick="dmMiniProfile()" style="background:#222;min-width:110px;">💬 Message</button>
+    </div>
+  </div>
+
+  <!-- posts grid -->
+  <div id="miniProfilePosts" style="display:grid;grid-template-columns:repeat(3,1fr);gap:2px;margin-top:8px;"></div>
+</div>
 <!-- REPLACE YOUR <nav> WITH THIS -->
 <nav class='nav'>
   <span onclick="go('home')">⌂</span>
   <span onclick="go('upload')">＋</span>
   <span onclick="go('chat')">✉</span>
   <span onclick="go('notify')">♡</span>
-  <span onclick="go('profile')">˙⋆✮</span>
+  <span onclick="goProfile()">˙⋆✮</span>
 </nav>
 <script type='module'>
 window.onload = () => {
@@ -975,35 +1239,148 @@ window.stopAllReels = () => {
 
 const postsGrid = document.getElementById("postsGrid");
 
+// ── PAGE NAV ORDER for slide direction ──
+const PAGE_ORDER = ['home','upload','chat','notify','profile'];
+let _currentPage = 'home';
+
 window.go = (id) => {
-  
-  document.querySelectorAll(".page")
-    .forEach(p => p.classList.remove("show"));
-  
-  document.getElementById(id)
-    .classList.add("show");
-  
-  /* leaving home = stop reel sound/video */
-  if (id !== "home") {
-    stopAllReels();
+  if (_currentPage === id) return; // no-op if same page
+
+  const outEl = document.getElementById(_currentPage);
+  const inEl  = document.getElementById(id);
+  if (!inEl) return;
+
+  const outIdx = PAGE_ORDER.indexOf(_currentPage);
+  const inIdx  = PAGE_ORDER.indexOf(id);
+  const goRight = inIdx >= outIdx;
+
+  // slide out current
+  if (outEl) {
+    outEl.style.transition = 'opacity 0.22s ease, transform 0.22s ease';
+    outEl.style.opacity    = '0';
+    outEl.style.transform  = goRight ? 'translateX(-18px)' : 'translateX(18px)';
+    setTimeout(() => {
+      outEl.classList.remove('show');
+      outEl.style.transition = '';
+      outEl.style.opacity    = '';
+      outEl.style.transform  = '';
+    }, 230);
   }
-  
-  /* show only home items */
-  if (id === "home") {
-    
-    storiesBar.style.display = "flex";
-    reels.style.display = "block";
-    
-    setTimeout(initAutoPlay, 150);
-    
+
+  // prep incoming page — start offscreen
+  inEl.style.transition = 'none';
+  inEl.style.opacity    = '0';
+  inEl.style.transform  = goRight ? 'translateX(22px)' : 'translateX(-22px)';
+  inEl.classList.add('show');
+
+  // trigger slide in on next frame
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      inEl.style.transition = 'opacity 0.28s cubic-bezier(0.22,1,0.36,1), transform 0.28s cubic-bezier(0.22,1,0.36,1)';
+      inEl.style.opacity    = '1';
+      inEl.style.transform  = 'translateX(0)';
+      setTimeout(() => {
+        inEl.style.transition = '';
+        inEl.style.opacity    = '';
+        inEl.style.transform  = '';
+      }, 290);
+    });
+  });
+
+  _currentPage = id;
+
+  /* leaving home = stop reel sound/video */
+  if (id !== 'home') stopAllReels();
+
+  /* show/hide stories bar + reels */
+  if (id === 'home') {
+    storiesBar.style.display = 'flex';
+    reels.style.display      = 'block';
+    setTimeout(initAutoPlay, 160);
   } else {
-    
-    storiesBar.style.display = "none";
-    reels.style.display = "none";
-    
+    storiesBar.style.display = 'none';
+    reels.style.display      = 'none';
   }
 };
-window.logout = () => signOut(auth);
+// ── SKELETON HELPERS ──
+function clearReelSkeletons() {
+  const wrap = document.getElementById('reels');
+  if (!wrap) return;
+  // Remove only skeleton reels (no id), leave real reels (id="reel-*") untouched
+  wrap.querySelectorAll('.reel:not([id^="reel-"])').forEach(el => el.remove());
+}
+function skelReels(count = 3) {
+  const wrap = document.getElementById('reels');
+  if (!wrap) return;
+  // Only skip if REAL reels already exist
+  if (wrap.querySelector('.reel[id^="reel-"]')) return;
+  // Remove any stale skeletons first to avoid duplicates
+  wrap.querySelectorAll('.reel:not([id^="reel-"])').forEach(el => el.remove());
+  const skelHtml = Array.from({length: count}, () =>
+    `<div class="reel"><div class="skel-reel"></div></div>`
+  ).join('');
+  // Insert after #pullRefresh so that element is preserved
+  const pr = wrap.querySelector('#pullRefresh');
+  if (pr) pr.insertAdjacentHTML('afterend', skelHtml);
+  else wrap.insertAdjacentHTML('beforeend', skelHtml);
+}
+function skelPostGrid(box, count = 9) {
+  if (!box || box.querySelector('img,video')) return;
+  box.innerHTML = Array.from({length: count}, () =>
+    `<div class="skel skel-post"></div>`
+  ).join('');
+}
+function skelProfile() {
+  const box = document.getElementById('myPosts');
+  const nameEl = document.getElementById('profileName');
+  if (nameEl && nameEl.textContent === 'User') {
+    // avatar
+    document.getElementById('profileBig').style.opacity = '0.3';
+  }
+  skelPostGrid(box, 9);
+}
+function skelComments() {
+  const list = document.getElementById('commentList');
+  if (!list) return;
+  list.innerHTML = Array.from({length:4}, () => `
+<div class="skel-comment">
+  <div class="skel skel-comment-avatar"></div>
+  <div class="skel-comment-body">
+    <div class="skel skel-comment-line" style="width:55%"></div>
+    <div class="skel skel-comment-line" style="width:80%"></div>
+  </div>
+</div>`).join('');
+}
+function skelStories() {
+  const bar = document.getElementById('storiesBar');
+  if (!bar) return;
+  if (bar.querySelector('.story')) return;
+  bar.innerHTML = Array.from({length:6}, () => `
+<div class="story">
+  <div class="skel skel-story-ring"></div>
+  <div class="skel skel-story-label"></div>
+</div>`).join('');
+}
+// Show reel skeletons immediately on load
+skelReels(4);
+skelStories();
+
+window.logout = () => {
+  _chatListenersStarted = false;
+  signOut(auth);
+};
+
+// 🔥 Safe profile nav — does NOT go through go("profile") first to avoid loops
+window.goProfile = async () => {
+  if (!auth.currentUser) return;
+  const myUid = auth.currentUser.uid;
+  currentProfileUid = myUid;
+  _currentProfileUidForActions = myUid;
+  await openUserProfile(myUid);
+  // hide back button since this is own profile
+  const btn = document.getElementById("backMyProfileBtn");
+  if (btn) btn.style.display = "none";
+};
 /* GOOGLE LOGIN */
 window.login = async () => {
   try {
@@ -1083,18 +1460,28 @@ onAuthStateChanged(auth, async u => {
       data.name ||
       (u.email ? u.email.split('@')[0] : "User");
     
-    const finalPhoto =
-      data.photo ||
-      "https://i.imgur.com/6VBx3io.png";
-    
+    const finalPhoto = data.photo || "https://i.imgur.com/6VBx3io.png";
+    const finalBio   = data.bio   || "";
+    const views      = data.profileViews || [];
+
     userBox.textContent = finalName;
     topDp.src = finalPhoto;
     profileBig.src = finalPhoto;
     profileName.textContent = finalName;
+
+    const bioEl   = document.getElementById("profileBio");
+    const viewsEl = document.getElementById("profileViewsCount");
+    if (bioEl)   bioEl.innerText   = finalBio;
+    if (viewsEl) viewsEl.innerText = views.length;
     }
   loadMine();
   loadStories();
   loadFollowStats();
+  loadNotifications();
+  // Pre-load chat lists so chat tab opens instantly
+  _chatListenersStarted = true;
+  loadGroupList();
+  loadDmList();
   
 });
 onAuthStateChanged(auth, (u) => {
@@ -1139,128 +1526,152 @@ function updateProfileUI(uid) {
   const isMe = uid === auth.currentUser.uid;
   
   const owner = document.getElementById("ownerControls");
+  const settingsBtn = document.querySelector(".profileHeader");
   
   if (!owner) return;
   
-  if (isMe) {
-    owner.style.display = "block";
-  } else {
-    owner.style.display = "none";
-  }
+  // 🔥 FIX: ALWAYS hide the edit panel by default — editProfile() opens it on demand
+  owner.style.display = "none";
+  
+  // Show/hide the ⋮ settings button only for own profile
+  if (settingsBtn) settingsBtn.style.display = isMe ? "block" : "none";
 }
 
-/* 5. OPTIONAL PHOTO UPLOAD SUPPORT */
-/* REPLACE uploadVideo() */
+
+async function compressImage(file) {
+  if (!file.type.startsWith('image')) return file;
+  return new Promise(resolve => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      const MAX = 1280;
+      let W = img.width, H = img.height;
+      if (W > MAX) { H = Math.round(H * MAX / W); W = MAX; }
+      const canvas = document.createElement('canvas');
+      canvas.width = W; canvas.height = H;
+      canvas.getContext('2d').drawImage(img, 0, 0, W, H);
+      canvas.toBlob(blob => {
+        URL.revokeObjectURL(url);
+        resolve(blob && blob.size < file.size ? blob : file);
+      }, 'image/jpeg', 0.82);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); resolve(file); };
+    img.src = url;
+  });
+}
+
+/* ─── UPLOAD POST (direct — no compression) ─── */
 window.uploadVideo = async () => {
   const f = file.files[0];
   if (!f) return alert("Select file first");
-  
-  const btn = document.getElementById("uploadBtn");
-  const status = document.getElementById("uploadStatus");
-  
+
+  const btn          = document.getElementById("uploadBtn");
+  const status       = document.getElementById("uploadStatus");
+  const progressWrap = document.getElementById("uploadProgressWrap");
+  const progressBar  = document.getElementById("uploadProgressBar");
+  const progressText = document.getElementById("uploadProgressText");
+
   btn.innerText = "Uploading...";
-  btn.disabled = true;
-  status.innerText = "Starting...";
-  
+  btn.disabled  = true;
+  progressWrap.style.display = "block";
+  progressBar.style.width = "0%";
+  progressText.innerText  = "0%";
+
   try {
     const isImg = f.type.startsWith("image");
-    
-    let thumbnail = "";
-    
-    // 🎥 THUMBNAIL
-    if (!isImg) {
-      status.innerText = "Generating thumbnail...";
-      
-      const video = document.createElement("video");
-      video.src = URL.createObjectURL(f);
-      video.muted = true;
-      
-      await new Promise((resolve) => {
-        video.onloadeddata = () => {
-          video.currentTime = Math.min(0.5, video.duration || 0.5);
-        };
-        
-        video.onseeked = () => {
+    let uploadFile = f;
+    let thumbnail  = "";
+
+    if (isImg) {
+      status.innerText = "Preparing image…";
+      uploadFile = await compressImage(f);
+      status.innerText = `Image ready (${(uploadFile.size/1024).toFixed(0)} KB)`;
+    } else {
+      // Generate thumbnail only — no video compression
+      status.innerText = "Generating thumbnail…";
+      const thumbVid = document.createElement("video");
+      thumbVid.src   = URL.createObjectURL(f);
+      thumbVid.muted = true;
+      await new Promise(res => {
+        thumbVid.onloadeddata = () => { thumbVid.currentTime = Math.min(0.5, thumbVid.duration || 0.5); };
+        thumbVid.onseeked = () => {
           try {
-            const canvas = document.createElement("canvas");
-            canvas.width = video.videoWidth || 320;
-            canvas.height = video.videoHeight || 180;
-            
-            const ctx = canvas.getContext("2d");
-            ctx.drawImage(video, 0, 0);
-            
-            thumbnail = canvas.toDataURL("image/jpeg", 0.6);
-          } catch (e) {
-            console.log("Thumbnail error", e);
-          }
-          resolve();
+            const c = document.createElement("canvas");
+            c.width  = thumbVid.videoWidth  || 320;
+            c.height = thumbVid.videoHeight || 180;
+            c.getContext("2d").drawImage(thumbVid, 0, 0);
+            thumbnail = c.toDataURL("image/jpeg", 0.6);
+          } catch(e) {}
+          URL.revokeObjectURL(thumbVid.src);
+          res();
         };
-        
-        setTimeout(resolve, 1500);
+        setTimeout(res, 1500);
       });
+      status.innerText = "Uploading video…";
     }
-    
-    status.innerText = "Uploading to server...";
-    
+
+    // ── UPLOAD directly ──
     const fd = new FormData();
-    fd.append("file", f);
+    fd.append("file", uploadFile);
     fd.append("upload_preset", "Fiveer");
-    
-    const url = isImg ?
-      "https://api.cloudinary.com/v1_1/dlsfr0ies/image/upload" :
-      "https://api.cloudinary.com/v1_1/dlsfr0ies/video/upload";
-    
-    const res = await fetch(url, {
-      method: "POST",
-      body: fd
+    const uploadUrl = isImg
+      ? "https://api.cloudinary.com/v1_1/dlsfr0ies/image/upload"
+      : "https://api.cloudinary.com/v1_1/dlsfr0ies/video/upload";
+
+    const data = await new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open("POST", uploadUrl);
+      xhr.upload.onprogress = e => {
+        if (e.lengthComputable) {
+          const pct = Math.round((e.loaded / e.total) * 100);
+          progressBar.style.width = pct + "%";
+          progressText.innerText  = `Uploading ${pct}%`;
+        }
+      };
+      xhr.onload  = () => { try { resolve(JSON.parse(xhr.responseText)); } catch(e) { reject(e); } };
+      xhr.onerror = () => reject(new Error("Upload failed"));
+      xhr.send(fd);
     });
-    
-    if (!res.ok) throw new Error("Upload failed");
-    
-    const data = await res.json();
+
     if (!data.secure_url) throw new Error("No URL returned");
-    
-    status.innerText = "Saving post...";
-    
+
+    status.innerText = "Saving post…";
     await addDoc(collection(db, "posts"), {
-  user: auth.currentUser.email,
-  uid: auth.currentUser.uid,
-  caption: caption.value,
-  photo: isImg ? data.secure_url : "",
-  video: isImg ? "" : data.secure_url,
-  thumbnail: thumbnail,
-  type: isImg ? "post" : "reel", // 🔥 ADD THIS
-  likes: 0,
-  time: serverTimestamp()
-});
-    
-    // ✅ SUCCESS (ONLY HERE)
+      user:      auth.currentUser.email,
+      uid:       auth.currentUser.uid,
+      caption:   caption.value,
+      photo:     isImg ? data.secure_url : "",
+      video:     isImg ? "" : data.secure_url,
+      thumbnail,
+      type:      isImg ? "post" : "reel",
+      likes:     0,
+      time:      serverTimestamp()
+    });
+
     status.innerText = "Uploaded ✅";
-    showToast("🎥 Video uploaded successfully");
+    progressBar.style.width = "100%";
+    progressText.innerText  = "100%";
+    showToast("🎥 Uploaded successfully");
     btn.innerText = "Upload Post";
-    btn.disabled = false;
-    
-    file.value = "";
+    btn.disabled  = false;
+    file.value    = "";
     caption.value = "";
     previewBox.style.display = "none";
-    
-    // ⏳ REMOVE AFTER 10s
+    document.getElementById("cancelPostPreview")?.remove?.();
+
     setTimeout(() => {
-  status.classList.add("fadeOut");
-  
-  setTimeout(() => {
-    status.innerText = "";
-    status.classList.remove("fadeOut");
-  }, 500);
-  
-}, 9000);
-}catch (err) {
+      status.classList.add("fadeOut");
+      progressWrap.style.display = "none";
+      progressBar.style.width    = "0%";
+      setTimeout(() => { status.innerText = ""; status.classList.remove("fadeOut"); }, 500);
+    }, 6000);
+
+  } catch (err) {
     console.error(err);
-    
     status.innerText = "Upload failed ❌";
+    progressWrap.style.display = "none";
     btn.innerText = "Upload Post";
-    btn.disabled = false;
-    
+    btn.disabled  = false;
     alert("Upload failed: " + err.message);
   }
 };
@@ -1319,11 +1730,32 @@ onSnapshot(pq, (s) => {
 });
 
 function addReelToDOM(id, p) {
-  
+  // 🔥 FIX: Reels section only shows video posts, not image posts
+  if (!p.video) return;
+
+  // 🔥 FIX: Wipe skeleton placeholders the moment the first real reel arrives
+  clearReelSkeletons();
+
   const div = document.createElement("div");
   div.className = "reel";
   div.id = "reel-" + id;
-  
+
+  // Resolve display name: stored name field > USER_CACHE > email prefix > fallback
+  const displayName =
+    p.name?.trim() ||
+    (p.uid && USER_CACHE[p.uid]?.name) ||
+    (p.user ? p.user.split("@")[0] : "User");
+
+  // Uploader photo from cache
+  const uploaderPhoto =
+    (p.uid && USER_CACHE[p.uid]?.photo) ||
+    "https://i.imgur.com/6VBx3io.png";
+
+  const isOwner = auth.currentUser && (
+    auth.currentUser.uid === p.uid ||
+    auth.currentUser.email === p.user
+  );
+
   div.innerHTML = `
     <div class="heart"
       style="display:none;position:absolute;top:40%;left:45%;font-size:60px;z-index:9;">❤️</div>
@@ -1331,45 +1763,30 @@ function addReelToDOM(id, p) {
     <video
       class="reelVideo"
       data-src="${p.video}"
-      muted
-      playsinline
-      loop
-      preload="none"
+      muted playsinline loop preload="none"
       onclick="toggleSound(this)"
       ondblclick="dblLike('${id}',${p.likes||0},this)">
     </video>
 
     <div class="overlay">
-
-      <b>@${p.name || p.user.split("@")[0]}</b>
-      <div>${p.caption || ""}</div>
+      <div style="display:flex;align-items:center;gap:9px;margin-bottom:5px;">
+        <img src="${uploaderPhoto}" data-uid="${p.uid||''}"
+          style="width:34px;height:34px;border-radius:50%;object-fit:cover;border:2px solid #ff2d55;cursor:pointer;"
+          onclick="openUserProfile('${p.uid||''}')">
+        <b data-uid="${p.uid||''}" style="cursor:pointer;" onclick="openUserProfile('${p.uid||''}')">@${displayName}</b>
+      </div>
+      <div style="font-size:13px;color:#eee;margin-bottom:6px;">${p.caption || ""}</div>
 
       <div class="actionBar">
-
-        <button class="btn"
-        onclick="likePost('${id}')">
+        <button class="btn" onclick="likePost('${id}')">
           ❤️ <span id="like-${id}">${p.likes || 0}</span>
         </button>
-
-        <button class="btn"
-        onclick="commentPost('${id}')">
-          💬
-        </button>
-
-        ${
-          auth.currentUser &&
-          auth.currentUser.email === p.user
-          ? `<button class="btn"
-              onclick="delPost('${id}')">✖</button>`
-          : ""
-        }
-
+        <button class="btn" onclick="commentPost('${id}')">💬</button>
+        ${isOwner ? `<button class="btn" onclick="delPost('${id}')">✖</button>` : ""}
       </div>
-
     </div>
   `;
-  
-  // 🔥 add on top (like Instagram)
+
   insertReelSorted(div, id);
 }
 
@@ -1437,47 +1854,101 @@ window.dblLike = async (id, n, el) => {
 let skipNextPostsRefresh = false;
 
 
+// 🔥 Guard to prevent double-fire
+const _likingInProgress = new Set();
+
 window.likePost = async (postId) => {
-  
-  const user = auth.currentUser?.email;
+  const user = auth.currentUser;
   if (!user) return;
-  
-  const likeRef = doc(db, "posts", postId, "likes", user);
+
+  // Prevent double-tap spam
+  if (_likingInProgress.has(postId)) return;
+  _likingInProgress.add(postId);
+
+  const likeRef = doc(db, "posts", postId, "likes", user.email);
   const postRef = doc(db, "posts", postId);
-  const countEl = document.getElementById("like-" + postId);
-  
-  const liked = await getDoc(likeRef);
-  
-  skipNextPostsRefresh = true;
-  
-  if (liked.exists()) {
-    
-    await deleteDoc(likeRef);
-    await updateDoc(postRef, {
-      likes: increment(-1)
-    });
-    
-    if (countEl) countEl.innerText =
-      Math.max(0, (+countEl.innerText - 1));
-    
-  } else {
-    
-    await setDoc(likeRef, {
-      user,
-      time: serverTimestamp()
-    });
-    
-    await updateDoc(postRef, {
-      likes: increment(1)
-    });
-    
-    if (countEl) countEl.innerText =
-      (+countEl.innerText + 1);
+
+  try {
+    const liked = await getDoc(likeRef);
+
+    if (liked.exists()) {
+      // Unlike — only Firestore update, NO manual DOM counter (onSnapshot handles it)
+      await deleteDoc(likeRef);
+      await updateDoc(postRef, { likes: increment(-1) });
+    } else {
+      // Like
+      await setDoc(likeRef, { user: user.email, time: serverTimestamp() });
+      await updateDoc(postRef, { likes: increment(1) });
+
+      // Notification
+      const postData = REELS_MAP.get(postId);
+      const postOwnerUid = postData?.uid;
+      if (postOwnerUid && postOwnerUid !== user.uid) {
+        const myName = USER_CACHE[user.uid]?.name || user.email.split("@")[0];
+        addDoc(collection(db, "notifications"), {
+          toUid: postOwnerUid,
+          fromUid: user.uid,
+          fromName: myName,
+          type: "like",
+          postId,
+          time: serverTimestamp(),
+          read: false
+        }).catch(() => {});
+      }
+    }
+  } catch(e) {
+    console.error("Like error:", e);
+  } finally {
+    _likingInProgress.delete(postId);
   }
-  
-  setTimeout(() => {
-    skipNextPostsRefresh = false;
-  }, 1200);
+};
+
+// 🔥 Like for Instagram-style post feed
+window.likePostFeed = async (postId, btnEl) => {
+  const user = auth.currentUser;
+  if (!user) return;
+
+  if (_likingInProgress.has(postId)) return;
+  _likingInProgress.add(postId);
+
+  const likeRef = doc(db, "posts", postId, "likes", user.email);
+  const postRef = doc(db, "posts", postId);
+
+  try {
+    const liked = await getDoc(likeRef);
+
+    if (liked.exists()) {
+      LIKED_POSTS.delete(postId);
+      if (btnEl) btnEl.textContent = "🤍";
+      await deleteDoc(likeRef);
+      await updateDoc(postRef, { likes: increment(-1) });
+    } else {
+      LIKED_POSTS.add(postId);
+      if (btnEl) btnEl.textContent = "❤️";
+      await setDoc(likeRef, { user: user.email, time: serverTimestamp() });
+      await updateDoc(postRef, { likes: increment(1) });
+
+      const postSnap = await getDoc(postRef);
+      const postOwnerUid = postSnap.data()?.uid;
+      if (postOwnerUid && postOwnerUid !== user.uid) {
+        const myName = USER_CACHE[user.uid]?.name || user.email.split("@")[0];
+        addDoc(collection(db, "notifications"), {
+          toUid: postOwnerUid,
+          fromUid: user.uid,
+          fromName: myName,
+          type: "like",
+          postId,
+          time: serverTimestamp(),
+          read: false
+        }).catch(() => {});
+      }
+    }
+  } catch(e) {
+    console.error("Like error:", e);
+  } finally {
+    _likingInProgress.delete(postId);
+    if (btnEl) btnEl.disabled = false;
+  }
 };
 
 let currentCommentPost = "";
@@ -1495,6 +1966,7 @@ window.commentPost = async (id) => {
   });
   
   commentInput.value = "";
+  skelComments(); // 🦴 show skeleton while loading
   
   const q = query(
     collection(db, "posts", id, "comments"),
@@ -1738,28 +2210,30 @@ let reelsSound = false;
 /* FOLLOW / UNFOLLOW */
 window.followUser = async (targetUid) => {
   const myUid = auth.currentUser.uid;
-  
-  const snap = await getDocs(collection(db, "follows"));
-  
-  let foundId = null;
-  
-  snap.forEach(x => {
-    const d = x.data();
-    if (d.from === myUid && d.to === targetUid) {
-      foundId = x.id;
-    }
-  });
-  
-  if (foundId) {
-    await deleteDoc(doc(db, "follows", foundId));
+
+  // 🔥 PERF FIX: targeted query instead of scanning entire follows collection
+  const snap = await getDocs(query(collection(db, "follows"),
+    where("from", "==", myUid), where("to", "==", targetUid)));
+
+  if (!snap.empty) {
+    await deleteDoc(doc(db, "follows", snap.docs[0].id));
   } else {
     await addDoc(collection(db, "follows"), {
       from: myUid,
       to: targetUid,
       time: serverTimestamp()
     });
+    const myName = USER_CACHE[myUid]?.name || auth.currentUser.email.split("@")[0];
+    await addDoc(collection(db, "notifications"), {
+      toUid: targetUid,
+      fromUid: myUid,
+      fromName: myName,
+      type: "follow",
+      time: serverTimestamp(),
+      read: false
+    }).catch(() => {});
   }
-  
+
   loadFollowStats();
 };
 /* FOLLOWERS + FOLLOWING COUNT */
@@ -1768,39 +2242,128 @@ let FOLLOW_CACHE = new Set();
 let FOLLOWING_SET = new Set();
 let followStatsUnsub = null;
 
-function loadFollowStats() {
+// 🔥 FIX 4: NOTIFICATIONS SYSTEM
+let notiUnsub = null;
+
+function loadNotifications() {
   if (!auth.currentUser) return;
-  
+  if (notiUnsub) notiUnsub();
+
   const myUid = auth.currentUser.uid;
-  
-  if (followStatsUnsub) followStatsUnsub();
-  
-  followStatsUnsub = onSnapshot(collection(db, "follows"), (snap) => {
-    
-    let followers = 0;
-    let following = 0;
-    
-    FOLLOWING_SET.clear(); // 🔥 reset cache
-    
-    snap.forEach(docu => {
-      const d = docu.data();
-      
-      if (d.to === myUid) followers++;
-      
-      if (d.from === myUid) {
-        following++;
-        FOLLOWING_SET.add(d.to); // 🔥 store who I follow
+  // 🔥 FIX: No orderBy with where — avoids Firestore composite index error. Sort client-side.
+  const notiQ = query(
+    collection(db, "notifications"),
+    where("toUid", "==", myUid)
+  );
+
+  notiUnsub = onSnapshot(notiQ, (snap) => {
+    const notiList = document.getElementById("notiList");
+    if (!notiList) return;
+
+    const THREE_DAYS = 3 * 24 * 60 * 60 * 1000;
+    const now = Date.now();
+
+    // 🔥 Auto-delete notifications older than 3 days
+    snap.docs.forEach(d => {
+      const n = d.data();
+      const nTime = (n.time?.seconds || 0) * 1000;
+      if (nTime && (now - nTime) > THREE_DAYS) {
+        deleteDoc(doc(db, "notifications", d.id)).catch(() => {});
       }
     });
-    
-    followerCount.textContent = followers;
-    followingCount.textContent = following;
-    
-    // 🔥 IMPORTANT: refresh search UI instantly
-    if (searchUser.value.trim()) {
-      searchUsers();
+
+    // sort client-side newest first
+    const docs = snap.docs.slice().sort((a, b) => {
+      const at = a.data().time?.seconds || 0;
+      const bt = b.data().time?.seconds || 0;
+      return bt - at;
+    });
+
+    let unread = 0;
+    let html = "";
+
+    docs.forEach(d => {
+      const n = d.data();
+      if (!n.read) unread++;
+
+      const fromPhoto = USER_CACHE[n.fromUid]?.photo || "https://i.imgur.com/6VBx3io.png";
+      const timeStr = timeAgo(n.time);
+
+      let icon = "", msg = "";
+      if (n.type === "like") {
+        icon = "❤️";
+        msg = `<b>${n.fromName || "Someone"}</b> liked your post`;
+      } else if (n.type === "follow") {
+        icon = "🤝";
+        msg = `<b>${n.fromName || "Someone"}</b> started following you`;
+      }
+
+      if (!msg) return; // skip unknown types
+
+      html += `
+<div onclick="markNotiRead('${d.id}')" style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid #1a1a1a;cursor:pointer;background:${n.read ? 'transparent' : 'rgba(255,45,85,0.06)'};">
+  <div style="position:relative;">
+    <img src="${fromPhoto}" style="width:46px;height:46px;border-radius:50%;object-fit:cover;border:2px solid #222;">
+    <div style="position:absolute;bottom:-2px;right:-2px;font-size:16px;line-height:1;">${icon}</div>
+  </div>
+  <div style="flex:1;">
+    <div style="font-size:14px;color:#fff;">${msg}</div>
+    <div style="font-size:11px;color:#666;margin-top:3px;">${timeStr}</div>
+  </div>
+  ${!n.read ? '<div style="width:8px;height:8px;border-radius:50%;background:#ff2d55;flex-shrink:0;"></div>' : ""}
+</div>`;
+    });
+
+    notiList.innerHTML = html || `<div style="text-align:center;color:#555;padding:30px;font-size:14px;">No notifications yet 🔔</div>`;
+
+    // update badge
+    const badge = document.getElementById("notiBadge");
+    if (badge) {
+      badge.textContent = unread > 0 ? (unread > 9 ? "9+" : String(unread)) : "";
+      badge.style.display = unread > 0 ? "flex" : "none";
     }
   });
+}
+
+window.markNotiRead = async (notiId) => {
+  await updateDoc(doc(db, "notifications", notiId), { read: true }).catch(() => {});
+};
+
+window.markAllNotiRead = async () => {
+  if (!auth.currentUser) return;
+  const snap = await getDocs(query(collection(db, "notifications"), where("toUid", "==", auth.currentUser.uid), where("read", "==", false)));
+  for (const d of snap.docs) {
+    await updateDoc(doc(db, "notifications", d.id), { read: true }).catch(() => {});
+  }
+};
+
+function loadFollowStats() {
+  if (!auth.currentUser) return;
+  const myUid = auth.currentUser.uid;
+  if (followStatsUnsub) followStatsUnsub();
+
+  // 🔥 PERF FIX: Use targeted where queries instead of full collection scan
+  // Listen to followers (docs where to == myUid)
+  const followersUnsub = onSnapshot(
+    query(collection(db, "follows"), where("to", "==", myUid)),
+    (snap) => {
+      followerCount.textContent = snap.size;
+    }
+  );
+
+  // Listen to following (docs where from == myUid)
+  const followingUnsub = onSnapshot(
+    query(collection(db, "follows"), where("from", "==", myUid)),
+    (snap) => {
+      FOLLOWING_SET.clear();
+      snap.forEach(docu => FOLLOWING_SET.add(docu.data().to));
+      followingCount.textContent = snap.size;
+      if (searchUser.value.trim()) searchUsers();
+    }
+  );
+
+  // Combine unsub for cleanup
+  followStatsUnsub = () => { followersUnsub(); followingUnsub(); };
 }
 /* follows */
 /* SEARCH USERS */
@@ -1839,9 +2402,21 @@ window.searchUsers = async () => {
         
         const following = FOLLOWING_SET.has(uid);
 
-searchRes.innerHTML += `<div class="card"><b>${name || email.split("@")[0]}</b><br><small>${email}</small><br>
-
-  <button class="btn" onclick="followUser('${uid}')">
+const photo = u.photo || "https://i.imgur.com/6VBx3io.png";
+const online = ONLINE_USERS.has(uid);
+const displayN = name || email.split("@")[0];
+searchRes.innerHTML += `
+<div class="card" style="display:flex;align-items:center;gap:12px;margin-bottom:6px;">
+  <div style="position:relative;cursor:pointer;" onclick="openUserProfile('${uid}')">
+    <img src="${photo}" style="width:46px;height:46px;border-radius:50%;object-fit:cover;border:2px solid #ff2d55;">
+    <div style="position:absolute;bottom:1px;right:1px;width:10px;height:10px;border-radius:50%;
+      background:${online?"#00e676":"#555"};border:2px solid #111;"></div>
+  </div>
+  <div style="flex:1;cursor:pointer;" onclick="openUserProfile('${uid}')">
+    <b>${displayN}</b>
+    <div style="font-size:11px;color:#aaa;">${online?"● Online":"● Offline"}</div>
+  </div>
+  <button class="btn" style="min-width:80px;padding:8px 12px;" onclick="followUser('${uid}')">
     ${following ? "Unfollow" : "Follow"}
   </button>
 </div>`;
@@ -1915,21 +2490,338 @@ onSnapshot(collection(db, "status"), (snap) => {
 
 
 
-/* REPLACE YOUR OLD CHAT CODE WITH THIS PREMIUM CHAT VERSION */
+/* ============================================================
+   MULTI-ROOM CHAT SYSTEM  (DM + password groups + global)
+   ============================================================ */
 
+// current active room
+let activeRoom = null; // { type: 'global'|'dm'|'group', id, title, unsub }
+let chatUnsubscribe = null;
+
+/* ---- helpers ---- */
+function getDmId(uid1, uid2) {
+  return [uid1, uid2].sort().join("_");
+}
+
+function hashPass(s) {
+  // simple djb2 hash (no crypto needed, just protection)
+  let h = 5381;
+  for (let i = 0; i < s.length; i++) h = (h * 33) ^ s.charCodeAt(i);
+  return (h >>> 0).toString(16);
+}
+
+/* ---- navigation ---- */
+function backToHub() {
+  if (chatUnsubscribe) { chatUnsubscribe(); chatUnsubscribe = null; }
+  activeRoom = null;
+  document.getElementById("chatView").style.display = "none";
+  document.getElementById("chatHub").style.display = "block";
+  msgs.innerHTML = "";
+}
+
+window.backToHub = backToHub;
+
+/* ---- open a room ---- */
+async function openRoom(collPath, title) {
+  if (chatUnsubscribe) { chatUnsubscribe(); chatUnsubscribe = null; }
+
+  document.getElementById("chatHub").style.display = "none";
+  const view = document.getElementById("chatView");
+  view.style.display = "flex";
+  view.style.flexDirection = "column";
+  document.getElementById("chatViewTitle").innerText = title;
+  msgs.innerHTML = "";
+
+  const q = query(collection(db, collPath), orderBy("time", "asc"));
+
+  chatUnsubscribe = onSnapshot(q, (snap) => {
+    let html = "";
+
+    for (const m of snap.docs) {
+      const d = m.data();
+      const mine = d.uid === auth.currentUser.uid;
+      const msgTime = d.time?.toMillis?.() || 0;
+
+      if (localClearedAt && msgTime < localClearedAt) continue;
+      if (d.deletedFor?.includes(auth.currentUser.uid)) continue;
+
+      if (!mine && !d.seen) {
+        updateDoc(doc(db, collPath, m.id), { seen: true });
+      }
+
+      const showName =
+        d.name?.trim() ||
+        USER_CACHE[d.uid]?.name ||
+        d.u?.split("@")[0] ||
+        "User";
+
+      let status = "";
+      if (!mine) {
+        status = ONLINE_USERS.has(d.uid) ? "● Online" : "● Offline";
+      }
+
+      html += `
+<div style="padding:7px;display:flex;flex-direction:column;align-items:${mine?"flex-end":"flex-start"};" id="msgwrap-${m.id}">
+  <div style="max-width:79%;padding:12px 24px;border-radius:17px;background:${mine?"#ff2d55":"#111"};color:#fff;position:relative;"
+    ${mine ? `
+      onmousedown="startMsgHold('${m.id}','${collPath}')"
+      ontouchstart="startMsgHold('${m.id}','${collPath}')"
+      onmouseup="cancelMsgHold()"
+      onmouseleave="cancelMsgHold()"
+      ontouchend="cancelMsgHold()"
+      ontouchcancel="cancelMsgHold()"
+    ` : ""}>
+    <b style="font-size:13px;">${showName} : </b><br>
+    ${d.audio ? `<audio controls src="${d.audio}" style="width:180px;"></audio>` : (d.t || "")}
+    <div style="font-size:7px;color:#aaa;margin-top:4px;text-align:right;">${formatTime(d.time)}</div>
+    ${mine ? `<button id="delbtn-${m.id}" onclick="openDeleteOptions('${m.id}','${collPath}')" style="display:none;position:absolute;top:-10px;right:-10px;background:#ff2d55;border:none;color:#fff;width:28px;height:28px;border-radius:50%;font-size:14px;cursor:pointer;z-index:5;align-items:center;justify-content:center;">🗑</button>` : ""}
+  </div>
+  <div style="font-size:11px;color:#aaa;margin-top:4px;">${mine ? (d.seen?"✓✓ Seen":"✓ Sent") : status}</div>
+</div>`;
+    }
+
+    msgs.innerHTML = html;
+    requestAnimationFrame(() => { msgs.scrollTop = msgs.scrollHeight; });
+  });
+}
+
+/* ---- open global group chat ---- */
+window.openGroupRoom = (groupId, password, isGlobal) => {
+  activeRoom = { type: isGlobal ? "global" : "group", collPath: `chat_rooms/${groupId}/messages` };
+  openRoom(`chat_rooms/${groupId}/messages`, isGlobal ? "🌐 Global Chat" : "🔒 " + groupId);
+};
+
+/* ---- open DM ---- */
+window.openDm = async (otherUid) => {
+  // Guard — null uid causes Firestore path crash
+  if (!otherUid || typeof otherUid !== "string" || !otherUid.trim()) {
+    showToast("Cannot open DM — invalid user", "error");
+    return;
+  }
+  if (!auth.currentUser) return;
+
+  const dmId = getDmId(auth.currentUser.uid, otherUid);
+  const snap = await getDoc(doc(db, "users", otherUid));
+  const name = snap.data()?.name || snap.data()?.email?.split("@")[0] || "User";
+  activeRoom = { type: "dm", collPath: `dms/${dmId}/messages`, otherUid };
+
+  // save dm record so it shows in list
+  await setDoc(doc(db, "dms", dmId), {
+    uids: [auth.currentUser.uid, otherUid],
+    updatedAt: serverTimestamp()
+  }, { merge: true });
+
+  // Switch to chat tab then open the room
+  go("chat");
+  openRoom(`dms/${dmId}/messages`, "💬 " + name);
+};
+
+/* ---- sendMsg (works for any room) ---- */
 window.sendMsg = async () => {
   const text = msg.value.trim();
   if (!text) return;
+  if (!activeRoom) return;
 
-  await addDoc(collection(db, "chat"), {
-  uid: auth.currentUser.uid,
-  u: auth.currentUser.email,
-  name: profileName.innerText.trim(),
-  t: text,
-  seen: false,
-  time: serverTimestamp()
-});
-msg.value = "";
+  await addDoc(collection(db, activeRoom.collPath), {
+    uid: auth.currentUser.uid,
+    u: auth.currentUser.email,
+    name: profileName.innerText.trim(),
+    t: text,
+    seen: false,
+    deletedFor: [],
+    deletedForEveryone: false,
+    time: serverTimestamp()
+  });
+  msg.value = "";
+};
+
+/* ---- Create group ---- */
+window.createGroup = async () => {
+  const name = document.getElementById("grpNameInp").value.trim();
+  const pass = document.getElementById("grpPassInp").value.trim();
+  if (!name) return showToast("Enter room name", "error");
+  if (!pass) return showToast("Enter password", "error");
+
+  const groupId = name.toLowerCase().replace(/\s+/g, "_") + "_" + Date.now();
+
+  await setDoc(doc(db, "groups", groupId), {
+    name,
+    passHash: hashPass(pass),
+    createdBy: auth.currentUser.uid,
+    createdAt: serverTimestamp()
+  });
+
+  showToast("Group created ✅", "success");
+  document.getElementById("grpNameInp").value = "";
+  document.getElementById("grpPassInp").value = "";
+
+  activeRoom = { type: "group", collPath: `chat_rooms/${groupId}/messages` };
+  openRoom(`chat_rooms/${groupId}/messages`, "🔒 " + name);
+};
+
+/* ---- Join group ---- */
+window.joinGroup = async () => {
+  const name = document.getElementById("grpNameInp").value.trim();
+  const pass = document.getElementById("grpPassInp").value.trim();
+  if (!name) return showToast("Enter room name", "error");
+  if (!pass) return showToast("Enter password", "error");
+
+  // search by name
+  const snap = await getDocs(query(collection(db, "groups"), where("name", "==", name)));
+
+  if (snap.empty) return showToast("Room not found", "error");
+
+  let found = null;
+  snap.forEach(d => {
+    const g = d.data();
+    if (g.passHash === hashPass(pass)) found = { id: d.id, ...g };
+  });
+
+  if (!found) return showToast("Wrong password ❌", "error");
+
+  showToast("Joined! 🎉", "success");
+  activeRoom = { type: "group", collPath: `chat_rooms/${found.id}/messages` };
+  openRoom(`chat_rooms/${found.id}/messages`, "🔒 " + found.name);
+};
+
+/* ---- Load group list ---- */
+function loadGroupList() {
+  onSnapshot(collection(db, "groups"), snap => {
+    let html = "";
+    snap.forEach(d => {
+      const g = d.data();
+      html += `
+<div class="card" style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+  <div style="font-size:24px;cursor:pointer;" onclick="promptJoinGroup('${d.id}','${g.name}')">🔒</div>
+  <div style="flex:1;cursor:pointer;" onclick="promptJoinGroup('${d.id}','${g.name}')">
+    <b>${g.name}</b><br><small style="color:#aaa;">Password protected</small>
+  </div>
+  ${g.createdBy === auth.currentUser.uid
+    ? `<button onclick="deleteGroup('${d.id}')" style="background:#333;border:none;color:#ff4444;padding:6px 10px;border-radius:8px;font-size:13px;">🗑</button>`
+    : ""}
+</div>`;
+    });
+    document.getElementById("groupList").innerHTML = html;
+  });
+}
+
+window.promptJoinGroup = async (groupId, groupName) => {
+  const pass = prompt(`Enter password for "${groupName}"`);
+  if (!pass) return;
+
+  const snap = await getDoc(doc(db, "groups", groupId));
+  if (!snap.exists()) return showToast("Room not found", "error");
+
+  const g = snap.data();
+  if (g.passHash !== hashPass(pass)) return showToast("Wrong password ❌", "error");
+
+  showToast("Joined! 🎉", "success");
+  activeRoom = { type: "group", collPath: `chat_rooms/${groupId}/messages` };
+  openRoom(`chat_rooms/${groupId}/messages`, "🔒 " + groupName);
+};
+
+/* ---- Delete group (owner only) ---- */
+window.deleteGroup = async (groupId) => {
+  if (!confirm("Delete this group and all its messages?")) return;
+  try {
+    // delete group doc
+    await deleteDoc(doc(db, "groups", groupId));
+    // delete all messages in the room
+    const msgs = await getDocs(collection(db, `chat_rooms/${groupId}/messages`));
+    for (const m of msgs.docs) {
+      await deleteDoc(doc(db, `chat_rooms/${groupId}/messages`, m.id));
+    }
+    showToast("Group deleted", "success");
+  } catch(e) {
+    showToast("Delete failed", "error");
+  }
+};
+
+/* ---- Load DM list ---- */
+function loadDmList() {
+  // No orderBy to avoid composite index requirement — sort client-side
+  onSnapshot(
+    query(collection(db, "dms"), where("uids", "array-contains", auth.currentUser.uid)),
+    async snap => {
+      const docs = snap.docs.slice().sort((a, b) => {
+        const at = a.data().updatedAt?.seconds || 0;
+        const bt = b.data().updatedAt?.seconds || 0;
+        return bt - at;
+      });
+      let html = "";
+      for (const d of docs) {
+        const uids = d.data().uids;
+        const otherId = uids.find(u => u !== auth.currentUser.uid);
+        if (!otherId) continue;
+        const uSnap = await getDoc(doc(db, "users", otherId));
+        const u = uSnap.data();
+        const name = u?.name || u?.email?.split("@")[0] || "User";
+        const photo = u?.photo || "https://i.imgur.com/6VBx3io.png";
+        const online = ONLINE_USERS.has(otherId);
+        html += `
+<div class="card" onclick="openDm('${otherId}')" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:6px;">
+  <div style="position:relative;">
+    <img src="${photo}" style="width:44px;height:44px;border-radius:50%;object-fit:cover;">
+    <div style="position:absolute;bottom:1px;right:1px;width:11px;height:11px;border-radius:50%;background:${online?"#00e676":"#555"};border:2px solid #111;"></div>
+  </div>
+  <div><b>${name}</b><br><small style="color:#aaa;">${online?"● Online":"● Offline"}</small></div>
+</div>`;
+      }
+      document.getElementById("dmList").innerHTML = html || "<small style='color:#555;padding:10px;display:block;'>No DMs yet — search for a user above</small>";
+    }
+  );
+}
+
+/* ---- Search users for DM ---- */
+window.searchDmUsers = async () => {
+  const q = document.getElementById("dmSearch").value.trim().toLowerCase();
+  const box = document.getElementById("dmSearchRes");
+  if (!q) { box.innerHTML = ""; return; }
+
+  const snap = await getDocs(collection(db, "users"));
+  let html = "";
+  snap.forEach(d => {
+    const u = d.data();
+    if (!u.uid || u.uid === auth.currentUser.uid) return;
+    const name = u.name || "";
+    const email = u.email || "";
+    if (!name.toLowerCase().includes(q) && !email.toLowerCase().includes(q)) return;
+    const photo = u.photo || "https://i.imgur.com/6VBx3io.png";
+    html += `
+<div class="card" onclick="openDm('${u.uid}')" style="cursor:pointer;display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+  <img src="${photo}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;">
+  <div><b>${name || email.split("@")[0]}</b><br><small style="color:#aaa;">${email}</small></div>
+</div>`;
+  });
+  box.innerHTML = html || "<small style='color:#555;padding:6px;display:block;'>No users found</small>";
+};
+
+/* ---- delete for active room ---- */
+let _activeMsgId = null;
+let _activeCollPath = null;
+
+window.openDeleteOptions = (id, collPath) => {
+  _activeMsgId = id;
+  _activeCollPath = collPath;
+  document.getElementById("deleteMenu").style.display = "block";
+};
+
+/* ---- init on chat tab open ---- */
+let _chatListenersStarted = false;
+const _origGo = window.go;
+window.go = (id) => {
+  _origGo(id);
+  if (id === "chat" && auth.currentUser) {
+    if (!_chatListenersStarted) {
+      _chatListenersStarted = true;
+      loadGroupList();
+      loadDmList();
+    }
+    if (!activeRoom) {
+      document.getElementById("chatHub").style.display  = "block";
+      document.getElementById("chatView").style.display = "none";
+    }
+  }
 };
 
 document.addEventListener("visibilitychange", () => {
@@ -2058,127 +2950,39 @@ onSnapshot(collection(db, "users"), (snap) => {
 
   snap.forEach(docu => {
     const d = docu.data();
-
     if (d.uid) {
       USER_CACHE[d.uid] = {
-        name:
-          d.name ||
-          (d.email
-            ? d.email.split("@")[0]
-            : "User")
+        name: d.name || (d.email ? d.email.split("@")[0] : "User"),
+        photo: d.photo || "https://i.imgur.com/6VBx3io.png"
       };
     }
   });
 
+  // 🔥 FIX 2: After cache loads, patch all reel names/photos that show "User"
+  document.querySelectorAll(".reel").forEach(reelEl => {
+    const id = reelEl.id.replace("reel-", "");
+    const p = REELS_MAP.get(id);
+    if (!p || !p.uid) return;
+    const cached = USER_CACHE[p.uid];
+    if (!cached) return;
+
+    // patch name text
+    const nameEl = reelEl.querySelector("b[data-uid]");
+    if (nameEl) nameEl.textContent = "@" + cached.name;
+
+    // patch avatar
+    const avatarEl = reelEl.querySelector("img[data-uid]");
+    if (avatarEl) avatarEl.src = cached.photo;
+  });
+
+  // 🔥 Also re-render posts feed so names/photos update
+  if (POSTS_SNAPSHOT) renderPostsFeed(POSTS_SNAPSHOT);
+
 });
 
 
-onSnapshot(
-  query(collection(db, "chat"), orderBy("time", "asc")),
-  async (snap) => {
-    
-    let html = ""; // ✅ build once
-    
-    for (const m of snap.docs) {
-      
-      const d = m.data();
-const mine = d.uid === auth.currentUser.uid;
-
-// ✅ SAFE TIME (VERY IMPORTANT)
-const msgTime = d.time?.toMillis?.() || 0;
-
-// 🔥 DEVICE CLEAR FILTER
-if (localClearedAt && msgTime < localClearedAt) {
-  continue;
-}
-
-// 🔥 DELETE FOR ME
-if (d.deletedFor?.includes(auth.currentUser.uid)) {
-  continue;
-}
-      
-      // 🔥 seen update (optimized)
-      if (!mine && !d.seen) {
-        updateDoc(doc(db, "chat", m.id), { seen: true });
-      }
-      
-      const showName =
-        d.name?.trim() ||
-        USER_CACHE[d.uid]?.name ||
-        d.u?.split("@")[0] ||
-        "User";
-      
-      let status = "";
-      if (!mine) {
-        status = ONLINE_USERS.has(d.uid) ?
-          "● Online" :
-          "● Offline";
-      }
-      
-      html += `
-<div style="
-padding:7px;
-display:flex;
-margin-left:20px;
-flex-direction:column;
-align-items:${mine ? "flex-end":"flex-start"};">
-
-<div style="
-max-width:79%;
-padding:12px 24px;
-border-radius:17px;
-background:${mine ? "#ff2d55":"#111"};
-color:#fff;
-position:relative;">
-
-${mine ? `
-<button onclick="openDeleteOptions('${m.id}')"
-style="
-position:absolute;
-top:3px;
-font-size:17px;
-right:8px;
-background:none;
-border:none;
-color:#fff;">✗</button>` : ""}
-
-<b style="font-size:13px;">${showName} : </b><br>
-
-${d.audio
-? `<audio controls src="${d.audio}" style="width:180px;"></audio>`
-: d.t
-}
-
-<div style="
-font-size:7px;
-color:#aaa;
-margin-top:4px;
-text-align:right;">
-${formatTime(d.time)}
-</div>
-
-</div>
-
-<div style="
-font-size:11px;
-color:#aaa;
-margin-top:4px;">
-${mine
- ? (d.seen ? "✓✓ Seen" : "✓ Sent")
- : status}
-</div>
-
-</div>`;
-    }
-    
-    // ✅ single DOM update (fast)
-    msgs.innerHTML = html;
-    
-    // ✅ smooth scroll (no jump)
-    requestAnimationFrame(() => {
-      msgs.scrollTop = msgs.scrollHeight;
-    });
-  });
+// Legacy global chat listener replaced by openRoom() dynamic system
+// Kept empty to avoid breaking anything
 
 /* ADD BELOW ALL CHAT CODE */
 window.deleteChatMsg = async (id) => {
@@ -2189,45 +2993,39 @@ window.deleteChatMsg = async (id) => {
 
 let selectedMsgId = null;
 
-// open menu
-window.openDeleteOptions = (id) => {
-  selectedMsgId = id;
-  document.getElementById("deleteMenu").style.display = "block";
-};
+// openDeleteOptions is now defined in multi-room chat system above
 
 // close menu
 window.closeDeleteMenu = function() {
   document.getElementById("deleteMenu").style.display = "none";
-  selectedMsgId = null;
+  _activeMsgId = null;
+  _activeCollPath = null;
 };
 
 // handle choice
 window.handleDelete = (type) => {
   
-  if (!selectedMsgId) return;
+  if (!_activeMsgId) return;
   
   if (type === "me") {
-    deleteForMe(selectedMsgId);
+    deleteForMe(_activeMsgId);
   } else if (type === "everyone") {
-    deleteForEveryone(selectedMsgId);
+    deleteForEveryone(_activeMsgId);
   }
   
   closeDeleteMenu();
 };
 
 window.deleteForMe = async (id) => {
-  
-  const ref = doc(db, "chat", id);
-  
-  await updateDoc(ref, {
+  const path = _activeCollPath || (activeRoom?.collPath) || "chat";
+  await updateDoc(doc(db, path, id), {
     deletedFor: arrayUnion(auth.currentUser.uid)
   });
 };
 
 window.deleteForEveryone = async (id) => {
-  
-  await deleteDoc(doc(db, "chat", id));
-  
+  const path = _activeCollPath || (activeRoom?.collPath) || "chat";
+  await deleteDoc(doc(db, path, id));
 };
 
 /* TYPING STATUS */
@@ -2297,6 +3095,7 @@ let seenStories = JSON.parse(
 );
 
 function loadStories() {
+  skelStories(); // show skeleton immediately
   onSnapshot(collection(db, "stories"), async (snap) => {
     
     await cleanOldStories();
@@ -2393,41 +3192,70 @@ function timeAgo(ts) {
 
 /* 3. REPLACE loadMine() */
 function loadMine() {
-  onSnapshot(
-    query(collection(db, 'posts'), orderBy('time', 'desc')),
-    s => {
-      
-      myPosts.innerHTML = '';
-      let count = 0;
-      
-      s.forEach(x => {
-        let p = x.data();
-        
-        if (auth.currentUser && p.user === auth.currentUser.email) {
-          
-          count++;
-          
-          if (p.video) {
-            myPosts.innerHTML += `
-<video
-class="postMini"
-data-src="${p.video}"
-onclick="openMedia('${p.video}','video')"
-muted>
-</video>`;
-          } else if (p.photo) {
-            myPosts.innerHTML += `
-<img
-class="postMini"
-src="${p.photo}"
-onclick="openMedia('${p.photo}','img')">`;
-          }
-          
-        }
-      });
-      postCount.textContent = count;
-      });}
+  if (!auth.currentUser) return;
+  const myUid = auth.currentUser.uid;
 
+  onSnapshot(
+    // 🔥 FIX: No orderBy with where — avoids Firestore composite index error. Sort client-side.
+    query(collection(db, 'posts'), where('uid', '==', myUid)),
+    s => {
+      const box = document.getElementById('myPosts');
+      if (!box) return;
+
+      // Sort client-side by time desc
+      const docs = s.docs.slice().sort((a, b) => {
+        const at = a.data().time?.seconds || 0;
+        const bt = b.data().time?.seconds || 0;
+        return bt - at;
+      });
+
+      const frag = document.createDocumentFragment();
+      box.innerHTML = '';
+      let count = 0;
+
+      docs.forEach(x => {
+        let p = x.data();
+        const id = x.id;
+        const isOwner = true; // loadMine only runs for current user
+        count++;
+
+        const wrapper = document.createElement('div');
+        wrapper.style.cssText = 'position:relative;aspect-ratio:1/1;overflow:hidden;border-radius:4px;background:#111;cursor:pointer;';
+
+        const deleteBtn = `<button onclick="event.stopPropagation();delPost('${id}')"
+          style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,0.6);border:none;color:#fff;
+                 width:24px;height:24px;border-radius:50%;font-size:13px;cursor:pointer;
+                 display:flex;align-items:center;justify-content:center;z-index:2;">✕</button>`;
+
+        if (p.video) {
+          const thumb = p.thumbnail || '';
+          wrapper.innerHTML = thumb
+            ? `<img class="postMini" src="${thumb}" onclick="openViewer('${p.video}','video')"
+                style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;">
+               <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:20px;pointer-events:none;color:#fff;">▶</div>
+               ${deleteBtn}`
+            : `<video class="postMini" src="${p.video}" muted onclick="openViewer('${p.video}','video')"
+                style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;"></video>
+               <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:20px;pointer-events:none;color:#fff;">▶</div>
+               ${deleteBtn}`;
+        } else if (p.photo) {
+          wrapper.innerHTML = `
+            <img class="postMini" src="${p.photo}" onclick="openViewer('${p.photo}','image')"
+              style="width:100%;height:100%;object-fit:cover;">
+            ${deleteBtn}`;
+        } else {
+          count--;
+          return;
+        }
+
+        frag.appendChild(wrapper);
+      });
+
+      box.appendChild(frag);
+      if (document.getElementById('postCount')) postCount.textContent = count;
+    }
+  );
+}
 
 const observer = new IntersectionObserver((entries) => {
   
@@ -2503,101 +3331,78 @@ function cleanupOldVideos(currentVideo) {
 }
 
 window.initAutoPlay = () => {
-  
   if (reelObserver) reelObserver.disconnect();
-  
+
+  // Cache video elements — don't re-query on every intersection
+  const videos = [...document.querySelectorAll(".reelVideo")];
+
   reelObserver = new IntersectionObserver((entries) => {
-    
     entries.forEach(entry => {
       const v = entry.target;
-      
-      if (entry.isIntersecting && entry.intersectionRatio > 0.8) {
-        
-        // ✅ Load only once
-        if (!v.src) {
-          v.src = v.dataset.src;
-          v.load();
-        }
-        
-        // ✅ Pause ALL videos (fresh query, not stale list)
-        document.querySelectorAll(".reelVideo").forEach(x => {
-          if (x !== v) x.pause();
-        });
-        
-        // ✅ Play current
+
+      if (entry.isIntersecting && entry.intersectionRatio >= 0.75) {
+        // Load only once (lazy)
+        if (!v.src && v.dataset.src) { v.src = v.dataset.src; v.load(); }
+
+        // Pause all others (use cached list — no DOM query)
+        videos.forEach(x => { if (x !== v) x.pause(); });
+
+        activeReelVideo = v;
         v.play().catch(() => {});
-
-// 🔥 SET ACTIVE VIDEO (VERY IMPORTANT FIX)
-activeReelVideo = v;
-
-// 🔥 PRELOAD NEXT
-preloadNextVideo(v);
-cleanupOldVideos(v);
-
-// ✅ KEEP SOUND STATE AFTER SCROLL
-syncReelAudio();
-        
+        preloadNextVideo(v);
+        cleanupOldVideos(v);
+        syncReelAudio();
       } else {
         v.pause();
       }
     });
-    
-  }, { threshold: [0.5, 0.8, 1] }); // smoother detection
-  
-  // ✅ Observe all videos
-  document.querySelectorAll(".reelVideo").forEach(v => {
-    reelObserver.observe(v);
+  }, {
+    threshold: [0.75],         // single threshold = fewer callbacks
+    rootMargin: '0px'
   });
+
+  videos.forEach(v => reelObserver.observe(v));
 };
 //profile edit
 window.saveProfile = async () => {
-  
   const user = auth.currentUser;
   if (!user) return alert("Login first");
-  
+
+  const btn = document.querySelector("#ownerControls .btn");
+  if (btn) { btn.innerText = "Saving…"; btn.disabled = true; }
+
   let photoURL = "";
-  
   const file = dpFile.files[0];
-  
+
   if (file) {
     const fd = new FormData();
     fd.append("file", file);
     fd.append("upload_preset", "Fiveer");
-    
-    const res = await fetch(
-      "https://api.cloudinary.com/v1_1/dlsfr0ies/image/upload",
-      {
-        method: "POST",
-        body: fd
-      }
-    );
-    
+    const res = await fetch("https://api.cloudinary.com/v1_1/dlsfr0ies/image/upload", { method:"POST", body:fd });
     const data = await res.json();
     photoURL = data.secure_url || "";
   }
-  
-  const finalName =
-    newName.value ||
-    user.email.split("@")[0];
-  
-  // save in users collection
+
+  const finalName = document.getElementById("newName").value.trim() || user.email.split("@")[0];
+  const finalBio  = document.getElementById("newBio")?.value.trim() || "";
+
   await setDoc(doc(db, "users", user.uid), {
-    uid: user.uid,
-    email: user.email,
-    name: finalName,
-    photo: photoURL
+    uid: user.uid, email: user.email,
+    name: finalName, bio: finalBio,
+    ...(photoURL ? { photo: photoURL } : {})
   }, { merge: true });
-  
-  // cache locally
+
   localStorage.setItem("myName", finalName);
-  
   userBox.textContent = finalName;
-  
-  if (photoURL) topDp.src = photoURL;
-  
+  profileName.innerText = finalName;
+  document.getElementById("profileBio").innerText = finalBio;
+  if (photoURL) { topDp.src = photoURL; profileBig.src = photoURL; }
+
+  if (btn) { btn.innerText = "Save Profile"; btn.disabled = false; }
+  showToast("Profile updated ✅", "success");
+  // 🔥 Hide edit panel after saving
+  document.getElementById("ownerControls").style.display = "none";
   loadStories();
-  
-  alert("Profile Updated ✅");
 };
 /* 4. ADD THIS NEW FUNCTION */
 
@@ -2746,14 +3551,24 @@ function showStory() {
     storyProgress.innerHTML += `<div><span id="bar${i}"></span></div>`;
   });
   
-  /* 🔥 DELETE BUTTON FIX (OUTSIDE LOOP) */
+  /* 🔥 DELETE BUTTON + VIEWS COUNT: only for own stories */
   const delBtn = document.getElementById("storyDeleteBtn");
-  
-  if (delBtn) {
-    if (String(s.uid) === String(auth.currentUser.uid)) {
-      delBtn.style.display = "block";
+  const viewsCountEl = document.getElementById("storyViewsCount");
+  const isMyStory = String(s.uid) === String(auth.currentUser.uid);
+
+  if (delBtn) delBtn.style.display = isMyStory ? "block" : "none";
+
+  // Show views count inline for owner
+  if (viewsCountEl) {
+    if (isMyStory) {
+      viewsCountEl.style.display = "block";
+      viewsCountEl.innerText = "👁 loading…";
+      getDoc(doc(db, "stories", s.id)).then(snap => {
+        const views = snap.data()?.views || [];
+        viewsCountEl.innerText = `👁 ${views.length} view${views.length !== 1 ? "s" : ""}`;
+      }).catch(() => { viewsCountEl.innerText = "👁 0 views"; });
     } else {
-      delBtn.style.display = "none";
+      viewsCountEl.style.display = "none";
     }
   }
   
@@ -2855,10 +3670,16 @@ window.uploadStory = async () => {
   
   const btn = document.getElementById("storyUploadBtn");
   const status = document.getElementById("storyStatus");
+  const progressWrap = document.getElementById("storyProgressWrap");
+  const progressBar = document.getElementById("storyProgressBar");
+  const progressText = document.getElementById("storyProgressText");
   
   btn.innerText = "Uploading...";
   btn.disabled = true;
   status.innerText = "Starting...";
+  progressWrap.style.display = "block";
+  progressBar.style.width = "0%";
+  progressText.innerText = "0%";
   
   try {
     const isImg = f.type.startsWith("image");
@@ -2867,20 +3688,34 @@ window.uploadStory = async () => {
     fd.append("file", f);
     fd.append("upload_preset", "Fiveer");
     
-    const url = isImg ?
+    const uploadUrl = isImg ?
       "https://api.cloudinary.com/v1_1/dlsfr0ies/image/upload" :
       "https://api.cloudinary.com/v1_1/dlsfr0ies/video/upload";
     
     status.innerText = "Uploading to server...";
     
-    const res = await fetch(url, {
-      method: "POST",
-      body: fd
+    // 🔥 XHR with real progress
+    const data = await new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open("POST", uploadUrl);
+      
+      xhr.upload.onprogress = (e) => {
+        if (e.lengthComputable) {
+          const pct = Math.round((e.loaded / e.total) * 100);
+          progressBar.style.width = pct + "%";
+          progressText.innerText = pct + "%";
+        }
+      };
+      
+      xhr.onload = () => {
+        try { resolve(JSON.parse(xhr.responseText)); }
+        catch(e) { reject(new Error("Parse failed")); }
+      };
+      
+      xhr.onerror = () => reject(new Error("Upload failed"));
+      xhr.send(fd);
     });
     
-    if (!res.ok) throw new Error("Upload failed");
-    
-    const data = await res.json();
     if (!data.secure_url) throw new Error("No URL returned");
     
     status.innerText = "Saving story...";
@@ -2891,25 +3726,32 @@ window.uploadStory = async () => {
       type: isImg ? "image" : "video",
       time: serverTimestamp(),
       views: [],
-      expireAt: Date.now() + 86400000 // ⏳ 24h
+      expireAt: Date.now() + 86400000
     });
     
     // ✅ SUCCESS
     status.innerText = "Uploaded ✅";
+    progressBar.style.width = "100%";
+    progressText.innerText = "100%";
     showToast("📸 Story uploaded", "success");
     
     // reset
     storyFile.value = "";
     storyPreviewBox.style.display = "none";
+    // Fix 3: hide cancel button
+    const cancelStoryBtn = document.getElementById("cancelStoryPreview");
+    if (cancelStoryBtn) cancelStoryBtn.style.display = "none";
     
-    // auto clear
     setTimeout(() => {
       status.innerText = "";
+      progressWrap.style.display = "none";
+      progressBar.style.width = "0%";
     }, 8000);
     
   } catch (err) {
     console.error(err);
     status.innerText = "Upload failed ❌";
+    progressWrap.style.display = "none";
     showToast("Upload failed", "error");
   }
   
@@ -2932,32 +3774,7 @@ setInterval(async () => {
 }, 60 * 60 * 1000); // runs every 1 hour
 
 
-window.showStoryViews = async (e) => {
-  
-  if (e) {
-    e.preventDefault();
-    e.stopPropagation();
-    e.stopImmediatePropagation(); // 🔥 IMPORTANT FIX
-  }
-  
-  storyPaused = true;
-  
-  const current = stories[storyIndex];
-  if (!current) return;
-  
-  if (current.uid !== auth.currentUser.uid) {
-    alert("Only your story views are visible");
-    storyPaused = false;
-    return;
-  }
-  
-  const snap = await getDoc(doc(db, "stories", current.id));
-  const views = snap.data()?.views || [];
-  
-  alert("👁 Views: " + views.length);
-  
-  storyPaused = false;
-};
+// showStoryViews removed — views shown inline via storyViewsCount element
 
 window.renderStory = (userMap) => {
   const s = stories[storyIndex];
@@ -3005,6 +3822,48 @@ window.closeViewer = () => {
   }
 };
 
+/* 🔥 Fix 7: Custom player for profile posts/reels */
+window.openCustomPlayer = (url, type, postId) => {
+  // Build a custom fullscreen overlay with controls
+  let overlay = document.getElementById("customPlayerOverlay");
+  if (!overlay) {
+    overlay = document.createElement("div");
+    overlay.id = "customPlayerOverlay";
+    overlay.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;background:#000;z-index:999999;display:flex;flex-direction:column;align-items:center;justify-content:center;";
+    document.body.appendChild(overlay);
+  }
+
+  if (type === "video") {
+    overlay.innerHTML = `
+<button onclick="closeCustomPlayer()" style="position:absolute;top:14px;right:18px;font-size:28px;background:none;border:none;color:#fff;z-index:2;">✕</button>
+<video id="customPlayerVideo" src="${url}" autoplay playsinline
+  style="width:100%;max-height:80vh;object-fit:contain;border-radius:8px;"
+  controls></video>
+<div style="display:flex;gap:18px;margin-top:14px;padding:0 16px;width:100%;justify-content:center;">
+  <button onclick="likePost('${postId || ''}')" style="background:rgba(255,255,255,.12);border:none;color:#fff;font-size:22px;padding:10px 20px;border-radius:20px;cursor:pointer;">❤️ Like</button>
+  <button onclick="commentPost('${postId || ''}')" style="background:rgba(255,255,255,.12);border:none;color:#fff;font-size:22px;padding:10px 20px;border-radius:20px;cursor:pointer;">💬 Comment</button>
+</div>`;
+  } else {
+    overlay.innerHTML = `
+<button onclick="closeCustomPlayer()" style="position:absolute;top:14px;right:18px;font-size:28px;background:none;border:none;color:#fff;z-index:2;">✕</button>
+<img src="${url}" style="width:100%;max-height:80vh;object-fit:contain;border-radius:8px;">
+<div style="display:flex;gap:18px;margin-top:14px;padding:0 16px;width:100%;justify-content:center;">
+  <button onclick="likePost('${postId || ''}')" style="background:rgba(255,255,255,.12);border:none;color:#fff;font-size:22px;padding:10px 20px;border-radius:20px;cursor:pointer;">❤️ Like</button>
+  <button onclick="commentPost('${postId || ''}')" style="background:rgba(255,255,255,.12);border:none;color:#fff;font-size:22px;padding:10px 20px;border-radius:20px;cursor:pointer;">💬 Comment</button>
+</div>`;
+  }
+
+  overlay.style.display = "flex";
+};
+
+window.closeCustomPlayer = () => {
+  const overlay = document.getElementById("customPlayerOverlay");
+  if (!overlay) return;
+  const vid = overlay.querySelector("video");
+  if (vid) { vid.pause(); vid.src = ""; }
+  overlay.style.display = "none";
+};
+
 window.deleteStory = async () => {
   const s = stories[storyIndex];
   if (!s) return;
@@ -3038,26 +3897,9 @@ let userPostsUnsub = null;
 let currentProfileUid = null;
 //followers profile
 
+/* showUserList — now uses the new full-screen popup */
 async function showUserList(list, title) {
-  
-  document.getElementById("userPopup").style.display = "block";
-  document.getElementById("popupTitle").innerText = title;
-  
-  const box = document.getElementById("popupList");
-  box.innerHTML = "";
-  
-  for (let uid of list) {
-    
-    const udoc = await getDoc(doc(db, "users", uid));
-    const u = udoc.data();
-    
-    box.innerHTML += `
-      <div class="card" onclick="openUserProfile('${uid}')" style="cursor:pointer;">
-        <b>${u?.name || "User"}</b><br>
-        <small>${u?.email || ""}</small>
-      </div>
-    `;
-  }
+  openFollowListPopupWithUIDs(list, title);
 }
 
 window.closeUserPopup = () => {
@@ -3137,140 +3979,355 @@ window.backToMyProfile = async () => {
 
 
 window.openUserProfile = async (uid) => {
-  
   if (!uid) return;
-  
+
   currentProfileUid = uid;
-  
+  _currentProfileUidForActions = uid;
+
+  // 🦴 Show skeleton immediately
+  skelProfile();
+  go("profile");
+
   const userSnap = await getDoc(doc(db, "users", uid));
   if (!userSnap.exists()) return;
-  
+
   const u = userSnap.data();
-  
-  go("profile");
-  
-  // set basic info
-  document.getElementById("profileName").innerText =
-    u.name || u.email?.split("@")[0] || "User";
-  
-  document.getElementById("profileBig").src =
-    u.photo || "https://i.imgur.com/6VBx3io.png";
-  
-  // load data
+
+  const nameEl = document.getElementById("profileName");
+  const bigEl  = document.getElementById("profileBig");
+  if (nameEl) nameEl.innerText = u.name || u.email?.split("@")[0] || "User";
+  if (bigEl) { bigEl.style.opacity = '1'; bigEl.src = u.photo || "https://i.imgur.com/6VBx3io.png"; }
+  document.getElementById("profileBio").innerText = u.bio || "";
+
+  // online dot
+  const dot = document.getElementById("profileOnlineDot");
+  if (dot) dot.style.background = ONLINE_USERS.has(uid) ? "#00e676" : "#555";
+
+  // profile views — only record if someone else views
+  if (uid !== auth.currentUser.uid) {
+    updateDoc(doc(db, "users", uid), {
+      profileViews: arrayUnion(auth.currentUser.uid)
+    }).catch(() => {});
+  }
+
+  // show view count (only owner sees it)
+  const viewRow = document.getElementById("profileViewsRow");
+  if (viewRow) viewRow.style.display = uid === auth.currentUser.uid ? "inline-flex" : "none";
+  if (uid === auth.currentUser.uid) {
+    const freshSnap = await getDoc(doc(db, "users", uid));
+    const freshViews = freshSnap.data()?.profileViews || [];
+    const el = document.getElementById("profileViewsCount");
+    if (el) el.innerText = freshViews.length;
+  }
+
   loadUserPosts(uid);
   loadUserFollowStats(uid);
-  
-  // 🔥 IMPORTANT: toggle UI properly
   updateProfileUI(uid);
-  
-  // back button
+  refreshProfileActionButtons(uid);
+
   const btn = document.getElementById("backMyProfileBtn");
-  
-  if (uid !== auth.currentUser.uid) {
-    btn.style.display = "block";
-  } else {
-    btn.style.display = "none";
-  }
+  if (btn) btn.style.display = uid !== auth.currentUser.uid ? "block" : "none";
 };
 
 
 window.loadUserFollowStats = async (uid) => {
-  const snap = await getDocs(collection(db, "follows"));
-  
-  let followers = 0;
-  let following = 0;
-  
-  snap.forEach(d => {
-    const x = d.data();
-    
-    if (x.to === uid) followers++;
-    if (x.from === uid) following++;
-  });
-  
-  followerCount.textContent = followers;
-  followingCount.textContent = following;
+  // 🔥 PERF FIX: Use targeted queries instead of full collection scan
+  const [followersSnap, followingSnap] = await Promise.all([
+    getDocs(query(collection(db, "follows"), where("to", "==", uid))),
+    getDocs(query(collection(db, "follows"), where("from", "==", uid)))
+  ]);
+  const fc = document.getElementById("followerCount");
+  const fn = document.getElementById("followingCount");
+  if (fc) fc.textContent = followersSnap.size;
+  if (fn) fn.textContent = followingSnap.size;
 };
 
 
 window.loadUserPosts = (uid) => {
   
-  // 🔥 STOP OLD LISTENER (VERY IMPORTANT)
   if (userPostsUnsub) {
-  userPostsUnsub();
-}
+    userPostsUnsub();
+    userPostsUnsub = null;
+  }
 
-const q = query(collection(db, "posts"), orderBy("time", "desc"));
+  // 🔥 FIX: No orderBy combined with where — causes Firestore index error. Sort client-side.
+  const q = query(collection(db, "posts"), where("uid", "==", uid));
 
-userPostsUnsub = onSnapshot(q, (snap) => {
+  userPostsUnsub = onSnapshot(q, (snap) => {
   
-  const q = query(
-  collection(db, "posts"),
-  where("uid", "==", uid),
-  orderBy("time", "desc")
-);
+    const box = document.getElementById("myPosts");
+    if (!box) return;
 
-  const box = document.getElementById("myPosts");
-  if (!box) return;
-  
-  box.innerHTML = "";
-  
-  let count = 0;
-  
-  snap.forEach((x) => {
-    const p = x.data();
-    
-    // ✅ CLEAN MATCH
-    if (p.uid !== uid) return;
-    
-    count++;
-    
-    if (p.video) {
-      box.innerHTML += `
-        <video class="postMini" src="${p.video}" muted></video>
-      `;
-    } else if (p.photo) {
-      box.innerHTML += `
-        <img class="postMini" src="${p.photo}">
-      `;
-    }
+    // Sort client-side by time desc
+    const docs = snap.docs.slice().sort((a, b) => {
+      const at = a.data().time?.seconds || 0;
+      const bt = b.data().time?.seconds || 0;
+      return bt - at;
+    });
+
+    const frag = document.createDocumentFragment();
+    box.innerHTML = "";
+    let count = 0;
+
+    const isMe = auth.currentUser && uid === auth.currentUser.uid;
+
+    docs.forEach((x) => {
+      const p = x.data();
+      const id = x.id;
+      count++;
+
+      const wrapper = document.createElement("div");
+      wrapper.style.cssText = "position:relative;aspect-ratio:1/1;overflow:hidden;border-radius:4px;background:#111;cursor:pointer;";
+
+      const deleteBtn = isMe
+        ? `<button onclick="event.stopPropagation();delPost('${id}')"
+             style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,0.6);border:none;color:#fff;
+                    width:24px;height:24px;border-radius:50%;font-size:13px;cursor:pointer;
+                    display:flex;align-items:center;justify-content:center;z-index:2;">✕</button>`
+        : "";
+
+      if (p.video) {
+        const thumb = p.thumbnail || "";
+        wrapper.innerHTML = thumb
+          ? `<img src="${thumb}" loading="lazy" class="postMini" onclick="${isMe ? `openViewer('${p.video}','video')` : `openCustomPlayer('${p.video}','video','${id}')`}"
+              style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;">
+             <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:20px;pointer-events:none;color:#fff;">▶</div>
+             ${!isMe ? `<div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.7));padding:8px 6px 4px;display:flex;gap:10px;align-items:center;">
+               <button onclick="event.stopPropagation();likePost('${id}')" style="background:none;border:none;color:#fff;font-size:16px;cursor:pointer;">❤️</button>
+               <button onclick="event.stopPropagation();commentPost('${id}')" style="background:none;border:none;color:#fff;font-size:16px;cursor:pointer;">💬</button>
+             </div>` : ""}
+             ${deleteBtn}`
+          : `<video class="postMini" src="${p.video}" muted onclick="${isMe ? `openViewer('${p.video}','video')` : `openCustomPlayer('${p.video}','video','${id}')`}"
+              style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;"></video>
+             <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:20px;pointer-events:none;color:#fff;">▶</div>
+             ${!isMe ? `<div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.7));padding:8px 6px 4px;display:flex;gap:10px;align-items:center;">
+               <button onclick="event.stopPropagation();likePost('${id}')" style="background:none;border:none;color:#fff;font-size:16px;cursor:pointer;">❤️</button>
+               <button onclick="event.stopPropagation();commentPost('${id}')" style="background:none;border:none;color:#fff;font-size:16px;cursor:pointer;">💬</button>
+             </div>` : ""}
+             ${deleteBtn}`;
+      } else if (p.photo) {
+        wrapper.innerHTML = `
+          <img class="postMini" loading="lazy" src="${p.photo}" onclick="${isMe ? `openViewer('${p.photo}','image')` : `openCustomPlayer('${p.photo}','image','${id}')`}"
+            style="width:100%;height:100%;object-fit:cover;">
+          ${!isMe ? `<div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.7));padding:8px 6px 4px;display:flex;gap:10px;align-items:center;">
+            <button onclick="event.stopPropagation();likePost('${id}')" style="background:none;border:none;color:#fff;font-size:16px;cursor:pointer;">❤️</button>
+            <button onclick="event.stopPropagation();commentPost('${id}')" style="background:none;border:none;color:#fff;font-size:16px;cursor:pointer;">💬</button>
+          </div>` : ""}
+          ${deleteBtn}`;
+      } else {
+        count--;
+        return;
+      }
+
+      frag.appendChild(wrapper);
+    });
+
+    box.appendChild(frag);
+
+    const postCountEl = document.getElementById("postCount");
+    if (postCountEl) postCountEl.textContent = count;
   });
-  
-  const postCountEl = document.getElementById("postCount");
-  if (postCountEl) postCountEl.textContent = count;
-  
-});
 };
 
 
 
+/* ── openFollowers / openFollowing now use currentProfileUid ── */
 window.openFollowers = async () => {
-  const uid = auth.currentUser.uid;
-  
+  const uid = currentProfileUid || auth.currentUser.uid;
   const snap = await getDocs(collection(db, "follows"));
-  
   const list = [];
-  
-  snap.forEach(d => {
-    const data = d.data();
-    if (data.to === uid) list.push(data.from);
-  });
-  
-  showUserList(list, "Followers");
+  snap.forEach(d => { if (d.data().to === uid) list.push(d.data().from); });
+  openFollowListPopupWithUIDs(list, "Followers");
 };
+
+window.openFollowersList = window.openFollowers;
 
 window.openFollowing = async () => {
-  const uid = auth.currentUser.uid;
-  
+  const uid = currentProfileUid || auth.currentUser.uid;
   const snap = await getDocs(collection(db, "follows"));
-  
   const list = [];
-  
-  snap.forEach(d => {
-    const data = d.data();
-    if (data.from === uid) list.push(data.to);
+  snap.forEach(d => { if (d.data().from === uid) list.push(d.data().to); });
+  openFollowListPopupWithUIDs(list, "Following");
+};
+
+window.openFollowingList = window.openFollowing;
+
+/* ── Follow/DM from main profile header ── */
+let _currentProfileUidForActions = null;
+
+window.followCurrentProfile = async () => {
+  if (_currentProfileUidForActions) await followUser(_currentProfileUidForActions);
+  refreshProfileActionButtons(_currentProfileUidForActions);
+};
+
+window.dmCurrentProfile = () => {
+  const uid = _currentProfileUidForActions;
+  if (!uid) return;
+  openDm(uid); // openDm now calls go("chat") internally
+};
+
+async function refreshProfileActionButtons(uid) {
+  if (!uid || uid === auth.currentUser.uid) {
+    document.getElementById("profileActions").style.display = "none";
+    return;
+  }
+  document.getElementById("profileActions").style.display = "flex";
+  // 🔥 PERF FIX: targeted query instead of full collection scan
+  const snap = await getDocs(query(collection(db, "follows"),
+    where("from", "==", auth.currentUser.uid), where("to", "==", uid)));
+  document.getElementById("followBtn").innerText = snap.size > 0 ? "Unfollow" : "Follow";
+}
+
+/* ══ FOLLOW LIST POPUP ══ */
+async function openFollowListPopupWithUIDs(uids, title) {
+  const popup = document.getElementById("followListPopup");
+  popup.style.display = "flex";
+  document.getElementById("followListTitle").innerText = title;
+  const body = document.getElementById("followListBody");
+  body.innerHTML = "<p style='color:#555;padding:14px;'>Loading…</p>";
+
+  if (uids.length === 0) {
+    body.innerHTML = "<p style='color:#555;padding:14px;text-align:center;'>No users yet</p>";
+    return;
+  }
+
+  // 🔥 PERF FIX: fetch follows & user docs in parallel, not N serial round-trips
+  const [followSnap, ...userSnaps] = await Promise.all([
+    getDocs(collection(db, "follows")),
+    ...uids.map(uid => getDoc(doc(db, "users", uid)))
+  ]);
+
+  // Build follow count maps once
+  const followerMap = {}, followingMap = {};
+  followSnap.forEach(d => {
+    const { to, from } = d.data();
+    followerMap[to]  = (followerMap[to]  || 0) + 1;
+    followingMap[from] = (followingMap[from] || 0) + 1;
   });
-  
-  showUserList(list, "Following");
+
+  // Fetch post counts in parallel
+  const postSnaps = await Promise.all(
+    uids.map(uid => getDocs(query(collection(db, "posts"), where("uid", "==", uid))))
+  );
+
+  let html = "";
+  uids.forEach((uid, i) => {
+    const u = userSnaps[i].data() || {};
+    const name = u.name || u.email?.split("@")[0] || "User";
+    const photo = u.photo || "https://i.imgur.com/6VBx3io.png";
+    const online = ONLINE_USERS.has(uid);
+    const frs = followerMap[uid] || 0;
+    const fng = followingMap[uid] || 0;
+    const posts = postSnaps[i].size;
+
+    html += `
+<div class="card" onclick="openMiniProfile('${uid}')"
+  style="display:flex;align-items:center;gap:12px;cursor:pointer;margin-bottom:6px;">
+  <div style="position:relative;">
+    <img src="${photo}" style="width:50px;height:50px;border-radius:50%;object-fit:cover;border:2px solid #ff2d55;">
+    <div style="position:absolute;bottom:1px;right:1px;width:11px;height:11px;border-radius:50%;
+      background:${online?"#00e676":"#555"};border:2px solid #111;"></div>
+  </div>
+  <div style="flex:1;">
+    <b>${name}</b>
+    <div style="font-size:11px;color:#aaa;margin-top:2px;">${posts} posts · ${frs} followers · ${fng} following</div>
+  </div>
+  <div style="font-size:11px;color:${online?"#00e676":"#555"};">${online?"● Online":"● Offline"}</div>
+</div>`;
+  });
+  body.innerHTML = html;
+}
+
+window.closeFollowListPopup = () => {
+  document.getElementById("followListPopup").style.display = "none";
+};
+
+/* ══ MINI PROFILE POPUP ══ */
+let _miniProfileUid = null;
+
+window.openMiniProfile = async (uid) => {
+  _miniProfileUid = uid;
+  const popup = document.getElementById("miniProfilePopup");
+  popup.style.display = "block";
+
+  // 🔥 PERF FIX: all fetches in parallel
+  const [userSnap, followersSnap, followingSnap, postSnap, myFollowSnap] = await Promise.all([
+    getDoc(doc(db, "users", uid)),
+    getDocs(query(collection(db, "follows"), where("to", "==", uid))),
+    getDocs(query(collection(db, "follows"), where("from", "==", uid))),
+    getDocs(query(collection(db, "posts"), where("uid", "==", uid))),
+    getDocs(query(collection(db, "follows"), where("from", "==", auth.currentUser.uid), where("to", "==", uid)))
+  ]);
+
+  const u = userSnap.data() || {};
+  const name = u.name || u.email?.split("@")[0] || "User";
+  const photo = u.photo || "https://i.imgur.com/6VBx3io.png";
+  const bio = u.bio || "";
+
+  document.getElementById("miniProfileTitle").innerText = name;
+  document.getElementById("miniProfileName").innerText = name;
+  document.getElementById("miniProfilePhoto").src = photo;
+  document.getElementById("miniProfileBio").innerText = bio;
+  document.getElementById("miniPostCount").innerText = postSnap.size;
+  document.getElementById("miniFollowerCount").innerText = followersSnap.size;
+  document.getElementById("miniFollowingCount").innerText = followingSnap.size;
+
+  const iFollow = myFollowSnap.size > 0;
+  document.getElementById("miniFollowBtn").innerText = iFollow ? "Unfollow" : "Follow";
+  document.getElementById("miniFollowBtn").style.display = uid === auth.currentUser.uid ? "none" : "";
+  document.getElementById("miniFollowBtn").nextElementSibling.style.display = uid === auth.currentUser.uid ? "none" : "";
+
+  // posts grid
+  const grid = document.getElementById("miniProfilePosts");
+  grid.innerHTML = "";
+  postSnap.forEach(d => {
+    const p = d.data();
+    const pid = d.id;
+    if (p.photo) grid.innerHTML += `
+<div style="aspect-ratio:1/1;overflow:hidden;border-radius:4px;position:relative;background:#111;">
+  <img class="postMini" src="${p.photo}" onclick="openCustomPlayer('${p.photo}','image','${pid}')" style="width:100%;height:100%;object-fit:cover;cursor:pointer;">
+  <div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.7));padding:8px 6px 4px;display:flex;gap:10px;align-items:center;">
+    <button onclick="event.stopPropagation();likePost('${pid}')" style="background:none;border:none;color:#fff;font-size:18px;cursor:pointer;">❤️ <span id="like-${pid}"></span></button>
+    <button onclick="event.stopPropagation();commentPost('${pid}')" style="background:none;border:none;color:#fff;font-size:18px;cursor:pointer;">💬</button>
+  </div>
+</div>`;
+    if (p.video) {
+      const thumb = p.thumbnail || "";
+      grid.innerHTML += `
+<div style="position:relative;aspect-ratio:1/1;overflow:hidden;border-radius:4px;background:#111;">
+  ${thumb
+    ? `<img src="${thumb}" style="width:100%;height:100%;object-fit:cover;cursor:pointer;" onclick="openCustomPlayer('${p.video}','video','${pid}')">`
+    : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;cursor:pointer;" onclick="openCustomPlayer('${p.video}','video','${pid}')"><span style="font-size:32px;color:#fff;">▶</span></div>`}
+  <div style="position:absolute;top:6px;right:8px;font-size:14px;color:#fff;pointer-events:none;">▶</div>
+  <div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.7));padding:8px 6px 4px;display:flex;gap:10px;align-items:center;">
+    <button onclick="event.stopPropagation();likePost('${pid}')" style="background:none;border:none;color:#fff;font-size:18px;cursor:pointer;">❤️ <span id="like-${pid}"></span></button>
+    <button onclick="event.stopPropagation();commentPost('${pid}')" style="background:none;border:none;color:#fff;font-size:18px;cursor:pointer;">💬</button>
+  </div>
+</div>`;
+    }
+  });
+  if (grid.innerHTML === "") grid.innerHTML = "<p style='color:#555;padding:14px;text-align:center;'>No posts yet</p>";
+};
+
+window.closeMiniProfile = () => {
+  document.getElementById("miniProfilePopup").style.display = "none";
+  _miniProfileUid = null;
+};
+
+window.followMiniProfile = async () => {
+  if (_miniProfileUid) {
+    await followUser(_miniProfileUid);
+    await openMiniProfile(_miniProfileUid); // refresh counts & button
+  }
+};
+
+window.dmMiniProfile = () => {
+  const uid = _miniProfileUid;
+  if (!uid) return;
+  closeMiniProfile();
+  closeFollowListPopup();
+  // openDm already calls go("chat")
+  openDm(uid);
 };
 
 
@@ -3367,14 +4424,15 @@ window.startReelWatchdog = () => {
       }, 200);
     }
     
-  }, 4000);
+  }, 6000);  // 6s interval — less CPU burn
 };
 
 //tab switchHome
 window.switchHomeTab = (tab) => {
   
-  const reels = document.getElementById("reels");
+  const reelsEl = document.getElementById("reels");
   const postsSection = document.getElementById("postsSection");
+  const refreshBtn = document.getElementById("refreshFeedBtn");
   
   const tabReels = document.getElementById("tab-reels");
   const tabPosts = document.getElementById("tab-posts");
@@ -3388,19 +4446,24 @@ window.switchHomeTab = (tab) => {
   
   if (tab === "reels") {
     
-    reels.style.display = "block";
+    reelsEl.style.display = "block";
     postsSection.style.display = "none";
+    if (refreshBtn) refreshBtn.style.display = "flex";
     
     tabReels.style.borderBottom = "2px solid #ff2d55";
-    tabPosts.style.borderBottom = "none";
+    tabPosts.style.borderBottom = "2px solid transparent";
+    
+    // resume autoplay
+    setTimeout(initAutoPlay, 150);
     
   } else {
     
-    reels.style.display = "none";
+    reelsEl.style.display = "none";
     postsSection.style.display = "block";
+    if (refreshBtn) refreshBtn.style.display = "none";
     
     tabPosts.style.borderBottom = "2px solid #ff2d55";
-    tabReels.style.borderBottom = "none";
+    tabReels.style.borderBottom = "2px solid transparent";
   }
 };
 
@@ -3409,27 +4472,70 @@ const postQ = query(
   orderBy("time", "desc")
 );
 
-onSnapshot(postQ, (s) => {
-  
+// 🔥 Track liked state locally to avoid race condition
+const LIKED_POSTS = new Set();
+let POSTS_SNAPSHOT = null; // store latest snapshot for re-render
+
+function renderPostsFeed(s) {
   if (!postsGrid) return;
-  
+  if (!s) return;
+
+  const currentUid = auth.currentUser?.uid;
   let html = "";
-  
+
   s.forEach(x => {
     const p = x.data();
-    
-    // ✅ ONLY IMAGES
+    const id = x.id;
+
+    // Posts tab = IMAGE posts ONLY
     if (!p.photo) return;
-    
+
+    const isOwner = currentUid && (currentUid === p.uid || currentUid === p.user);
+    // 🔥 FIX 2: Always resolve name/photo from USER_CACHE first (fixes email showing)
+    const uploaderName = (p.uid && USER_CACHE[p.uid]?.name) || p.name?.trim() || (p.user ? p.user.split("@")[0] : "User");
+    const uploaderPhoto = (p.uid && USER_CACHE[p.uid]?.photo) || "https://i.imgur.com/6VBx3io.png";
+    const isLiked = LIKED_POSTS.has(id);
+
     html += `
-      <img 
-        src="${p.photo}" 
-        class="postItem"
-      >
-    `;
+<div class="ig-post-card">
+  <div class="ig-post-header">
+    <img src="${uploaderPhoto}" data-post-avatar="${id}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;border:2px solid #ff2d55;cursor:pointer;"
+      onclick="openUserProfile('${p.uid||''}')">
+    <b data-post-name="${id}" style="flex:1;cursor:pointer;font-size:14px;" onclick="openUserProfile('${p.uid||''}')">${uploaderName}</b>
+    ${isOwner ? `<button onclick="delPost('${id}')" style="background:none;border:none;color:#aaa;font-size:22px;cursor:pointer;padding:4px 8px;">⋯</button>` : ""}
+  </div>
+  <img class="ig-post-img" src="${p.photo}" onclick="openViewer('${p.photo}','image')">
+  <div class="ig-post-actions">
+    <button id="postLikeBtn-${id}" onclick="likePostFeed('${id}',this)">${isLiked ? "❤️" : "🤍"}</button>
+    <button onclick="commentPost('${id}')">💬</button>
+    ${isOwner ? `<button onclick="delPost('${id}')" style="margin-left:auto;font-size:20px;color:#ff4444;">🗑</button>` : ""}
+  </div>
+  <div class="ig-post-likes"><span id="postLikeCount-${id}">${p.likes || 0}</span> likes</div>
+  ${p.caption ? `<div class="ig-post-caption"><b style="color:#fff;">${uploaderName}</b> ${p.caption}</div>` : ""}
+</div>`;
   });
-  
-  postsGrid.innerHTML = html;
+
+  postsGrid.innerHTML = html || `<p style="color:#555;padding:16px;text-align:center;">No posts yet 📸</p>`;
+}
+
+onSnapshot(postQ, async (s) => {
+  POSTS_SNAPSHOT = s;
+
+  // 🔥 FIX 3: Check liked state for all posts ONCE before rendering (prevents like count race)
+  if (auth.currentUser) {
+    const checks = [];
+    s.forEach(x => {
+      if (!x.data().photo) return;
+      checks.push(
+        getDoc(doc(db, "posts", x.id, "likes", auth.currentUser.email))
+          .then(d => { if (d.exists()) LIKED_POSTS.add(x.id); else LIKED_POSTS.delete(x.id); })
+          .catch(() => {})
+      );
+    });
+    await Promise.all(checks);
+  }
+
+  renderPostsFeed(s);
 });
 
 
@@ -3477,7 +4583,7 @@ function controlReelsPlayback() {
 window.addEventListener("scroll", () => {
   controlReelsPlayback();
   preloadNext();
-});
+}, { passive: true });
 
 window.previewMedia = (e) => {
   const file = e.target.files[0];
@@ -3486,8 +4592,10 @@ window.previewMedia = (e) => {
   const img = document.getElementById("previewImg");
   const vid = document.getElementById("previewVideo");
   const box = document.getElementById("previewBox");
+  const cancelBtn = document.getElementById("cancelPostPreview");
   
   box.style.display = "block";
+  if (cancelBtn) cancelBtn.style.display = "block";
   
   if (file.type.startsWith("image")) {
     img.src = URL.createObjectURL(file);
@@ -3500,6 +4608,26 @@ window.previewMedia = (e) => {
   }
 };
 
+window.cancelPostSelection = () => {
+  const fileInp = document.getElementById("file");
+  const img = document.getElementById("previewImg");
+  const vid = document.getElementById("previewVideo");
+  const box = document.getElementById("previewBox");
+  const cancelBtn = document.getElementById("cancelPostPreview");
+  
+  fileInp.value = "";
+  img.src = "";
+  vid.src = "";
+  img.style.display = "none";
+  vid.style.display = "none";
+  box.style.display = "none";
+  if (cancelBtn) cancelBtn.style.display = "none";
+  
+  // revoke object URLs to free memory
+  URL.revokeObjectURL(img.src);
+  URL.revokeObjectURL(vid.src);
+};
+
 //preview story
 window.previewStory = (e) => {
   const f = e.target.files[0];
@@ -3508,8 +4636,10 @@ window.previewStory = (e) => {
   const img = document.getElementById("storyPreviewImg");
   const vid = document.getElementById("storyPreviewVideo");
   const box = document.getElementById("storyPreviewBox");
+  const cancelBtn = document.getElementById("cancelStoryPreview");
   
   box.style.display = "block";
+  if (cancelBtn) cancelBtn.style.display = "block";
   
   if (f.type.startsWith("image")) {
     img.src = URL.createObjectURL(f);
@@ -3520,6 +4650,25 @@ window.previewStory = (e) => {
     vid.style.display = "block";
     img.style.display = "none";
   }
+};
+
+window.cancelStorySelection = () => {
+  const storyFileInp = document.getElementById("storyFile");
+  const img = document.getElementById("storyPreviewImg");
+  const vid = document.getElementById("storyPreviewVideo");
+  const box = document.getElementById("storyPreviewBox");
+  const cancelBtn = document.getElementById("cancelStoryPreview");
+  
+  storyFileInp.value = "";
+  img.src = "";
+  vid.src = "";
+  img.style.display = "none";
+  vid.style.display = "none";
+  box.style.display = "none";
+  if (cancelBtn) cancelBtn.style.display = "none";
+  
+  URL.revokeObjectURL(img.src);
+  URL.revokeObjectURL(vid.src);
 };
 
 
@@ -3707,15 +4856,54 @@ window.closeSettings = function() {
 };
 
 window.editProfile = function() {
+  // Only allow editing own profile
+  if (!auth.currentUser || currentProfileUid !== auth.currentUser.uid) return;
+
   document.getElementById("profileMenu")?.classList.add("hidden");
-  
   const panel = document.getElementById("ownerControls");
-  panel.classList.add("show");
+  panel.style.display = "block";
+
+  // pre-fill current values
+  const nameEl = document.getElementById("newName");
+  const bioEl  = document.getElementById("newBio");
+  if (nameEl) nameEl.value = profileName.innerText.trim();
+  if (bioEl)  bioEl.value  = document.getElementById("profileBio").innerText.trim();
+
+  // 🔥 Scroll to the edit panel so user can see it
+  setTimeout(() => panel.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
 };
 
 
 
 //voice message 
+let _msgHoldTimer = null;
+let _msgHoldId = null;
+
+window.startMsgHold = (msgId, collPath) => {
+  _msgHoldId = msgId;
+  _msgHoldTimer = setTimeout(() => {
+    // show the delete button after 3 seconds
+    const btn = document.getElementById("delbtn-" + msgId);
+    if (btn) {
+      btn.style.display = "flex";
+      // auto-hide after 4s if not tapped
+      setTimeout(() => {
+        if (btn) btn.style.display = "none";
+      }, 4000);
+    }
+    // vibrate feedback
+    if (navigator.vibrate) navigator.vibrate(40);
+    _msgHoldTimer = null;
+  }, 3000);
+};
+
+window.cancelMsgHold = () => {
+  if (_msgHoldTimer) {
+    clearTimeout(_msgHoldTimer);
+    _msgHoldTimer = null;
+  }
+};
+
 let mediaRecorder;
 let audioChunks = [];
 let isRecording = false;
@@ -3794,8 +4982,9 @@ async function sendAudioMessage() {
     
     if (!data.secure_url) throw new Error("Upload failed");
     
-    // 🔥 SEND TO FIRESTORE
-    await addDoc(collection(db, "chat"), {
+    // 🔥 SEND TO ACTIVE ROOM
+    const collPath = activeRoom?.collPath || "chat_rooms/global/messages";
+    await addDoc(collection(db, collPath), {
       uid: auth.currentUser.uid,
       u: auth.currentUser.email,
       name: profileName.innerText.trim(),
@@ -3885,7 +5074,7 @@ style="
 display:none;
 position:fixed;
 inset:0;
-z-index:99998;
+z-index:9999999;
 background:rgba(0,0,0,.45);
 -webkit-backdrop-filter:blur(6px);
 opacity:0;
@@ -3900,7 +5089,7 @@ left:0;
 right:0;
 bottom:0;
 height:70vh;
-z-index:99999;
+z-index:99999999;
 background:#111;
 border-radius:22px 22px 0 0;
 padding:14px;
@@ -3962,17 +5151,7 @@ Send
 
 
 
-<!--user popup-->
-<div id="userPopup" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#000;z-index:99999;overflow:auto;">
-  
-  <div style="padding:15px;display:flex;justify-content:space-between;align-items:center;">
-    <h3 id="popupTitle" style="color:#fff;">Users</h3>
-    <button onclick="closeUserPopup()" style="background:none;border:none;color:#fff;font-size:22px;">✕</button>
-  </div>
-  
-  <div id="popupList"></div>
-  
-</div>
+<!-- userPopup removed — replaced by followListPopup & miniProfilePopup -->
 
 
 
@@ -4034,6 +5213,9 @@ style="position:absolute;bottom:20px;left:15px;z-index:5;background:#ff2d55;bord
   <!-- Progress bars -->
   <div id="storyProgress" style="position:absolute;top:10px;left:0;width:100%;display:flex;gap:4px;padding:5px 8px;"></div>
 
+  <!-- 👁 Views count — owner only, shown inline -->
+  <div id="storyViewsCount" style="display:none;position:absolute;bottom:22px;right:15px;background:rgba(0,0,0,0.55);backdrop-filter:blur(6px);color:#fff;padding:6px 12px;border-radius:20px;font-size:13px;font-weight:600;pointer-events:none;">👁 0 views</div>
+
   <!-- Close button -->
 <button onclick="event.stopPropagation(); closeStory()" 
   style="position:absolute;top:18px;right:18px;font-size:26px;background:none;border:none;color:#fff;z-index:999;">
@@ -4052,11 +5234,7 @@ onclick="toggleStorySound()"
 style="position:absolute;bottom:70px;right:15px;z-index:5;background:#111;color:#fff;border:none;padding:8px 12px;border-radius:10px;">
  🔇Sound OFF
 </button>
-<!--views-->
-<button onclick="showStoryViews(event)"
-style="position:absolute;bottom:20px;right:15px;background:#ff2d55;border:none;color:#fff;padding:8px 12px;border-radius:10px;">
-👁 Views
-</button>
+<!--views: shown inline in progress bar area for owner only-->
   <!-- Story media -->
   <img id="storyImg" style="width:100%;height:100%;object-fit:cover;display:none;">
   <video id="storyVideo" style="width:100%;height:100%;object-fit:cover;display:none;" autoplay playsinline></video>
