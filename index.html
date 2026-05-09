@@ -26,7 +26,7 @@ opacity:.7;
 }
 /* logoPulse animation removed — was causing constant GPU repaints on header */
 #topDp{width:34px;height:34px;border-radius:50%;object-fit:cover;}
-/* ═══ PAGES — smooth slide transition system ═══ */
+/* ─── ENHANCED PAGE TRANSITIONS ─── */
 .page{
   display:none;
   position:absolute;
@@ -38,9 +38,10 @@ opacity:.7;
   opacity:0;
   transform:translateX(22px);
   pointer-events:none;
-  transition: opacity 0.28s cubic-bezier(0.22,1,0.36,1),
-              transform 0.28s cubic-bezier(0.22,1,0.36,1);
+  transition: opacity 0.25s cubic-bezier(0.22,1,0.36,1),
+              transform 0.25s cubic-bezier(0.22,1,0.36,1);
   will-change:transform,opacity;
+  backface-visibility:hidden;
 }
 .page.show{
   display:block;
@@ -156,7 +157,8 @@ opacity:.7;
   overscroll-behavior-y:contain;
   scroll-snap-stop:always;
   scroll-behavior:auto;
-  contain:paint layout;           /* isolate GPU repaints to this layer */
+  contain:strict;              /* strongest isolation — isolates GPU repaints + layout */
+  transform:translateZ(0);     /* force own compositor layer */
 }
 
 .reel{
@@ -165,16 +167,15 @@ opacity:.7;
   scroll-snap-align:start;
   scroll-snap-stop:always;
   flex-shrink:0;
-  transform:translateZ(0);
-  backface-visibility:hidden;
-  contain:layout style;
+  contain:layout style paint;  /* full containment per reel */
 }
-/* reelUp animation removed — fired on every reel insertion causing layout thrash */
+
 .reel video{
   width:100%;height:100%;
   object-fit:cover;
-  transform:translateZ(0);        /* GPU layer — no will-change to save VRAM */
+  transform:translateZ(0);
   backface-visibility:hidden;
+  contain:paint;
 }
 
 .fadeOut {
@@ -234,17 +235,28 @@ height:100%;
 .statRow{display:flex;justify-content:space-around;margin-top:10px;}
 .statRow div{text-align:center;}
 /* NAV */
-.nav{position:fixed;bottom:0;left:0;width:100%;height:60px;background: rgba(10, 10, 10, 0.7);backdrop-filter: blur(15px);box-shadow: 0 -5px 20px rgba(255, 45, 85, 0.08);display:flex;justify-content:space-around;align-items:center;z-index:60;border-top:1px solid #111;}
+.nav{position:fixed;bottom:0;left:0;width:100%;height:60px;background: rgba(10, 10, 10, 0.92);backdrop-filter: blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow: 0 -1px 0 rgba(255,255,255,0.06), 0 -5px 20px rgba(0,0,0,0.4);display:flex;justify-content:space-around;align-items:center;z-index:60;border-top:1px solid rgba(255,255,255,0.06);}
 
 .nav span {
-  font-size: 24px;
+  font-size: 22px;
   transition: .25s cubic-bezier(.2, .8, .2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  color: #777;
+  position: relative;
+}
+
+.nav span.nav-active {
+  color: #ff2d55;
 }
 
 .nav span:active {
-  transform: translateY(-6px) scale(1.18);
+  transform: translateY(-4px) scale(1.15);
   color: #ff2d55;
-  text-shadow: 0 0 14px #ff2d55;
 }
 
 /* PROFILE GRID */
@@ -315,27 +327,33 @@ to{opacity:1;transform:scale(1);}
 
 
 .chatContainer {
-  height: calc(100vh - 230px);
+  /* top: ~110px (header+chat header), bottom: nav(60)+input(~70) = 130px */
+  height: calc(100vh - 240px);
   overflow-y: auto;
-  padding: 10px;
+  -webkit-overflow-scrolling: touch;
+  padding: 10px 10px 16px;
   display: flex;
   flex-direction: column;
   gap: 10px;
   scroll-behavior: smooth;
+  /* push content above the fixed input bar */
+  padding-bottom: 80px;
 }
 
 .chatInputArea {
   position: fixed;
-  bottom: 0;
+  bottom: 60px;   /* sit right above the nav bar */
   left: 0;
   width: 100%;
   display: flex;
-  gap: 10px;
-  margin-bottom: 3.5rem;
-  padding: 10px;
+  flex-direction: column;
+  gap: 0;
+  padding: 8px 10px;
   background: #111;
   border-top: 1px solid #222;
   z-index: 999;
+  /* make sure it never goes above its own content */
+  max-height: 60vh;
 }
 
 .chatInputArea input {
@@ -793,7 +811,169 @@ to{opacity:1;transform:none;}
 }
 .postMini:active { opacity: .7; transform: scale(.97); }
 
-/* 🔥 FIX 4: Notification badge */
+/* ═══ SAVED POSTS ═══ */
+.bookmark-btn {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  margin-left: auto;
+  transition: transform 0.15s ease;
+}
+.bookmark-btn:active { transform: scale(0.82); }
+.bookmark-btn.saved { color: #ff2d55; text-shadow: 0 0 8px rgba(255,45,85,.5); }
+
+/* Profile saved tab */
+.profile-tabs {
+  display: flex;
+  border-bottom: 1px solid #222;
+  margin-top: 10px;
+}
+.profile-tab-btn {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: none;
+  color: #aaa;
+  font-size: 13px;
+  cursor: pointer;
+  transition: .2s;
+}
+.profile-tab-btn.active {
+  color: #fff;
+  border-bottom: 2px solid #ff2d55;
+}
+
+/* ═══ CHAT MEDIA SEND ═══ */
+.chat-media-btn {
+  background: rgba(255,255,255,.08);
+  border: none;
+  color: #fff;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background .2s;
+}
+.chat-media-btn:active { background: rgba(255,45,85,.3); transform: scale(0.92); }
+
+#chatMediaPreview {
+  display: none;
+  padding: 6px 10px;
+  background: #111;
+  border-top: 1px solid #222;
+  position: relative;
+}
+#chatMediaPreview img,
+#chatMediaPreview video {
+  max-height: 120px;
+  max-width: 100%;
+  border-radius: 10px;
+  object-fit: cover;
+}
+#chatMediaPreview .cancel-media {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  background: rgba(0,0,0,.7);
+  border: none;
+  color: #fff;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Chat image bubble */
+.chat-img-bubble {
+  width: 260px;
+  max-width: 80vw;
+  height: 220px;
+  border-radius: 12px;
+  object-fit: cover;
+  cursor: pointer;
+  display: block;
+  margin-top: 4px;
+}
+.chat-vid-bubble {
+  width: 260px;
+  max-width: 80vw;
+  height: 220px;
+  border-radius: 12px;
+  display: block;
+  margin-top: 4px;
+  object-fit: cover;
+  background: #000;
+}
+
+/* ─── DM UNREAD BADGE ─── */
+.dm-unread-badge {
+  background: #ff2d55;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 99px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 5px;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+/* ─── PAGE TRANSITIONS improved ─── */
+@keyframes pageSlideIn {
+  from { opacity: 0; transform: translateX(30px) scale(0.98); }
+  to   { opacity: 1; transform: translateX(0) scale(1); }
+}
+@keyframes pageSlideOut {
+  from { opacity: 1; transform: translateX(0) scale(1); }
+  to   { opacity: 0; transform: translateX(-30px) scale(0.98); }
+}
+
+/* ─── POST/REEL TRANSITION ─── */
+@keyframes postFadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.ig-post-card {
+  animation: postFadeUp 0.35s ease both;
+}
+.ig-post-card:nth-child(1) { animation-delay: 0.02s; }
+.ig-post-card:nth-child(2) { animation-delay: 0.07s; }
+.ig-post-card:nth-child(3) { animation-delay: 0.12s; }
+.ig-post-card:nth-child(4) { animation-delay: 0.17s; }
+.ig-post-card:nth-child(5) { animation-delay: 0.22s; }
+
+/* Reel slide-in transition */
+@keyframes reelSlideIn {
+  from { opacity: 0; transform: translateY(40px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.reel {
+  animation: reelSlideIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Profile → Reels transition helper */
+.page {
+  will-change: opacity, transform;
+}
+
 #notiBadge {
   position: fixed;
   bottom: 42px;
@@ -814,7 +994,259 @@ to{opacity:1;transform:none;}
   pointer-events: none;
 }
 
+/* ═══ LIVE FEATURE STYLES ═══ */
+.live-badge {
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ff2d55;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 800;
+  padding: 1px 6px;
+  border-radius: 6px;
+  letter-spacing: 0.5px;
+  z-index: 6;
+  border: 1.5px solid #000;
+  animation: livePulse 1.5s infinite;
+}
+@keyframes livePulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(255,45,85,0.7); }
+  50%      { box-shadow: 0 0 0 6px rgba(255,45,85,0); }
+}
+.live-ring {
+  background: linear-gradient(45deg,#ff2d55,#ff6a00,#ff2d55) !important;
+  animation: liveRingSpin 2s linear infinite;
+}
+@keyframes liveRingSpin {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
+}
 
+/* Live host screen */
+#liveHostScreen {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: #000;
+  z-index: 999999;
+  flex-direction: column;
+}
+#liveHostVideo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  position: absolute;
+  inset: 0;
+}
+.live-host-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  pointer-events: none;
+}
+.live-top-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 52px 14px 14px;
+  pointer-events: all;
+}
+.live-indicator {
+  background: #ff2d55;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 8px;
+  letter-spacing: 1px;
+  animation: livePulse 1.5s infinite;
+}
+.live-viewer-count {
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(8px);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.live-end-btn {
+  margin-left: auto;
+  background: rgba(0,0,0,0.6);
+  border: 1.5px solid #ff2d55;
+  color: #ff2d55;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 20px;
+  cursor: pointer;
+}
+.live-chat-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 10px 12px 80px;
+  pointer-events: none;
+  overflow: hidden;
+}
+.live-msgs {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 220px;
+  overflow: hidden;
+  pointer-events: none;
+}
+.live-msg-bubble {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(6px);
+  border-radius: 20px;
+  padding: 6px 12px 6px 6px;
+  color: #fff;
+  font-size: 13px;
+  max-width: 80%;
+  animation: liveMsg 0.3s ease;
+  align-self: flex-start;
+  pointer-events: none;
+}
+.live-msg-bubble img {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1.5px solid #ff2d55;
+  flex-shrink: 0;
+}
+@keyframes liveMsg {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.live-input-bar {
+  position: absolute;
+  bottom: 70px;
+  left: 0;
+  width: 100%;
+  display: flex;
+  gap: 8px;
+  padding: 8px 12px;
+  pointer-events: all;
+}
+.live-input-bar input {
+  flex: 1;
+  padding: 10px 14px;
+  border-radius: 24px;
+  border: none;
+  background: rgba(255,255,255,0.15);
+  backdrop-filter: blur(10px);
+  color: #fff;
+  font-size: 14px;
+  outline: none;
+}
+.live-input-bar input::placeholder { color: rgba(255,255,255,0.6); }
+.live-input-bar button {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #ff2d55;
+  border: none;
+  color: #fff;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Live viewer screen */
+#liveViewScreen {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: #000;
+  z-index: 999998;
+  flex-direction: column;
+}
+#liveViewVideo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  position: absolute;
+  inset: 0;
+}
+.live-view-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  pointer-events: none;
+}
+.live-view-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 52px 14px 14px;
+  pointer-events: all;
+}
+.live-host-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(8px);
+  padding: 6px 12px 6px 6px;
+  border-radius: 30px;
+  flex: 1;
+}
+.live-host-info img {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #ff2d55;
+}
+
+/* Upload Live button */
+.live-upload-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(135deg,#ff2d55,#ff6a00);
+  border: none;
+  border-radius: 14px;
+  padding: 14px 18px;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  width: 100%;
+  box-shadow: 0 4px 20px rgba(255,45,85,0.4);
+  transition: 0.2s ease;
+  margin-top: 4px;
+}
+.live-upload-btn:active { transform: scale(0.97); }
+.live-pulse-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #fff;
+  animation: dotPulse 1s infinite;
+  flex-shrink: 0;
+}
+@keyframes dotPulse {
+  0%,100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.5; transform: scale(0.7); }
+}
 </style></head><body>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <header>
@@ -841,8 +1273,9 @@ padding:10px;
 border:none;
 border-bottom:2px solid #ff2d55;
 background:none;
-color:#fff;">
-Reels
+color:#fff;
+display:flex;align-items:center;justify-content:center;gap:6px;font-size:14px;font-weight:600;">
+<i class="fa-solid fa-film"></i> Reels
 </button>
 
   <button onclick="switchHomeTab('posts')"
@@ -853,8 +1286,9 @@ Reels
     border:none;
     border-bottom:2px solid transparent;
     background:none;
-    color:#fff;">
-    Posts
+    color:#fff;
+    display:flex;align-items:center;justify-content:center;gap:6px;font-size:14px;font-weight:600;">
+    <i class="fa-regular fa-image"></i> Posts
     </button>
 </div>
 
@@ -878,7 +1312,7 @@ style="position:fixed;top:75px;right:12px;z-index:9999;background:rgba(0,0,0,.65
 </div>
   </section>
 
- <div id="globalToast" class="toast"></div>
+ 
   <section id='notify' class='page'>
   <div style="padding:14px 12px 6px;border-bottom:1px solid #222;display:flex;align-items:center;justify-content:space-between;">
     <b style="font-size:17px;">Notifications</b>
@@ -887,7 +1321,7 @@ style="position:fixed;top:75px;right:12px;z-index:9999;background:rgba(0,0,0,.65
   <div id='notiList' style="overflow-y:auto;height:calc(100% - 50px);padding:8px 0;"></div>
 </section>
   
-  <div id="globalToast" class="toast"></div>
+  
 <section id='upload' class='page'>
   <div class='card'>
     <h4>Upload Post</h4>
@@ -899,8 +1333,8 @@ style="position:fixed;top:75px;right:12px;z-index:9999;background:rgba(0,0,0,.65
     
     <!-- UPLOAD BUTTON -->
     <label for="file" class="uploadIconBtn">
-      <i class="fa-solid fa-cloud-arrow-up"></i>
-      <span>Select</span>
+      <i class="fa-solid fa-cloud-arrow-up" style="font-size:26px;"></i>
+      <span>Select Media</span>
     </label>
     
     <!-- 🔥 PREVIEW AREA -->
@@ -935,8 +1369,8 @@ style="position:fixed;top:75px;right:12px;z-index:9999;background:rgba(0,0,0,.65
 <input id='storyFile' type='file' accept='image/*,video/*' hidden onchange="previewStory(event)">
 
 <label for="storyFile" class="uploadIconBtn">
-  <i class="fa-solid fa-circle-plus"></i>
-  <span>Select Story</span>
+  <i class="fa-solid fa-circle-plus" style="font-size:26px;"></i>
+  <span>Add Story</span>
 </label>
 
 <!-- 🔥 PREVIEW -->
@@ -961,10 +1395,20 @@ style="position:fixed;top:75px;right:12px;z-index:9999;background:rgba(0,0,0,.65
   </div>
   <div id="storyProgressText" style="font-size:11px;color:#aaa;margin-top:4px;text-align:center;">0%</div>
 </div>
+
+    <hr style="margin:12px 0;border:1px solid #222">
+
+    <!-- GO LIVE SECTION -->
+    <h4>🔴 Go Live</h4>
+    <p style="font-size:12px;color:#aaa;margin:4px 0 10px;">Stream live to your followers in real time</p>
+    <button class="live-upload-btn" onclick="startLive()">
+      <div class="live-pulse-dot"></div>
+      Go Live Now
+    </button>
     </div>
   </div>
 </section>
-  <div id="globalToast" class="toast"></div>
+  
 <!-- ===== CHAT HUB ===== -->
 <section id='chat' class='page'>
   <!-- Hub screen -->
@@ -976,20 +1420,20 @@ style="position:fixed;top:75px;right:12px;z-index:9999;background:rgba(0,0,0,.65
 
     <!-- Global Chat -->
     <div class="card" onclick="openGroupRoom('global','',true)" style="cursor:pointer;display:flex;align-items:center;gap:12px;">
-      <div style="font-size:28px;">🌐</div>
+      <div style="font-size:24px;color:#3b82f6;"><i class="fa-solid fa-earth-americas"></i></div>
       <div><b>Global Chat</b><br><small style="color:#aaa;">Everyone can join</small></div>
     </div>
 
     <!-- Create / Join Group -->
     <div class="card" style="margin-top:8px;">
-      <b>🔒 Groups</b>
+      <b><i class="fa-solid fa-lock" style="color:#f59e0b;margin-right:6px;"></i>Groups</b>
       <div style="display:flex;gap:6px;margin-top:8px;">
         <input id="grpNameInp" class="inp" placeholder="Room name" style="flex:1;">
         <input id="grpPassInp" class="inp" placeholder="Password" type="password" style="flex:1;">
       </div>
       <div style="display:flex;gap:6px;margin-top:6px;">
-        <button class="btn" style="flex:1;" onclick="createGroup()">➕ Create</button>
-        <button class="btn" style="flex:1;background:#222;" onclick="joinGroup()">🔑 Join</button>
+        <button class="btn" style="flex:1;" onclick="createGroup()"><i class="fa-solid fa-plus" style="margin-right:5px;"></i>Create</button>
+        <button class="btn" style="flex:1;background:#222;" onclick="joinGroup()"><i class="fa-solid fa-key" style="margin-right:5px;"></i>Join</button>
       </div>
     </div>
 
@@ -1001,8 +1445,8 @@ style="position:fixed;top:75px;right:12px;z-index:9999;background:rgba(0,0,0,.65
   </div>
 
   <!-- Active chat view (shared for DM, global, group) -->
-  <div id="chatView" style="display:none;height:100%;display:none;flex-direction:column;">
-    <div id="chatViewHeader" style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#111;border-bottom:1px solid #222;position:sticky;top:0;z-index:10;">
+  <div id="chatView" style="display:none;position:absolute;top:0;left:0;width:100%;height:100%;flex-direction:column;background:#000;">
+    <div id="chatViewHeader" style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#111;border-bottom:1px solid #222;position:sticky;top:0;z-index:10;flex-shrink:0;">
       <button onclick="backToHub()" style="background:none;border:none;color:#fff;font-size:20px;">←</button>
       <div>
         <b id="chatViewTitle">Chat</b><br>
@@ -1011,19 +1455,30 @@ style="position:fixed;top:75px;right:12px;z-index:9999;background:rgba(0,0,0,.65
       <button onclick="clearChatLocal()" style="margin-left:auto;background:#333;color:#fff;border:none;padding:6px 10px;border-radius:8px;font-size:11px;">📱 Clear</button>
     </div>
 
-    <div id='msgs' class="chatContainer" style="flex:1;"></div>
+    <div id='msgs' class="chatContainer"></div>
 
     <button id="scrollBtn" onclick="scrollToBottom()"
-      style="position:fixed;bottom:110px;right:15px;z-index:9999;background:#ff2d55;border:none;color:#fff;width:42px;height:42px;border-radius:50%;font-size:18px;display:none;box-shadow:0 5px 15px rgba(0,0,0,.3);">↓</button>
+      style="position:fixed;bottom:140px;right:15px;z-index:9999;background:#ff2d55;border:none;color:#fff;width:42px;height:42px;border-radius:50%;font-size:18px;display:none;box-shadow:0 5px 15px rgba(0,0,0,.3);">↓</button>
 
-    <div class="chatInputArea card">
-      <div id="recordUI" style="display:none;align-items:center;gap:10px;">
+    <div class="chatInputArea">
+      <div id="recordUI" style="display:none;align-items:center;gap:10px;padding:4px 0;">
         <div id="wave" class="wave"></div>
         <span id="recordTime">0:00</span>
       </div>
-      <input id='msg' class='inp' placeholder='Type a message…' maxlength="500">
-      <button id="recordBtn" class="btn">🎤</button>
-      <button class='btn sendBtn' onclick='sendMsg()'>Send</button>
+      <!-- Chat media preview (shows selected image/video before send) -->
+      <div id="chatMediaPreview">
+        <img id="chatPreviewImg" style="display:none;">
+        <video id="chatPreviewVid" style="display:none;" muted playsinline controls></video>
+        <button class="cancel-media" onclick="cancelChatMedia()">✕</button>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center;width:100%;">
+        <!-- Media attach button -->
+        <input id="chatMediaInput" type="file" accept="image/*,video/*" hidden onchange="previewChatMedia(event)">
+        <button class="chat-media-btn" onclick="document.getElementById('chatMediaInput').click()" title="Send image/video">📷</button>
+        <input id='msg' class='inp' placeholder='Type a message…' maxlength="500" style="flex:1;">
+        <button id="recordBtn" class="btn">🎤</button>
+        <button class='btn sendBtn' onclick='sendMsg()'>Send</button>
+      </div>
     </div>
   </div>
 
@@ -1035,7 +1490,7 @@ style="position:fixed;top:75px;right:12px;z-index:9999;background:rgba(0,0,0,.65
   </div>
 </section>
 
-  <div id="globalToast" class="toast"></div>
+  
 <section id='profile' class='page' style="overflow-y:auto;padding-bottom:70px;">
 
   <!-- ── Settings menu ── -->
@@ -1043,9 +1498,9 @@ style="position:fixed;top:75px;right:12px;z-index:9999;background:rgba(0,0,0,.65
     <div class="profileTopRight">
       <button class="settingsBtn" onclick="toggleProfileMenu()">⋮</button>
       <div id="profileMenu" class="profileMenu hidden">
-        <div onclick="openSettings()">⚙️ Settings</div>
-        <div onclick="editProfile()">✏️ Edit Profile</div>
-        <div onclick="logout()">🚪 Logout</div>
+        <div onclick="openSettings()"><i class="fa-solid fa-gear" style="margin-right:8px;color:#aaa;"></i>Settings</div>
+        <div onclick="editProfile()"><i class="fa-solid fa-pen" style="margin-right:8px;color:#aaa;"></i>Edit Profile</div>
+        <div onclick="logout()" style="color:#ff4444;"><i class="fa-solid fa-right-from-bracket" style="margin-right:8px;"></i>Logout</div>
       </div>
     </div>
   </div>
@@ -1108,18 +1563,28 @@ style="position:fixed;top:75px;right:12px;z-index:9999;background:rgba(0,0,0,.65
   <!-- ── Owner edit panel ── -->
   <div id="ownerControls" style="display:none;padding:10px 12px;">
     <div class="card" style="display:flex;flex-direction:column;gap:8px;">
-      <b style="font-size:14px;">✏️ Edit Profile</b>
+      <b style="font-size:14px;"><i class="fa-solid fa-pen-to-square" style="color:#ff2d55;margin-right:6px;"></i>Edit Profile</b>
       <input id="newName" class="inp" placeholder="Display name">
       <textarea id="newBio" class="inp" placeholder="Bio / about me…" rows="2"
         style="resize:none;font-family:inherit;font-size:14px;"></textarea>
       <input id="dpFile" type="file" class="inp" accept="image/*">
-      <button class="btn" onclick="saveProfile()">Save Profile</button>
-      <button class="btn" onclick="logout()" style="background:#222;">🚪 Logout</button>
+      <button class="btn" onclick="saveProfile()"><i class="fa-solid fa-floppy-disk" style="margin-right:6px;"></i>Save Profile</button>
+      <button class="btn" onclick="document.getElementById('ownerControls').style.display='none'" style="background:#1a1a1a;border:1px solid #333;"><i class="fa-solid fa-xmark" style="margin-right:6px;"></i>Cancel</button>
+      <button class="btn" onclick="logout()" style="background:#222;"><i class="fa-solid fa-right-from-bracket" style="margin-right:6px;"></i>Logout</button>
     </div>
   </div>
 
+  <!-- ── Profile Tabs: Posts | Saved ── -->
+  <div class="profile-tabs">
+    <button class="profile-tab-btn active" id="profileTabPosts" onclick="switchProfileTab('posts')"><i class="fa-solid fa-grip" style="margin-right:5px;"></i>Posts</button>
+    <button class="profile-tab-btn" id="profileTabSaved" onclick="switchProfileTab('saved')"><i class="fa-regular fa-bookmark" style="margin-right:5px;"></i>Saved</button>
+  </div>
+
   <!-- ── Posts grid ── -->
-  <div id="myPosts" style="display:grid;grid-template-columns:repeat(3,1fr);gap:3px;margin-top:10px;width:100%;"></div>
+  <div id="myPosts" style="display:grid;grid-template-columns:repeat(3,1fr);gap:3px;margin-top:0;width:100%;"></div>
+
+  <!-- ── Saved grid ── -->
+  <div id="mySaved" style="display:none;grid-template-columns:repeat(3,1fr);gap:3px;margin-top:0;width:100%;"></div>
 
 </section>
 
@@ -1162,13 +1627,13 @@ style="position:fixed;top:75px;right:12px;z-index:9999;background:rgba(0,0,0,.65
   <!-- posts grid -->
   <div id="miniProfilePosts" style="display:grid;grid-template-columns:repeat(3,1fr);gap:2px;margin-top:8px;"></div>
 </div>
-<!-- REPLACE YOUR <nav> WITH THIS -->
+<!-- NAV BAR with Font Awesome icons -->
 <nav class='nav'>
-  <span onclick="go('home')">⌂</span>
-  <span onclick="go('upload')">＋</span>
-  <span onclick="go('chat')">✉</span>
-  <span onclick="go('notify')">♡</span>
-  <span onclick="goProfile()">˙⋆✮</span>
+  <span onclick="go('home')" id="navHome" title="Home"><i class="fa-solid fa-house"></i></span>
+  <span onclick="go('upload')" id="navUpload" title="Upload"><i class="fa-solid fa-plus-circle"></i></span>
+  <span onclick="go('chat')" id="navChat" title="Chat"><i class="fa-regular fa-message"></i></span>
+  <span onclick="go('notify')" id="navNotify" title="Notifications"><i class="fa-regular fa-heart"></i></span>
+  <span onclick="goProfile()" id="navProfile" title="Profile"><i class="fa-regular fa-user"></i></span>
 </nav>
 <script type='module'>
 window.onload = () => {
@@ -1182,11 +1647,13 @@ import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/fireba
 import {getAuth,signInWithPopup,GoogleAuthProvider,onAuthStateChanged,signOut,signInWithEmailAndPassword,createUserWithEmailAndPassword,setPersistence,browserLocalPersistence} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 
 import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, updateDoc, deleteDoc, setDoc ,getDocs,arrayUnion,increment,where}from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+import { getDatabase, ref, set, onValue, push, remove, onDisconnect, get } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
 const firebaseConfig = {apiKey: "AIzaSyA_sBTAt90Y-RrLo6Hfs_7-Y1VM_ASix34",authDomain: "brosmarket-9b3b0.firebaseapp.com",projectId: "brosmarket-9b3b0",databaseURL: "https://brosmarket-9b3b0-default-rtdb.firebaseio.com/"
 };
 let soundOn = false;
 
 const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app);
+const rtdb = getDatabase(app);
 
 //chat delete 
 let localClearedAt = Number(localStorage.getItem("chatClearedAt")) || null;
@@ -1254,53 +1721,72 @@ window.go = (id) => {
   const inIdx  = PAGE_ORDER.indexOf(id);
   const goRight = inIdx >= outIdx;
 
+  // 🔥 FIX: Stop all reels BEFORE any transition to avoid decode pressure during animation
+  if (_currentPage === 'home' || id === 'home') {
+    document.querySelectorAll(".reelVideo").forEach(v => {
+      v.pause();
+    });
+  }
+
   // slide out current
   if (outEl) {
-    outEl.style.transition = 'opacity 0.22s ease, transform 0.22s ease';
+    outEl.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
     outEl.style.opacity    = '0';
-    outEl.style.transform  = goRight ? 'translateX(-18px)' : 'translateX(18px)';
+    outEl.style.transform  = goRight ? 'translateX(-16px)' : 'translateX(16px)';
     setTimeout(() => {
       outEl.classList.remove('show');
       outEl.style.transition = '';
       outEl.style.opacity    = '';
       outEl.style.transform  = '';
-    }, 230);
+    }, 210);
   }
 
   // prep incoming page — start offscreen
   inEl.style.transition = 'none';
   inEl.style.opacity    = '0';
-  inEl.style.transform  = goRight ? 'translateX(22px)' : 'translateX(-22px)';
+  inEl.style.transform  = goRight ? 'translateX(20px)' : 'translateX(-20px)';
   inEl.classList.add('show');
 
   // trigger slide in on next frame
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
-      inEl.style.transition = 'opacity 0.28s cubic-bezier(0.22,1,0.36,1), transform 0.28s cubic-bezier(0.22,1,0.36,1)';
+      inEl.style.transition = 'opacity 0.25s cubic-bezier(0.22,1,0.36,1), transform 0.25s cubic-bezier(0.22,1,0.36,1)';
       inEl.style.opacity    = '1';
       inEl.style.transform  = 'translateX(0)';
       setTimeout(() => {
         inEl.style.transition = '';
         inEl.style.opacity    = '';
         inEl.style.transform  = '';
-      }, 290);
+      }, 260);
     });
   });
 
   _currentPage = id;
 
   /* leaving home = stop reel sound/video */
-  if (id !== 'home') stopAllReels();
+  if (id !== 'home') {
+    stopAllReels();
+  }
 
   /* show/hide stories bar + reels */
   if (id === 'home') {
     storiesBar.style.display = 'flex';
     reels.style.display      = 'block';
-    setTimeout(initAutoPlay, 160);
+    // 🔥 FIX: Delay autoplay until transition finishes to avoid jank
+    setTimeout(initAutoPlay, 280);
   } else {
     storiesBar.style.display = 'none';
     reels.style.display      = 'none';
   }
+
+  // Update nav icons active state
+  ['home','upload','chat','notify'].forEach(pg => {
+    const el = document.getElementById('nav' + pg.charAt(0).toUpperCase() + pg.slice(1));
+    if (el) el.classList.toggle('nav-active', pg === id);
+  });
+  // profile nav
+  const profEl = document.getElementById('navProfile');
+  if (profEl) profEl.classList.toggle('nav-active', id === 'profile');
 };
 // ── SKELETON HELPERS ──
 function clearReelSkeletons() {
@@ -1376,6 +1862,13 @@ window.goProfile = async () => {
   const myUid = auth.currentUser.uid;
   currentProfileUid = myUid;
   _currentProfileUidForActions = myUid;
+  // Update nav active
+  ['Home','Upload','Chat','Notify'].forEach(pg => {
+    const el = document.getElementById('nav'+pg);
+    if (el) el.classList.remove('nav-active');
+  });
+  const profEl = document.getElementById('navProfile');
+  if (profEl) profEl.classList.add('nav-active');
   await openUserProfile(myUid);
   // hide back button since this is own profile
   const btn = document.getElementById("backMyProfileBtn");
@@ -1478,6 +1971,7 @@ onAuthStateChanged(auth, async u => {
   loadStories();
   loadFollowStats();
   loadNotifications();
+  initSavedState(); // 🔖 load saved posts state
   // Pre-load chat lists so chat tab opens instantly
   _chatListenersStarted = true;
   loadGroupList();
@@ -2263,14 +2757,16 @@ function loadNotifications() {
     const THREE_DAYS = 3 * 24 * 60 * 60 * 1000;
     const now = Date.now();
 
-    // 🔥 Auto-delete notifications older than 3 days
+    // 🔥 Auto-delete notifications older than 3 days (runs every snapshot)
+    const toDelete = [];
     snap.docs.forEach(d => {
       const n = d.data();
       const nTime = (n.time?.seconds || 0) * 1000;
       if (nTime && (now - nTime) > THREE_DAYS) {
-        deleteDoc(doc(db, "notifications", d.id)).catch(() => {});
+        toDelete.push(deleteDoc(doc(db, "notifications", d.id)));
       }
     });
+    if (toDelete.length > 0) Promise.all(toDelete).catch(() => {});
 
     // sort client-side newest first
     const docs = snap.docs.slice().sort((a, b) => {
@@ -2291,11 +2787,14 @@ function loadNotifications() {
 
       let icon = "", msg = "";
       if (n.type === "like") {
-        icon = "❤️";
+        icon = `<i class="fa-solid fa-heart" style="color:#ff2d55;font-size:13px;"></i>`;
         msg = `<b>${n.fromName || "Someone"}</b> liked your post`;
       } else if (n.type === "follow") {
-        icon = "🤝";
+        icon = `<i class="fa-solid fa-user-plus" style="color:#3b82f6;font-size:13px;"></i>`;
         msg = `<b>${n.fromName || "Someone"}</b> started following you`;
+      } else if (n.type === "comment") {
+        icon = `<i class="fa-solid fa-comment" style="color:#f59e0b;font-size:13px;"></i>`;
+        msg = `<b>${n.fromName || "Someone"}</b> commented on your post`;
       }
 
       if (!msg) return; // skip unknown types
@@ -2530,12 +3029,12 @@ async function openRoom(collPath, title) {
   view.style.display = "flex";
   view.style.flexDirection = "column";
   document.getElementById("chatViewTitle").innerText = title;
-  msgs.innerHTML = "";
 
   const q = query(collection(db, collPath), orderBy("time", "asc"));
 
   chatUnsubscribe = onSnapshot(q, (snap) => {
     let html = "";
+    let newMsgCount = 0;
 
     for (const m of snap.docs) {
       const d = m.data();
@@ -2546,6 +3045,7 @@ async function openRoom(collPath, title) {
       if (d.deletedFor?.includes(auth.currentUser.uid)) continue;
 
       if (!mine && !d.seen) {
+        newMsgCount++;
         updateDoc(doc(db, collPath, m.id), { seen: true });
       }
 
@@ -2562,25 +3062,28 @@ async function openRoom(collPath, title) {
 
       html += `
 <div style="padding:7px;display:flex;flex-direction:column;align-items:${mine?"flex-end":"flex-start"};" id="msgwrap-${m.id}">
-  <div style="max-width:79%;padding:12px 24px;border-radius:17px;background:${mine?"#ff2d55":"#111"};color:#fff;position:relative;"
-    ${mine ? `
-      onmousedown="startMsgHold('${m.id}','${collPath}')"
-      ontouchstart="startMsgHold('${m.id}','${collPath}')"
-      onmouseup="cancelMsgHold()"
-      onmouseleave="cancelMsgHold()"
-      ontouchend="cancelMsgHold()"
-      ontouchcancel="cancelMsgHold()"
-    ` : ""}>
-    <b style="font-size:13px;">${showName} : </b><br>
-    ${d.audio ? `<audio controls src="${d.audio}" style="width:180px;"></audio>` : (d.t || "")}
-    <div style="font-size:7px;color:#aaa;margin-top:4px;text-align:right;">${formatTime(d.time)}</div>
-    ${mine ? `<button id="delbtn-${m.id}" onclick="openDeleteOptions('${m.id}','${collPath}')" style="display:none;position:absolute;top:-10px;right:-10px;background:#ff2d55;border:none;color:#fff;width:28px;height:28px;border-radius:50%;font-size:14px;cursor:pointer;z-index:5;align-items:center;justify-content:center;">🗑</button>` : ""}
+  <div style="max-width:82%;padding:${d.chatImg||d.chatVid?"6px":"12px 18px"};border-radius:17px;background:${mine?"#ff2d55":"#111"};color:#fff;position:relative;">
+    ${(!d.chatImg && !d.chatVid) ? `<b style="font-size:13px;">${showName} : </b><br>` : `<div style="font-size:11px;padding:4px 6px 2px;opacity:.7;">${showName}</div>`}
+    ${d.audio ? `<audio controls src="${d.audio}" style="width:200px;margin-top:4px;"></audio>` : ""}
+    ${d.chatImg ? `<img class="chat-img-bubble" src="${d.chatImg}" onclick="openViewer('${d.chatImg}','image')">` : ""}
+    ${d.chatVid ? `<video class="chat-vid-bubble" src="${d.chatVid}" controls muted playsinline></video>` : ""}
+    ${(!d.audio && !d.chatImg && !d.chatVid) ? (d.t || "") : (d.t ? `<div style="padding:4px 6px 2px;font-size:13px;">${d.t}</div>` : "")}
+    <div style="font-size:9px;color:${mine?"rgba(255,255,255,.7)":"#777"};margin-top:5px;text-align:right;padding:${d.chatImg||d.chatVid?"0 6px 4px":""}">${formatTime(d.time)}</div>
+    <button onclick="openDeleteOptions('${m.id}','${collPath}')"
+      style="position:absolute;top:-9px;right:-9px;background:#333;border:1px solid #555;color:#fff;
+             width:22px;height:22px;border-radius:50%;font-size:11px;cursor:pointer;
+             display:flex;align-items:center;justify-content:center;z-index:5;line-height:1;">✕</button>
   </div>
   <div style="font-size:11px;color:#aaa;margin-top:4px;">${mine ? (d.seen?"✓✓ Seen":"✓ Sent") : status}</div>
 </div>`;
     }
 
     msgs.innerHTML = html;
+
+    if (newMsgCount > 0) {
+      showToast(`💬 ${newMsgCount} new message${newMsgCount>1?"s":""}`, "default");
+    }
+
     requestAnimationFrame(() => { msgs.scrollTop = msgs.scrollHeight; });
   });
 }
@@ -2619,8 +3122,14 @@ window.openDm = async (otherUid) => {
 /* ---- sendMsg (works for any room) ---- */
 window.sendMsg = async () => {
   const text = msg.value.trim();
-  if (!text) return;
+  const hasMedia = _chatMediaFile !== null;
+  if (!text && !hasMedia) return;
   if (!activeRoom) return;
+
+  if (hasMedia) {
+    await sendChatMedia();
+    return;
+  }
 
   await addDoc(collection(db, activeRoom.collPath), {
     uid: auth.currentUser.uid,
@@ -2634,6 +3143,92 @@ window.sendMsg = async () => {
   });
   msg.value = "";
 };
+
+/* ═══ CHAT MEDIA SEND FUNCTIONS ═══ */
+let _chatMediaFile = null;
+let _chatMediaType = null;
+
+window.previewChatMedia = (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  _chatMediaFile = file;
+  _chatMediaType = file.type.startsWith("image") ? "image" : "video";
+
+  const previewBox = document.getElementById("chatMediaPreview");
+  const previewImg = document.getElementById("chatPreviewImg");
+  const previewVid = document.getElementById("chatPreviewVid");
+
+  previewBox.style.display = "block";
+  const url = URL.createObjectURL(file);
+
+  if (_chatMediaType === "image") {
+    previewImg.src = url;
+    previewImg.style.display = "block";
+    previewVid.style.display = "none";
+  } else {
+    previewVid.src = url;
+    previewVid.style.display = "block";
+    previewImg.style.display = "none";
+  }
+};
+
+window.cancelChatMedia = () => {
+  _chatMediaFile = null;
+  _chatMediaType = null;
+  document.getElementById("chatMediaPreview").style.display = "none";
+  document.getElementById("chatPreviewImg").style.display = "none";
+  document.getElementById("chatPreviewVid").style.display = "none";
+  document.getElementById("chatMediaInput").value = "";
+};
+
+async function sendChatMedia() {
+  if (!_chatMediaFile || !activeRoom) return;
+
+  const sendBtn = document.querySelector(".sendBtn");
+  if (sendBtn) { sendBtn.innerText = "..."; sendBtn.disabled = true; }
+
+  try {
+    const fd = new FormData();
+    fd.append("file", _chatMediaFile);
+    fd.append("upload_preset", "Fiveer");
+
+    const uploadUrl = _chatMediaType === "image"
+      ? "https://api.cloudinary.com/v1_1/dlsfr0ies/image/upload"
+      : "https://api.cloudinary.com/v1_1/dlsfr0ies/video/upload";
+
+    const res = await fetch(uploadUrl, { method: "POST", body: fd });
+    const data = await res.json();
+    if (!data.secure_url) throw new Error("Upload failed");
+
+    const msgData = {
+      uid: auth.currentUser.uid,
+      u: auth.currentUser.email,
+      name: profileName.innerText.trim(),
+      seen: false,
+      deletedFor: [],
+      deletedForEveryone: false,
+      time: serverTimestamp()
+    };
+
+    if (_chatMediaType === "image") {
+      msgData.chatImg = data.secure_url;
+    } else {
+      msgData.chatVid = data.secure_url;
+    }
+
+    // Also include any typed text
+    const txt = msg.value.trim();
+    if (txt) msgData.t = txt;
+
+    await addDoc(collection(db, activeRoom.collPath), msgData);
+    msg.value = "";
+    cancelChatMedia();
+  } catch(err) {
+    showToast("Media send failed ❌", "error");
+  }
+
+  if (sendBtn) { sendBtn.innerText = "Send"; sendBtn.disabled = false; }
+}
 
 /* ---- Create group ---- */
 window.createGroup = async () => {
@@ -2758,13 +3353,36 @@ function loadDmList() {
         const name = u?.name || u?.email?.split("@")[0] || "User";
         const photo = u?.photo || "https://i.imgur.com/6VBx3io.png";
         const online = ONLINE_USERS.has(otherId);
+
+        // Count unread messages in this DM
+        const dmId = getDmId(auth.currentUser.uid, otherId);
+        let unreadCount = 0;
+        let lastMsgText = "";
+        try {
+          const msgsSnap = await getDocs(
+            query(collection(db, `dms/${dmId}/messages`), orderBy("time", "desc"))
+          );
+          msgsSnap.forEach(m => {
+            const md = m.data();
+            if (lastMsgText === "" && (md.t || md.chatImg || md.chatVid || md.audio)) {
+              lastMsgText = md.chatImg ? "📷 Photo" : md.chatVid ? "🎥 Video" : md.audio ? "🎤 Voice" : (md.t || "");
+            }
+            if (md.uid !== auth.currentUser.uid && !md.seen) unreadCount++;
+          });
+        } catch(e) {}
+
         html += `
-<div class="card" onclick="openDm('${otherId}')" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:6px;">
-  <div style="position:relative;">
-    <img src="${photo}" style="width:44px;height:44px;border-radius:50%;object-fit:cover;">
-    <div style="position:absolute;bottom:1px;right:1px;width:11px;height:11px;border-radius:50%;background:${online?"#00e676":"#555"};border:2px solid #111;"></div>
+<div class="card" onclick="openDm('${otherId}')" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:6px;position:relative;overflow:hidden;transition:transform 0.15s ease,background 0.15s ease;" onmousedown="this.style.transform='scale(0.98)'" onmouseup="this.style.transform=''">
+  <div style="position:relative;flex-shrink:0;">
+    <img src="${photo}" style="width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid ${unreadCount>0?'#ff2d55':'#222'};">
+    <div style="position:absolute;bottom:1px;right:1px;width:11px;height:11px;border-radius:50%;background:${online?"#00e676":"#555"};border:2px solid #121212;"></div>
   </div>
-  <div><b>${name}</b><br><small style="color:#aaa;">${online?"● Online":"● Offline"}</small></div>
+  <div style="flex:1;min-width:0;">
+    <b style="font-size:14px;${unreadCount>0?'color:#fff;':'color:#ccc;'}">${name}</b>
+    <br>
+    <small style="color:${unreadCount>0?'#aaa':'#555'};font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;max-width:180px;">${lastMsgText || (online?"● Online":"● Offline")}</small>
+  </div>
+  ${unreadCount > 0 ? `<span class="dm-unread-badge">${unreadCount > 9 ? "9+" : unreadCount} new</span>` : ""}
 </div>`;
       }
       document.getElementById("dmList").innerHTML = html || "<small style='color:#555;padding:10px;display:block;'>No DMs yet — search for a user above</small>";
@@ -3094,9 +3712,15 @@ let seenStories = JSON.parse(
   localStorage.getItem("seenStories") || "{}"
 );
 
+// ── Single stories listener — prevents duplicate rings when called multiple times ──
+let _storiesUnsub = null;
+
 function loadStories() {
+  // Tear down the previous listener before attaching a new one
+  if (_storiesUnsub) { _storiesUnsub(); _storiesUnsub = null; }
+
   skelStories(); // show skeleton immediately
-  onSnapshot(collection(db, "stories"), async (snap) => {
+  _storiesUnsub = onSnapshot(collection(db, "stories"), async (snap) => {
     
     await cleanOldStories();
     
@@ -3116,9 +3740,34 @@ function loadStories() {
         };
       }
     });
+
+    // ── Fetch active lives from RTDB ──
+    let activeLives = {};
+    try {
+      const livesSnap = await get(ref(rtdb, "lives"));
+      if (livesSnap.exists()) activeLives = livesSnap.val();
+    } catch(e) {}
     
     const shown = new Set();
     const now = Date.now();
+
+    // ── Show LIVE circles first ──
+    Object.entries(activeLives).forEach(([uid, liveData]) => {
+      if (!liveData || !liveData.active) return;
+      const user = userMap[uid] || { photo: "https://i.imgur.com/6VBx3io.png", name: "User" };
+      shown.add("live_" + uid);
+      storiesBar.innerHTML += `
+<div class="story" onclick="joinLive('${uid}')" style="position:relative;min-width:72px;text-align:center;cursor:pointer;">
+  <div style="position:absolute;top:-8px;left:50%;transform:translateX(-50%);font-size:10px;padding:2px 7px;border-radius:12px;background:linear-gradient(45deg,#ff2d55,#ff6a00);box-shadow:0 0 10px rgba(255,45,85,.5);border:1px solid rgba(255,45,85,.3);color:#fff;font-weight:700;white-space:nowrap;z-index:5;letter-spacing:.5px;">
+    🔴 LIVE
+  </div>
+  <div class="storyRing live-ring">
+    <img src="${user.photo}">
+  </div>
+  <div class="small">${user.name}</div>
+  <div class="live-badge">LIVE</div>
+</div>`;
+    });
     
     snap.forEach(s => {
       const d = s.data();
@@ -3164,30 +3813,20 @@ function loadStories() {
 setInterval(cleanOldStories, 10 * 60 * 1000);
 
 function timeAgo(ts) {
-  if (!ts) return "";
-  
+  if (!ts) return "just now";
   let ms = 0;
-  
-  if (ts.toDate) {
-    ms = ts.toDate().getTime();
-  } else if (ts.seconds) {
-    ms = ts.seconds * 1000;
-  } else {
-    ms = new Date(ts).getTime();
-  }
-  
+  if (ts.toDate) { ms = ts.toDate().getTime(); }
+  else if (ts.seconds) { ms = ts.seconds * 1000; }
+  else { ms = new Date(ts).getTime(); }
   const diff = Math.floor((Date.now() - ms) / 1000);
-  
+  if (diff < 0 || isNaN(diff)) return "just now";
+  if (diff < 5) return "just now";
   if (diff < 60) return diff + "s ago";
-  
   const min = Math.floor(diff / 60);
   if (min < 60) return min + "m ago";
-  
   const hr = Math.floor(min / 60);
   if (hr < 24) return hr + "h ago";
-  
-  const day = Math.floor(hr / 24);
-  return day + "d ago";
+  return Math.floor(hr / 24) + "d ago";
 }
 
 /* 3. REPLACE loadMine() */
@@ -3357,12 +3996,16 @@ window.initAutoPlay = () => {
       }
     });
   }, {
-    threshold: [0.75],         // single threshold = fewer callbacks
+    threshold: [0.75],
     rootMargin: '0px'
   });
 
   videos.forEach(v => reelObserver.observe(v));
 };
+
+// 🔥 FIX 9: Remove global scroll listener for controlReelsPlayback — IntersectionObserver handles it
+// The below was causing double-play logic fighting the observer:
+// window.addEventListener("scroll", controlReelsPlayback)
 //profile edit
 window.saveProfile = async () => {
   const user = auth.currentUser;
@@ -3551,20 +4194,25 @@ function showStory() {
     storyProgress.innerHTML += `<div><span id="bar${i}"></span></div>`;
   });
   
-  /* 🔥 DELETE BUTTON + VIEWS COUNT: only for own stories */
+  /* 🔥 Record view: if not the owner, add current user uid to views array */
+  const myUid = auth.currentUser?.uid;
+  const isMyStory = String(s.uid) === String(myUid);
+  if (!isMyStory && myUid && s.id) {
+    updateDoc(doc(db, "stories", s.id), { views: arrayUnion(myUid) }).catch(() => {});
+  }
+
+  /* DELETE BUTTON + VIEWS COUNT: only for own stories */
   const delBtn = document.getElementById("storyDeleteBtn");
   const viewsCountEl = document.getElementById("storyViewsCount");
-  const isMyStory = String(s.uid) === String(auth.currentUser.uid);
 
   if (delBtn) delBtn.style.display = isMyStory ? "block" : "none";
 
-  // Show views count inline for owner
   if (viewsCountEl) {
     if (isMyStory) {
       viewsCountEl.style.display = "block";
       viewsCountEl.innerText = "👁 loading…";
       getDoc(doc(db, "stories", s.id)).then(snap => {
-        const views = snap.data()?.views || [];
+        const views = (snap.data()?.views || []).filter(v => v !== myUid);
         viewsCountEl.innerText = `👁 ${views.length} view${views.length !== 1 ? "s" : ""}`;
       }).catch(() => { viewsCountEl.innerText = "👁 0 views"; });
     } else {
@@ -4474,7 +5122,106 @@ const postQ = query(
 
 // 🔥 Track liked state locally to avoid race condition
 const LIKED_POSTS = new Set();
+// 🔖 Track saved/bookmarked posts locally
+const SAVED_POSTS = new Set();
 let POSTS_SNAPSHOT = null; // store latest snapshot for re-render
+
+/* ═══ SAVED POSTS FUNCTIONS ═══ */
+window.toggleSave = async (postId, btn) => {
+  if (!auth.currentUser) return showToast("Login to save posts", "error");
+  const uid = auth.currentUser.uid;
+  const saveRef = doc(db, "saves", uid + "_" + postId);
+
+  if (SAVED_POSTS.has(postId)) {
+    // unsave
+    await deleteDoc(saveRef);
+    SAVED_POSTS.delete(postId);
+    btn.classList.remove("saved");
+    showToast("Removed from saved", "default");
+  } else {
+    // save
+    await setDoc(saveRef, { uid, postId, savedAt: serverTimestamp() });
+    SAVED_POSTS.add(postId);
+    btn.classList.add("saved");
+    // pop animation
+    btn.style.transform = "scale(1.4)";
+    setTimeout(() => btn.style.transform = "", 220);
+    showToast("🔖 Post saved!", "success");
+  }
+};
+
+window.switchProfileTab = async (tab) => {
+  const postsGrid = document.getElementById("myPosts");
+  const savedGrid = document.getElementById("mySaved");
+  const tabPosts = document.getElementById("profileTabPosts");
+  const tabSaved = document.getElementById("profileTabSaved");
+
+  if (tab === "posts") {
+    postsGrid.style.display = "grid";
+    savedGrid.style.display = "none";
+    tabPosts.classList.add("active");
+    tabSaved.classList.remove("active");
+  } else {
+    postsGrid.style.display = "none";
+    savedGrid.style.display = "grid";
+    tabPosts.classList.remove("active");
+    tabSaved.classList.add("active");
+    await loadSavedPosts();
+  }
+};
+
+async function loadSavedPosts() {
+  if (!auth.currentUser) return;
+  const savedGrid = document.getElementById("mySaved");
+  savedGrid.innerHTML = `<div style="grid-column:1/-1;padding:16px;text-align:center;color:#555;font-size:13px;">Loading saved posts...</div>`;
+
+  try {
+    const snap = await getDocs(query(collection(db, "saves"), where("uid", "==", auth.currentUser.uid)));
+    if (snap.empty) {
+      savedGrid.innerHTML = `<div style="grid-column:1/-1;padding:24px;text-align:center;color:#555;font-size:13px;">No saved posts yet 🔖<br><span style="font-size:11px;color:#333;">Tap 🔖 on any post to save it</span></div>`;
+      return;
+    }
+
+    // Fetch all saved post docs in parallel
+    const postFetches = snap.docs.map(d => getDoc(doc(db, "posts", d.data().postId)));
+    const postDocs = await Promise.all(postFetches);
+
+    let html = "";
+    postDocs.forEach(pDoc => {
+      if (!pDoc.exists()) return;
+      const p = pDoc.data();
+      const pid = pDoc.id;
+      if (p.photo) {
+        html += `
+<div style="aspect-ratio:1/1;overflow:hidden;border-radius:4px;position:relative;background:#111;">
+  <img class="postMini" src="${p.photo}" onclick="openCustomPlayer('${p.photo}','image','${pid}')" style="width:100%;height:100%;object-fit:cover;cursor:pointer;">
+  <div style="position:absolute;top:5px;right:6px;font-size:14px;color:#ff2d55;">🔖</div>
+</div>`;
+      } else if (p.video) {
+        const thumb = p.thumbnail || "";
+        html += `
+<div style="position:relative;aspect-ratio:1/1;overflow:hidden;border-radius:4px;background:#111;">
+  ${thumb ? `<img src="${thumb}" style="width:100%;height:100%;object-fit:cover;cursor:pointer;" onclick="openCustomPlayer('${p.video}','video','${pid}')">` : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;cursor:pointer;" onclick="openCustomPlayer('${p.video}','video','${pid}')"><span style="font-size:32px;color:#fff;">▶</span></div>`}
+  <div style="position:absolute;top:5px;right:6px;font-size:14px;color:#ff2d55;">🔖</div>
+</div>`;
+      }
+    });
+
+    savedGrid.innerHTML = html || `<div style="grid-column:1/-1;padding:24px;text-align:center;color:#555;font-size:13px;">No saved posts found</div>`;
+  } catch(e) {
+    savedGrid.innerHTML = `<div style="grid-column:1/-1;padding:16px;text-align:center;color:#555;">Failed to load saves</div>`;
+  }
+}
+
+// Pre-load saved state for current user when they log in
+async function initSavedState() {
+  if (!auth.currentUser) return;
+  try {
+    const snap = await getDocs(query(collection(db, "saves"), where("uid", "==", auth.currentUser.uid)));
+    SAVED_POSTS.clear();
+    snap.forEach(d => SAVED_POSTS.add(d.data().postId));
+  } catch(e) {}
+}
 
 function renderPostsFeed(s) {
   if (!postsGrid) return;
@@ -4508,7 +5255,8 @@ function renderPostsFeed(s) {
   <div class="ig-post-actions">
     <button id="postLikeBtn-${id}" onclick="likePostFeed('${id}',this)">${isLiked ? "❤️" : "🤍"}</button>
     <button onclick="commentPost('${id}')">💬</button>
-    ${isOwner ? `<button onclick="delPost('${id}')" style="margin-left:auto;font-size:20px;color:#ff4444;">🗑</button>` : ""}
+    ${isOwner ? `<button onclick="delPost('${id}')" style="font-size:20px;color:#ff4444;background:none;border:none;color:#ff4444;cursor:pointer;padding:0;line-height:1;">🗑</button>` : ""}
+    <button id="bookmarkBtn-${id}" class="bookmark-btn ${SAVED_POSTS.has(id)?'saved':''}" onclick="toggleSave('${id}',this)" title="Save post">${SAVED_POSTS.has(id)?'🔖':'🔖'}</button>
   </div>
   <div class="ig-post-likes"><span id="postLikeCount-${id}">${p.likes || 0}</span> likes</div>
   ${p.caption ? `<div class="ig-post-caption"><b style="color:#fff;">${uploaderName}</b> ${p.caption}</div>` : ""}
@@ -4580,10 +5328,9 @@ function controlReelsPlayback() {
 
 
 
-window.addEventListener("scroll", () => {
-  controlReelsPlayback();
-  preloadNext();
-}, { passive: true });
+// 🔥 FIX 9: scroll listener removed — IntersectionObserver in initAutoPlay handles playback
+// controlReelsPlayback and window scroll listener removed to prevent double-play jank
+
 
 window.previewMedia = (e) => {
   const file = e.target.files[0];
@@ -5061,7 +5808,581 @@ window.clearChatLocal = () => {
   showToast("Cleared on this device 📱");
 };
 
+/* ═══════════════════════════════════════════════════════════
+   🔴 LIVE STREAMING — WebRTC + Firebase RTDB Signaling
+   Host streams real camera to every viewer via peer connections
+   ═══════════════════════════════════════════════════════════ */
+
+const ICE_SERVERS = {
+  iceServers: [
+    { urls: "stun:stun.l.google.com:19302" },
+    { urls: "stun:stun1.l.google.com:19302" },
+    { urls: "stun:stun2.l.google.com:19302" },
+    { urls: "stun:stun3.l.google.com:19302" }
+  ],
+  iceCandidatePoolSize: 10,
+  bundlePolicy: "max-bundle",
+  rtcpMuxPolicy: "require"
+};
+
+let liveStream          = null;   // host MediaStream
+let liveHostPeers       = {};     // hostUid → { [viewerKey]: RTCPeerConnection }
+let liveViewerPeer      = null;   // viewer RTCPeerConnection
+let liveHostUnsub       = null;
+let liveViewerUnsub     = null;
+let liveMsgsUnsub       = null;
+let liveSignalUnsub     = null;   // RTDB offer/answer/ice listener
+let currentLiveHostUid  = null;
+
+// ── Reload stories bar whenever live sessions change ──
+onValue(ref(rtdb, "lives"), () => { loadStories(); });
+
+/* ════════════ HOST ════════════ */
+
+// ── Camera facing mode — starts front (selfie) like Instagram ──
+let _liveFacingMode = "user";
+
+window.flipLiveCamera = async () => {
+  _liveFacingMode = _liveFacingMode === "user" ? "environment" : "user";
+  const hostVid = document.getElementById("liveHostVideo");
+
+  // Stop old tracks
+  if (liveStream) liveStream.getVideoTracks().forEach(t => t.stop());
+
+  try {
+    const newStream = await navigator.mediaDevices.getUserMedia({
+      video: {
+        facingMode: { ideal: _liveFacingMode },
+        width:  { ideal: 1080 },
+        height: { ideal: 1920 },
+        frameRate: { ideal: 30, max: 30 },
+        aspectRatio: { ideal: 9/16 }
+      },
+      audio: { echoCancellation: true, noiseSuppression: true, sampleRate: 48000 }
+    });
+
+    const newVideoTrack = newStream.getVideoTracks()[0];
+
+    // Replace the track in all existing peer connections (no reconnect needed)
+    Object.values(liveHostPeers).forEach(pc => {
+      const sender = pc.getSenders().find(s => s.track?.kind === "video");
+      if (sender) sender.replaceTrack(newVideoTrack).catch(() => {});
+    });
+
+    // Replace video track in liveStream
+    liveStream.getVideoTracks().forEach(t => liveStream.removeTrack(t));
+    liveStream.addTrack(newVideoTrack);
+
+    // Update local preview
+    hostVid.srcObject = null;
+    hostVid.srcObject = liveStream;
+    // Mirror front cam (selfie), don't mirror back cam
+    hostVid.style.transform = _liveFacingMode === "user" ? "scaleX(-1)" : "scaleX(1)";
+    await hostVid.play().catch(() => {});
+
+  } catch(e) {
+    showToast("Could not flip camera", "error");
+    _liveFacingMode = _liveFacingMode === "user" ? "environment" : "user"; // revert
+  }
+};
+
+window.startLive = async () => {
+  if (!auth.currentUser) return showToast("Login to go live", "error");
+
+  _liveFacingMode = "user"; // always start front cam like Instagram
+
+  try {
+    liveStream = await navigator.mediaDevices.getUserMedia({
+      video: {
+        facingMode: { ideal: "user" },
+        width:  { ideal: 1080 },
+        height: { ideal: 1920 },
+        frameRate: { ideal: 30, max: 30 },
+        aspectRatio: { ideal: 9/16 }
+      },
+      audio: { echoCancellation: true, noiseSuppression: true, sampleRate: 48000 }
+    });
+
+    // Show local preview
+    const hostVid = document.getElementById("liveHostVideo");
+    hostVid.srcObject = liveStream;
+    hostVid.muted = true;
+    await hostVid.play().catch(() => {});
+
+    const uid      = auth.currentUser.uid;
+    const snap     = await getDoc(doc(db, "users", uid));
+    const uData    = snap.exists() ? snap.data() : {};
+    const myName   = uData.name  || auth.currentUser.email.split("@")[0];
+    const myPhoto  = uData.photo || "https://i.imgur.com/6VBx3io.png";
+
+    // Register live session in RTDB
+    const liveRef = ref(rtdb, `lives/${uid}`);
+    await set(liveRef, { uid, name: myName, photo: myPhoto, active: true, viewers: 0, startedAt: Date.now() });
+    onDisconnect(liveRef).remove();
+
+    liveJoinedAt = Date.now(); // host: only show messages from this point forward
+
+    // Show UI
+    document.getElementById("liveHostScreen").style.display = "flex";
+    document.getElementById("liveHostMsgs").innerHTML = "";
+
+    // Viewer count
+    liveViewerUnsub = onValue(ref(rtdb, `lives/${uid}/viewers`), s => {
+      document.getElementById("liveViewerCount").textContent = s.val() || 0;
+    });
+
+    // ── Listen for viewer join-requests (offers) ──
+    // Each viewer writes their offer to: signals/{hostUid}/viewers/{viewerKey}/offer
+    liveSignalUnsub = onValue(ref(rtdb, `signals/${uid}/viewers`), async (viewersSnap) => {
+      if (!viewersSnap.exists()) return;
+      const viewers = viewersSnap.val();
+
+      for (const [vKey, data] of Object.entries(viewers)) {
+        if (!data.offer) continue;
+        if (liveHostPeers[vKey]) continue; // already connected
+
+        const pc = new RTCPeerConnection(ICE_SERVERS);
+        liveHostPeers[vKey] = pc;
+
+        // Push our stream tracks to this viewer
+        liveStream.getTracks().forEach(track => pc.addTrack(track, liveStream));
+
+        // Send our ICE candidates to this viewer
+        pc.onicecandidate = async ({ candidate }) => {
+          if (candidate) {
+            await push(ref(rtdb, `signals/${uid}/viewers/${vKey}/hostIce`), candidate.toJSON());
+          }
+        };
+
+        pc.onconnectionstatechange = () => {
+          if (["disconnected","failed","closed"].includes(pc.connectionState)) {
+            pc.close();
+            delete liveHostPeers[vKey];
+          }
+        };
+
+        // Accept viewer's offer
+        await pc.setRemoteDescription(new RTCSessionDescription(data.offer));
+        const answer = await pc.createAnswer();
+        await pc.setLocalDescription(answer);
+        await set(ref(rtdb, `signals/${uid}/viewers/${vKey}/answer`), { type: answer.type, sdp: answer.sdp });
+
+        // Apply any buffered viewer ICE
+        if (data.viewerIce) {
+          Object.values(data.viewerIce).forEach(ic => {
+            pc.addIceCandidate(new RTCIceCandidate(ic)).catch(() => {});
+          });
+        }
+
+        // Watch for new viewer ICE coming in later
+        onValue(ref(rtdb, `signals/${uid}/viewers/${vKey}/viewerIce`), iceSnap => {
+          if (!iceSnap.exists()) return;
+          Object.values(iceSnap.val()).forEach(ic => {
+            pc.addIceCandidate(new RTCIceCandidate(ic)).catch(() => {});
+          });
+        });
+      }
+    });
+
+    startLiveChatListener(uid, "liveHostMsgs");
+    showToast("🔴 You are now live!");
+
+  } catch (err) {
+    console.error(err);
+    showToast(err.name === "NotAllowedError" ? "Camera/mic permission denied" : "Could not start live: " + err.message, "error");
+  }
+};
+
+window.endLive = async () => {
+  if (!auth.currentUser) return;
+  const uid = auth.currentUser.uid;
+
+  // Close all peer connections
+  Object.values(liveHostPeers).forEach(pc => pc.close());
+  liveHostPeers = {};
+
+  // Stop camera
+  if (liveStream) { liveStream.getTracks().forEach(t => t.stop()); liveStream = null; }
+
+  // ── DELETE all live chat messages from Firestore ──
+  try {
+    const chatSnap = await getDocs(collection(db, `lives/${uid}/chat`));
+    const delBatch = chatSnap.docs.map(d => deleteDoc(doc(db, `lives/${uid}/chat`, d.id)));
+    await Promise.all(delBatch);
+  } catch(e) { console.warn("chat cleanup:", e); }
+
+  // Clean RTDB (session + signals)
+  try { await remove(ref(rtdb, `lives/${uid}`)); }     catch(e) {}
+  try { await remove(ref(rtdb, `signals/${uid}`)); }   catch(e) {}
+
+  if (liveViewerUnsub) { liveViewerUnsub(); liveViewerUnsub = null; }
+  if (liveSignalUnsub) { liveSignalUnsub(); liveSignalUnsub = null; }
+  if (liveMsgsUnsub)   { liveMsgsUnsub();   liveMsgsUnsub   = null; }
+
+  document.getElementById("liveHostScreen").style.display = "none";
+  document.getElementById("liveHostMsgs").innerHTML = "";
+  document.getElementById("liveHostVideo").srcObject = null;
+  showToast("Live ended 👋");
+  loadStories();
+};
+
+/* ════════════ VIEWER ════════════ */
+
+let liveJoinedAt = 0; // timestamp when THIS viewer joined — filters old messages
+
+window.joinLive = async (hostUid) => {
+  if (!auth.currentUser) return showToast("Login to watch live", "error");
+
+  // If this user is the host, just re-open host screen
+  if (hostUid === auth.currentUser.uid) {
+    const hs = document.getElementById("liveHostScreen");
+    if (hs.style.display !== "none") return;
+    showToast("You are the host!");
+    return;
+  }
+
+  currentLiveHostUid = hostUid;
+  liveJoinedAt = Date.now(); // record join time — used to skip old messages
+
+  // Verify live session still active
+  const liveSnap = await get(ref(rtdb, `lives/${hostUid}`));
+  if (!liveSnap.exists() || !liveSnap.val().active) {
+    return showToast("Live has ended 😕");
+  }
+  const liveData = liveSnap.val();
+
+  // Increment viewer count
+  try { await set(ref(rtdb, `lives/${hostUid}/viewers`), (liveData.viewers || 0) + 1); } catch(e) {}
+
+  // Show viewer screen
+  const viewScreen = document.getElementById("liveViewScreen");
+  viewScreen.style.display = "flex";
+
+  // Populate host info — clear old messages immediately
+  document.getElementById("liveViewHostPic").src          = liveData.photo || "https://i.imgur.com/6VBx3io.png";
+  document.getElementById("liveViewHostName").textContent = liveData.name  || "Live";
+  document.getElementById("liveViewMsgs").innerHTML       = ""; // ← clear stale messages
+
+  // Show "Connecting…" placeholder, hide video until stream arrives
+  const placeholder = document.getElementById("liveViewPlaceholder");
+  const liveViewVid = document.getElementById("liveViewVideo");
+  placeholder.style.display = "flex";
+  liveViewVid.style.display = "none";
+  liveViewVid.muted = false; // start unmuted — browser may still block, tap handler below covers it
+
+  // Viewer count
+  liveViewerUnsub = onValue(ref(rtdb, `lives/${hostUid}/viewers`), s => {
+    document.getElementById("liveViewViewerCount").textContent = s.val() || 0;
+  });
+
+  // Detect host going offline
+  liveHostUnsub = onValue(ref(rtdb, `lives/${hostUid}`), s => {
+    if (!s.exists() || !s.val()?.active) { showToast("Live has ended 👋"); exitLive(); }
+  });
+
+  // ── Build WebRTC as viewer ──
+  const viewerKey = auth.currentUser.uid;
+  liveViewerPeer  = new RTCPeerConnection(ICE_SERVERS);
+
+  // When the host's stream arrives, play it WITH audio
+  liveViewerPeer.ontrack = ({ streams }) => {
+    if (streams && streams[0]) {
+      liveViewVid.srcObject = streams[0];
+      liveViewVid.muted = false;
+      liveViewVid.volume = 1.0;
+      liveViewVid.style.display = "block";
+      placeholder.style.display = "none";
+      // Try autoplay with audio
+      liveViewVid.play().then(() => {
+        hideLiveUnmuteBtn();
+      }).catch(() => {
+        // Browser blocked audio autoplay — play muted first, show persistent unmute button
+        liveViewVid.muted = true;
+        liveViewVid.play().catch(() => {});
+        showLiveUnmuteBtn();
+      });
+    }
+  };
+
+  // Send our ICE candidates to host
+  liveViewerPeer.onicecandidate = async ({ candidate }) => {
+    if (candidate) {
+      await push(ref(rtdb, `signals/${hostUid}/viewers/${viewerKey}/viewerIce`), candidate.toJSON());
+    }
+  };
+
+  liveViewerPeer.onconnectionstatechange = () => {
+    if (["disconnected","failed","closed"].includes(liveViewerPeer.connectionState)) {
+      placeholder.style.display = "flex";
+      liveViewVid.style.display = "none";
+    }
+    if (liveViewerPeer.connectionState === "connected") {
+      placeholder.style.display = "none";
+      liveViewVid.style.display = "block";
+    }
+  };
+
+  // Add transceiver so host knows we want video + audio
+  liveViewerPeer.addTransceiver("video", { direction: "recvonly" });
+  liveViewerPeer.addTransceiver("audio", { direction: "recvonly" });
+
+  // Create & send offer to host
+  const offer = await liveViewerPeer.createOffer();
+  await liveViewerPeer.setLocalDescription(offer);
+  await set(ref(rtdb, `signals/${hostUid}/viewers/${viewerKey}/offer`), { type: offer.type, sdp: offer.sdp });
+
+  // Wait for host's answer
+  onValue(ref(rtdb, `signals/${hostUid}/viewers/${viewerKey}/answer`), async ansSnap => {
+    if (!ansSnap.exists()) return;
+    const ans = ansSnap.val();
+    if (liveViewerPeer.signalingState !== "have-local-offer") return;
+    try {
+      await liveViewerPeer.setRemoteDescription(new RTCSessionDescription(ans));
+    } catch(e) { console.warn("setRemote answer err:", e); }
+  });
+
+  // Listen for host ICE candidates
+  onValue(ref(rtdb, `signals/${hostUid}/viewers/${viewerKey}/hostIce`), iceSnap => {
+    if (!iceSnap.exists()) return;
+    Object.values(iceSnap.val()).forEach(ic => {
+      liveViewerPeer.addIceCandidate(new RTCIceCandidate(ic)).catch(() => {});
+    });
+  });
+
+  startLiveChatListener(hostUid, "liveViewMsgs");
+};
+
+/* ── Unmute button helpers (shown when autoplay with audio is blocked) ── */
+function showLiveUnmuteBtn() {
+  let btn = document.getElementById("liveUnmuteBtn");
+  if (!btn) {
+    btn = document.createElement("button");
+    btn.id = "liveUnmuteBtn";
+    btn.innerHTML = "🔇 Tap to unmute";
+    btn.style.cssText = [
+      "position:absolute",
+      "bottom:100px",
+      "left:50%",
+      "transform:translateX(-50%)",
+      "z-index:25",
+      "background:rgba(0,0,0,0.82)",
+      "color:#fff",
+      "border:2px solid rgba(255,255,255,0.6)",
+      "border-radius:30px",
+      "padding:13px 28px",
+      "font-size:15px",
+      "font-weight:700",
+      "cursor:pointer",
+      "backdrop-filter:blur(10px)",
+      "-webkit-backdrop-filter:blur(10px)",
+      "white-space:nowrap",
+      "box-shadow:0 4px 20px rgba(0,0,0,0.5)"
+    ].join(";");
+    btn.onclick = () => {
+      const v = document.getElementById("liveViewVideo");
+      v.muted = false;
+      v.volume = 1.0;
+      v.play().catch(() => {});
+      hideLiveUnmuteBtn();
+    };
+    document.getElementById("liveViewScreen").appendChild(btn);
+  }
+  btn.style.display = "block";
+}
+function hideLiveUnmuteBtn() {
+  const btn = document.getElementById("liveUnmuteBtn");
+  if (btn) btn.style.display = "none";
+}
+
+window.exitLive = async () => {
+  if (currentLiveHostUid) {
+    try {
+      const s = await get(ref(rtdb, `lives/${currentLiveHostUid}/viewers`));
+      await set(ref(rtdb, `lives/${currentLiveHostUid}/viewers`), Math.max(0, (s.val() || 1) - 1));
+    } catch(e) {}
+
+    // Remove our signaling data
+    try { await remove(ref(rtdb, `signals/${currentLiveHostUid}/viewers/${auth.currentUser.uid}`)); } catch(e) {}
+  }
+
+  if (liveViewerPeer)  { liveViewerPeer.close(); liveViewerPeer = null; }
+  if (liveViewerUnsub) { liveViewerUnsub(); liveViewerUnsub = null; }
+  if (liveHostUnsub)   { liveHostUnsub();   liveHostUnsub   = null; }
+  if (liveMsgsUnsub)   { liveMsgsUnsub();   liveMsgsUnsub   = null; }
+  currentLiveHostUid = null;
+  liveJoinedAt = 0;
+
+  const liveViewVid = document.getElementById("liveViewVideo");
+  liveViewVid.srcObject = null;
+  liveViewVid.style.display = "none";
+  hideLiveUnmuteBtn();
+  document.getElementById("liveViewPlaceholder").style.display = "flex";
+  document.getElementById("liveViewScreen").style.display = "none";
+};
+
+/* ════════════ LIVE CHAT ════════════ */
+
+function startLiveChatListener(hostUid, boxId) {
+  if (liveMsgsUnsub) { liveMsgsUnsub(); liveMsgsUnsub = null; }
+
+  // Clear the box immediately so no stale messages flash
+  const box = document.getElementById(boxId);
+  if (box) box.innerHTML = "";
+
+  const q = query(collection(db, `lives/${hostUid}/chat`), orderBy("time", "asc"));
+
+  liveMsgsUnsub = onSnapshot(q, snap => {
+    const box = document.getElementById(boxId);
+    if (!box) return;
+
+    const joinedMs = liveJoinedAt || Date.now();
+
+    // Only show messages sent AFTER this viewer/host joined this session
+    const freshDocs = snap.docs.filter(d => {
+      const t = d.data().time;
+      if (!t) return true; // serverTimestamp not yet set — show optimistically
+      const msgMs = t.toMillis ? t.toMillis() : (t.seconds ? t.seconds * 1000 : 0);
+      return msgMs >= joinedMs - 5000; // 5s grace window for clock skew
+    }).slice(-30);
+
+    box.innerHTML = "";
+    freshDocs.forEach(d => {
+      const msg   = d.data();
+      const photo = USER_CACHE[msg.uid]?.photo || "https://i.imgur.com/6VBx3io.png";
+      const name  = msg.name || USER_CACHE[msg.uid]?.name || "User";
+      const isMe  = msg.uid === auth.currentUser?.uid;
+      const bubble = document.createElement("div");
+      bubble.className = "live-msg-bubble";
+      bubble.innerHTML = `
+        <img src="${photo}" alt="">
+        <span><b style="color:${isMe ? "#ff7eb3" : "#fff"};font-size:12px;">${name}</b>
+        <span style="color:rgba(255,255,255,0.85);"> ${msg.text}</span></span>`;
+      box.appendChild(bubble);
+    });
+    box.scrollTop = box.scrollHeight;
+  });
+}
+
+window.sendLiveMsg = async (role) => {
+  if (!auth.currentUser) return;
+  const inputId = role === "host" ? "liveHostMsgInput" : "liveViewMsgInput";
+  const input   = document.getElementById(inputId);
+  const text    = input?.value.trim();
+  if (!text) return;
+  const hostUid = role === "host" ? auth.currentUser.uid : currentLiveHostUid;
+  if (!hostUid) return;
+  const uid  = auth.currentUser.uid;
+  const name = USER_CACHE[uid]?.name || auth.currentUser.email.split("@")[0];
+  try {
+    await addDoc(collection(db, `lives/${hostUid}/chat`), { uid, name, text, time: serverTimestamp() });
+    input.value = "";
+  } catch(e) { showToast("Could not send message"); }
+};
+
+document.addEventListener("keydown", e => {
+  if (e.key !== "Enter") return;
+  if (document.activeElement === document.getElementById("liveHostMsgInput"))   sendLiveMsg("host");
+  if (document.activeElement === document.getElementById("liveViewMsgInput"))   sendLiveMsg("viewer");
+});
+
 </script></body>
+
+<!-- ══ LIVE HOST SCREEN ══ -->
+<div id="liveHostScreen" style="display:none;position:fixed;inset:0;background:#000;z-index:999999;flex-direction:column;">
+  <!-- Mirror front cam like Instagram selfie -->
+  <video id="liveHostVideo" autoplay muted playsinline style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;pointer-events:none;transform:scaleX(-1);"></video>
+
+  <!-- TOP BAR -->
+  <div style="position:absolute;top:0;left:0;width:100%;display:flex;align-items:center;justify-content:space-between;padding:48px 14px 14px;z-index:10;pointer-events:none;">
+    <div style="display:flex;align-items:center;gap:8px;pointer-events:all;">
+      <div style="display:inline-flex;align-items:center;gap:5px;background:#ff2d55;border-radius:8px;padding:4px 12px;animation:livePulse 1.5s infinite;">
+        <div style="width:8px;height:8px;border-radius:50%;background:#fff;animation:dotPulse 1s infinite;"></div>
+        <span style="color:#fff;font-size:13px;font-weight:800;letter-spacing:1px;">LIVE</span>
+      </div>
+      <div style="background:rgba(0,0,0,0.55);backdrop-filter:blur(10px);border-radius:20px;padding:5px 12px;color:#fff;font-size:13px;font-weight:600;">
+        👁 <span id="liveViewerCount">0</span>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;pointer-events:all;">
+      <!-- Flip camera button like Instagram -->
+      <button onclick="flipLiveCamera()" title="Flip camera"
+        style="width:40px;height:40px;border-radius:50%;background:rgba(0,0,0,0.55);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:none;color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;">🔄</button>
+      <button onclick="endLive()" style="background:rgba(0,0,0,0.55);backdrop-filter:blur(10px);border:1.5px solid #ff2d55;color:#ff2d55;font-size:13px;font-weight:700;padding:7px 16px;border-radius:20px;cursor:pointer;">End Live</button>
+    </div>
+  </div>
+
+  <!-- FLOATING CHAT -->
+  <div style="position:absolute;bottom:80px;left:0;width:65%;padding:0 12px 10px;pointer-events:none;z-index:10;">
+    <div id="liveHostMsgs" style="display:flex;flex-direction:column;gap:6px;max-height:200px;overflow:hidden;"></div>
+  </div>
+
+  <!-- INPUT BAR -->
+  <div style="position:absolute;bottom:0;left:0;width:100%;display:flex;align-items:center;gap:10px;padding:12px 14px 20px;z-index:10;background:linear-gradient(to top,rgba(0,0,0,0.6) 0%,transparent 100%);">
+    <input id="liveHostMsgInput" placeholder="Say something…" maxlength="200"
+      style="flex:1;padding:11px 18px;border-radius:30px;border:none;background:rgba(255,255,255,0.15);backdrop-filter:blur(10px);color:#fff;font-size:14px;outline:none;">
+    <button onclick="sendLiveMsg('host')"
+      style="width:46px;height:46px;border-radius:50%;background:#ff2d55;border:none;color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(255,45,85,.4);">➤</button>
+  </div>
+</div>
+
+<!-- ══ LIVE VIEWER SCREEN ══ -->
+<div id="liveViewScreen" style="display:none;position:fixed;inset:0;background:#111;z-index:999998;flex-direction:column;">
+
+  <!-- Actual stream video — no controls, covers full screen -->
+  <video id="liveViewVideo" autoplay playsinline
+    style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;display:none;pointer-events:none;">
+  </video>
+
+  <!-- Dark blurred background shown while connecting (matches screenshot grey blur) -->
+  <div id="liveViewPlaceholder"
+    style="position:absolute;inset:0;background:radial-gradient(ellipse at center,#2a2a2a 0%,#0a0a0a 100%);display:flex;align-items:center;justify-content:center;">
+    <!-- pulsing camera icon, no spinner ring so it looks like the screenshot -->
+    <div style="text-align:center;opacity:0.35;">
+      <div style="font-size:64px;">📷</div>
+      <p style="color:#fff;font-size:13px;margin-top:10px;letter-spacing:.5px;">Connecting…</p>
+    </div>
+  </div>
+
+  <!-- ── TOP BAR: profile pill + viewer count + X (matches screenshot exactly) ── -->
+  <div style="position:absolute;top:0;left:0;width:100%;display:flex;align-items:center;justify-content:space-between;padding:48px 14px 14px;z-index:10;pointer-events:none;">
+
+    <!-- LEFT: avatar + name + LIVE pill -->
+    <div style="display:flex;align-items:center;gap:10px;background:rgba(0,0,0,0.55);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-radius:40px;padding:6px 14px 6px 6px;pointer-events:all;max-width:70%;">
+      <img id="liveViewHostPic" src="https://i.imgur.com/6VBx3io.png"
+        style="width:38px;height:38px;border-radius:50%;object-fit:cover;border:2px solid #ff2d55;flex-shrink:0;">
+      <div style="display:flex;flex-direction:column;gap:2px;min-width:0;">
+        <span id="liveViewHostName" style="color:#fff;font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Live</span>
+        <div style="display:inline-flex;align-items:center;gap:4px;background:#ff2d55;border-radius:6px;padding:1px 7px;width:fit-content;">
+          <div style="width:7px;height:7px;border-radius:50%;background:#fff;animation:dotPulse 1s infinite;flex-shrink:0;"></div>
+          <span style="color:#fff;font-size:10px;font-weight:800;letter-spacing:.8px;">LIVE</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: viewer count + X -->
+    <div style="display:flex;align-items:center;gap:8px;pointer-events:all;">
+      <div style="background:rgba(0,0,0,0.55);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-radius:20px;padding:6px 12px;display:flex;align-items:center;gap:5px;color:#fff;font-size:13px;font-weight:600;">
+        👁 <span id="liveViewViewerCount">0</span>
+      </div>
+      <button onclick="exitLive()"
+        style="width:36px;height:36px;border-radius:50%;background:rgba(0,0,0,0.55);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:none;color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:300;">✕</button>
+    </div>
+  </div>
+
+  <!-- ── FLOATING CHAT MESSAGES (above input) ── -->
+  <div style="position:absolute;bottom:80px;left:0;width:65%;padding:0 12px 10px;pointer-events:none;z-index:10;">
+    <div id="liveViewMsgs" style="display:flex;flex-direction:column;gap:6px;max-height:200px;overflow:hidden;"></div>
+  </div>
+
+  <!-- ── BOTTOM INPUT BAR ── -->
+  <div style="position:absolute;bottom:0;left:0;width:100%;display:flex;align-items:center;gap:10px;padding:12px 14px 20px;z-index:10;background:linear-gradient(to top,rgba(0,0,0,0.6) 0%,transparent 100%);">
+    <input id="liveViewMsgInput" placeholder="Comment on live…" maxlength="200"
+      style="flex:1;padding:11px 18px;border-radius:30px;border:none;background:rgba(255,255,255,0.15);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:#fff;font-size:14px;outline:none;">
+    <button onclick="sendLiveMsg('viewer')"
+      style="width:46px;height:46px;border-radius:50%;background:#ff2d55;border:none;color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(255,45,85,.4);">➤</button>
+  </div>
+
+</div>
 
 <div id="refreshLoader" class="refreshLoader hidden">
   <div class="spinner"></div>
