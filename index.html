@@ -3714,21 +3714,14 @@ let seenStories = JSON.parse(
 
 // ── Single stories listener — prevents duplicate rings when called multiple times ──
 let _storiesUnsub = null;
-let _storiesRendering = false; // guard: prevents a second onSnapshot fire running while first await is still in flight
 
 function loadStories() {
   // Tear down the previous listener before attaching a new one
   if (_storiesUnsub) { _storiesUnsub(); _storiesUnsub = null; }
-  _storiesRendering = false; // reset guard on fresh load
 
   skelStories(); // show skeleton immediately
   _storiesUnsub = onSnapshot(collection(db, "stories"), async (snap) => {
-
-    // If a previous render is still awaiting Firestore, skip this duplicate fire
-    if (_storiesRendering) return;
-    _storiesRendering = true;
-
-    try {
+    
     await cleanOldStories();
     
     storiesBar.innerHTML = "";
@@ -3761,9 +3754,8 @@ function loadStories() {
     // ── Show LIVE circles first ──
     Object.entries(activeLives).forEach(([uid, liveData]) => {
       if (!liveData || !liveData.active) return;
-      if (shown.has(uid)) return;
       const user = userMap[uid] || { photo: "https://i.imgur.com/6VBx3io.png", name: "User" };
-      shown.add(uid); // plain uid — so a user who is live AND has a story only appears once
+      shown.add("live_" + uid);
       storiesBar.innerHTML += `
 <div class="story" onclick="joinLive('${uid}')" style="position:relative;min-width:72px;text-align:center;cursor:pointer;">
   <div style="position:absolute;top:-8px;left:50%;transform:translateX(-50%);font-size:10px;padding:2px 7px;border-radius:12px;background:linear-gradient(45deg,#ff2d55,#ff6a00);box-shadow:0 0 10px rgba(255,45,85,.5);border:1px solid rgba(255,45,85,.3);color:#fff;font-weight:700;white-space:nowrap;z-index:5;letter-spacing:.5px;">
@@ -3814,10 +3806,7 @@ function loadStories() {
 </div>
 `;
     });
-
-    } finally {
-      _storiesRendering = false;
-    }
+    
   });
 }
 
