@@ -5944,7 +5944,7 @@ window.startLive = async () => {
         const pc = new RTCPeerConnection(ICE_SERVERS);
         liveHostPeers[vKey] = pc;
 
-        // Push our stream tracks to this viewer
+        // Push our stream tracks to this viewer .
         liveStream.getTracks().forEach(track => pc.addTrack(track, liveStream));
 
         // Send our ICE candidates to this viewer
