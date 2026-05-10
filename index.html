@@ -144,7 +144,7 @@ opacity:.7;
 #home {top: 146px;height: calc(100vh - 206px);overflow: hidden;}
 /* 🔥 FIX: reels wrap takes height minus the tab bar (~44px) */
 #home .reelsWrap { height: calc(100% - 44px); }
-#profile,#chat,#upload,#notify{top:56px;height:calc(100vh - 116px);}
+#profile,#chat,#upload,#notify,#trending{top:56px;height:calc(100vh - 116px);}
 
 
 
@@ -359,8 +359,9 @@ to{opacity:1;transform:scale(1);}
   flex-direction: column;
   gap: 10px;
   scroll-behavior: smooth;
-  /* push content above the fixed input bar */
-  padding-bottom: 80px;
+  /* push content well above the fixed input bar */
+  padding-bottom: 100px;
+  overscroll-behavior: contain;
 }
 
 .chatInputArea {
@@ -1405,6 +1406,16 @@ to{opacity:1;transform:none;}
   0%,100% { opacity: 1; transform: scale(1); }
   50%      { opacity: 0.5; transform: scale(0.7); }
 }
+
+/* Header heart notification button */
+#headerNotifyBtn:active { transform: scale(0.85) !important; }
+#headerNotifyBtn i { transition: color 0.3s ease; }
+@keyframes heartBeat {
+  0%,100% { transform: scale(1); }
+  20% { transform: scale(1.3); }
+  40% { transform: scale(0.95); }
+  60% { transform: scale(1.2); }
+}
 </style></head><body>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <header>
@@ -1413,10 +1424,20 @@ to{opacity:1;transform:none;}
 <b>Rizzzta</b>
 <span id="userBox">Guest</span>
 
-<img
+<div style="display:flex;align-items:center;gap:8px;">
+  <!-- Heart/Notifications button in header -->
+  <div style="position:relative;display:flex;align-items:center;justify-content:center;">
+    <span onclick="go('notify')" id="headerNotifyBtn" title="Notifications"
+      style="width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:20px;color:#fff;transition:transform 0.2s ease;">
+      <i class="fa-regular fa-heart" id="headerHeartIcon"></i>
+    </span>
+    <span id="headerNotiBadge" style="display:none;position:absolute;top:0;right:0;background:#ff2d55;color:#fff;font-size:9px;font-weight:700;min-width:14px;height:14px;border-radius:99px;align-items:center;justify-content:center;padding:0 3px;pointer-events:none;"></span>
+  </div>
+  <img
     id="topDp"
     src="https://i.imgur.com/6VBx3io.png"
     style="width:34px;height:34px;border-radius:50%;object-fit:cover">
+</div>
 </header><div id='storiesBar' style='margin-top:52px;display:flex;gap:10px;overflow:auto;padding:10px;background:#050505'></div>
     <div id="globalToast" class="toast"></div>
 <section id='home' class='page show'>
@@ -1477,6 +1498,28 @@ style="position:fixed;top:75px;right:12px;z-index:9999;background:rgba(0,0,0,.65
     <button onclick="markAllNotiRead()" style="background:none;border:none;color:#aaa;font-size:12px;cursor:pointer;">Mark all read</button>
   </div>
   <div id='notiList' style="overflow-y:auto;height:calc(100% - 50px);padding:8px 0;"></div>
+</section>
+
+<!-- ═══ TRENDING REELS PAGE ═══ -->
+<section id='trending' class='page' style="overflow-y:auto;padding-bottom:80px;">
+  <!-- Header tabs -->
+  <div style="position:sticky;top:0;z-index:10;background:#000;border-bottom:1px solid #1a1a1a;">
+    <div style="padding:14px 14px 0;display:flex;align-items:center;gap:8px;">
+      <i class="fa-solid fa-fire" style="color:#ff6a00;font-size:20px;"></i>
+      <b style="font-size:18px;background:linear-gradient(90deg,#ff6a00,#ff2d55);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Trending Reels</b>
+    </div>
+    <!-- Filter tabs -->
+    <div style="display:flex;gap:0;overflow-x:auto;padding:10px 10px 0;scrollbar-width:none;">
+      <button id="trendTab-top" onclick="switchTrendTab('top')" style="flex-shrink:0;padding:7px 16px;border:none;border-bottom:2px solid #ff2d55;background:none;color:#fff;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">🔥 Top</button>
+      <button id="trendTab-mix" onclick="switchTrendTab('mix')" style="flex-shrink:0;padding:7px 16px;border:none;border-bottom:2px solid transparent;background:none;color:#aaa;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">🎲 Mix</button>
+      <button id="trendTab-watched" onclick="switchTrendTab('watched')" style="flex-shrink:0;padding:7px 16px;border:none;border-bottom:2px solid transparent;background:none;color:#aaa;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">👁 Most Watched</button>
+      <button id="trendTab-liked" onclick="switchTrendTab('liked')" style="flex-shrink:0;padding:7px 16px;border:none;border-bottom:2px solid transparent;background:none;color:#aaa;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">❤️ Most Liked</button>
+    </div>
+  </div>
+
+  <!-- Trending grid -->
+  <div id="trendingGrid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:3px;padding:3px;"></div>
+  <div id="trendingLoader" style="text-align:center;padding:20px;color:#555;font-size:13px;">Loading trending reels…</div>
 </section>
   
   
@@ -1807,9 +1850,10 @@ style="position:fixed;top:75px;right:12px;z-index:9999;background:rgba(0,0,0,.65
 <!-- NAV BAR with Font Awesome icons -->
 <nav class='nav'>
   <span onclick="go('home')" id="navHome" title="Home"><i class="fa-solid fa-house"></i></span>
+  <span onclick="go('trending')" id="navTrending" title="Trending Reels"><i class="fa-solid fa-fire"></i></span>
   <span onclick="go('upload')" id="navUpload" title="Upload"><i class="fa-solid fa-plus-circle"></i></span>
   <span onclick="go('chat')" id="navChat" title="Chat"><i class="fa-regular fa-message"></i></span>
-  <span onclick="go('notify')" id="navNotify" title="Notifications"><i class="fa-regular fa-heart"></i></span>
+  <span onclick="go('notify')" id="navNotify" title="Notifications" style="display:none;"><i class="fa-regular fa-heart"></i></span>
   <span onclick="goProfile()" id="navProfile" title="Profile"><i class="fa-regular fa-user"></i></span>
 </nav>
 <script type='module'>
@@ -1868,7 +1912,7 @@ function updateAllAudio() {
 
 
 /* ADD BELOW auth init */
-setPersistence(auth, browserLocalPersistence);
+setPersistence(auth, browserLocalPersistence).catch(() => {});
 
 window.stopAllReels = () => {
   
@@ -1884,7 +1928,7 @@ window.stopAllReels = () => {
 const postsGrid = document.getElementById("postsGrid");
 
 // ── PAGE NAV ORDER for slide direction ──
-const PAGE_ORDER = ['home','upload','chat','notify','profile'];
+const PAGE_ORDER = ['home','trending','upload','chat','notify','profile'];
 let _currentPage = 'home';
 
 window.go = (id) => {
@@ -1957,13 +2001,18 @@ window.go = (id) => {
   }
 
   // Update nav icons active state
-  ['home','upload','chat','notify'].forEach(pg => {
+  ['home','trending','upload','chat','notify'].forEach(pg => {
     const el = document.getElementById('nav' + pg.charAt(0).toUpperCase() + pg.slice(1));
     if (el) el.classList.toggle('nav-active', pg === id);
   });
   // profile nav
   const profEl = document.getElementById('navProfile');
   if (profEl) profEl.classList.toggle('nav-active', id === 'profile');
+
+  // Load trending when navigating to it
+  if (id === 'trending') {
+    loadTrendingReels('top');
+  }
 };
 // ── SKELETON HELPERS ──
 function clearReelSkeletons() {
@@ -2024,6 +2073,114 @@ function skelStories() {
   <div class="skel skel-story-label"></div>
 </div>`).join('');
 }
+
+/* ═══════════════════════════════
+   TRENDING REELS SYSTEM
+═══════════════════════════════ */
+let _trendingTab = 'top';
+let _trendingCache = null;
+
+window.switchTrendTab = (tab) => {
+  _trendingTab = tab;
+  // update tab styles
+  ['top','mix','watched','liked'].forEach(t => {
+    const btn = document.getElementById('trendTab-' + t);
+    if (!btn) return;
+    btn.style.borderBottom = t === tab ? '2px solid #ff2d55' : '2px solid transparent';
+    btn.style.color = t === tab ? '#fff' : '#aaa';
+  });
+  loadTrendingReels(tab);
+};
+
+async function loadTrendingReels(tab) {
+  const grid = document.getElementById('trendingGrid');
+  const loader = document.getElementById('trendingLoader');
+  if (!grid) return;
+  if (loader) loader.style.display = 'block';
+  grid.innerHTML = '';
+
+  try {
+    // Fetch all posts that have video (reels)
+    const snap = await getDocs(collection(db, 'posts'));
+    let posts = [];
+    snap.forEach(d => {
+      const p = d.data();
+      if (p.video || p.photo) {
+        posts.push({ id: d.id, ...p });
+      }
+    });
+
+    // Sort based on tab
+    if (tab === 'top') {
+      // Top = highest likes
+      posts.sort((a, b) => (b.likes || 0) - (a.likes || 0));
+    } else if (tab === 'mix') {
+      // Mix = random shuffle
+      for (let i = posts.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [posts[i], posts[j]] = [posts[j], posts[i]];
+      }
+    } else if (tab === 'watched') {
+      // Most watched = by view count or time (newest reels get more views)
+      posts.sort((a, b) => {
+        const av = (a.views || 0) + (a.likes || 0) * 2;
+        const bv = (b.views || 0) + (b.likes || 0) * 2;
+        return bv - av;
+      });
+    } else if (tab === 'liked') {
+      // Most liked
+      posts.sort((a, b) => (b.likes || 0) - (a.likes || 0));
+    }
+
+    // Show top 30
+    posts = posts.slice(0, 30);
+
+    if (posts.length === 0) {
+      if (loader) loader.textContent = 'No reels found 🎬';
+      return;
+    }
+    if (loader) loader.style.display = 'none';
+
+    const frag = document.createDocumentFragment();
+    for (const p of posts) {
+      const user = USER_CACHE[p.uid] || { name: 'User', photo: 'https://i.imgur.com/6VBx3io.png' };
+      const wrapper = document.createElement('div');
+      wrapper.style.cssText = 'position:relative;aspect-ratio:9/16;overflow:hidden;background:#111;cursor:pointer;border-radius:4px;';
+      wrapper.onclick = () => openViewer(p.video || p.photo, p.video ? 'video' : 'image');
+
+      // Thumbnail or video
+      if (p.video) {
+        const thumb = p.thumbnail || '';
+        wrapper.innerHTML = `
+          ${thumb
+            ? `<img src="${thumb}" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;">`
+            : `<video src="${p.video}" muted preload="none" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;" onmouseenter="this.play()" onmouseleave="this.pause()"></video>`}
+          <div style="position:absolute;inset:0;background:linear-gradient(transparent 55%,rgba(0,0,0,0.85));"></div>
+          <div style="position:absolute;top:8px;left:8px;background:linear-gradient(45deg,#ff6a00,#ff2d55);border-radius:6px;padding:2px 7px;font-size:10px;font-weight:700;color:#fff;">🎬 REEL</div>
+          ${(p.likes||0) > 0 ? `<div style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.6);border-radius:20px;padding:2px 7px;font-size:10px;color:#fff;">❤️ ${p.likes||0}</div>` : ''}
+          <div style="position:absolute;bottom:6px;left:6px;right:6px;display:flex;align-items:center;gap:5px;">
+            <img src="${user.photo}" style="width:22px;height:22px;border-radius:50%;object-fit:cover;border:1.5px solid #ff2d55;flex-shrink:0;">
+            <span style="font-size:10px;color:#fff;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">@${user.name}</span>
+          </div>`;
+      } else {
+        wrapper.innerHTML = `
+          <img src="${p.photo}" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;">
+          <div style="position:absolute;inset:0;background:linear-gradient(transparent 60%,rgba(0,0,0,0.8));"></div>
+          ${(p.likes||0) > 0 ? `<div style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.6);border-radius:20px;padding:2px 7px;font-size:10px;color:#fff;">❤️ ${p.likes||0}</div>` : ''}
+          <div style="position:absolute;bottom:6px;left:6px;right:6px;display:flex;align-items:center;gap:5px;">
+            <img src="${user.photo}" style="width:22px;height:22px;border-radius:50%;object-fit:cover;border:1.5px solid #ff2d55;flex-shrink:0;">
+            <span style="font-size:10px;color:#fff;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">@${user.name}</span>
+          </div>`;
+      }
+      frag.appendChild(wrapper);
+    }
+    grid.appendChild(frag);
+
+  } catch(e) {
+    console.error("Trending load error:", e);
+    if (loader) loader.textContent = 'Failed to load trending reels';
+  }
+}
 // Show reel skeletons immediately on load
 skelReels(4);
 skelStories();
@@ -2053,14 +2210,26 @@ window.goProfile = async () => {
 };
 /* GOOGLE LOGIN */
 window.login = async () => {
+  const btn = document.querySelector('#loginScreen button[onclick="login()"]');
+  if (btn) { btn.disabled = true; btn.textContent = "Connecting…"; }
   try {
-    await signInWithPopup(
-      auth,
-      new GoogleAuthProvider()
-    );
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: 'select_account' });
+    await signInWithPopup(auth, provider);
   } catch (e) {
-    alert(e.message);
-  }};
+    // If popup blocked, try redirect
+    if (e.code === 'auth/popup-blocked' || e.code === 'auth/popup-closed-by-user') {
+      try {
+        const { signInWithRedirect } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js');
+        await signInWithRedirect(auth, new GoogleAuthProvider());
+      } catch(e2) { alert("Google login blocked by browser. Please allow popups."); }
+    } else {
+      alert(e.message || "Google login failed. Try again.");
+    }
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = "Continue with Google"; }
+  }
+};
 /* EMAIL LOGIN */
 window.emailLoginFn = async () => {
   try {
@@ -2992,11 +3161,22 @@ function loadNotifications() {
 
     notiList.innerHTML = html || `<div style="text-align:center;color:#555;padding:30px;font-size:14px;">No notifications yet 🔔</div>`;
 
-    // update badge
+    // update old badge (hidden nav)
     const badge = document.getElementById("notiBadge");
     if (badge) {
       badge.textContent = unread > 0 ? (unread > 9 ? "9+" : String(unread)) : "";
       badge.style.display = unread > 0 ? "flex" : "none";
+    }
+    // update header heart badge
+    const hBadge = document.getElementById("headerNotiBadge");
+    const hHeart = document.getElementById("headerHeartIcon");
+    if (hBadge) {
+      hBadge.textContent = unread > 0 ? (unread > 9 ? "9+" : String(unread)) : "";
+      hBadge.style.display = unread > 0 ? "flex" : "none";
+    }
+    if (hHeart) {
+      hHeart.className = unread > 0 ? "fa-solid fa-heart" : "fa-regular fa-heart";
+      hHeart.style.color = unread > 0 ? "#ff2d55" : "#fff";
     }
   });
 }
@@ -3470,7 +3650,12 @@ async function openRoom(collPath, title) {
       showToast(`💬 ${newMsgCount} new message${newMsgCount>1?"s":""}`, "default");
     }
 
-    requestAnimationFrame(() => { msgs.scrollTop = msgs.scrollHeight; });
+    // 🔥 FIX: Scroll to bottom reliably after DOM paint
+    requestAnimationFrame(() => {
+      msgs.scrollTop = msgs.scrollHeight;
+      // Double RAF to ensure content is fully rendered
+      requestAnimationFrame(() => { msgs.scrollTop = msgs.scrollHeight; });
+    });
   });
 }
 
@@ -3492,24 +3677,32 @@ window.openDm = async (otherUid) => {
   if (!auth.currentUser) return;
 
   const dmId = getDmId(auth.currentUser.uid, otherUid);
-  const snap = await getDoc(doc(db, "users", otherUid));
-  const name = snap.data()?.name || snap.data()?.email?.split("@")[0] || "User";
+
+  // 🔥 FIX: Show chat IMMEDIATELY from cache, don't await Firestore
+  let name = USER_CACHE[otherUid]?.name || "User";
   activeRoom = { type: "dm", collPath: `dms/${dmId}/messages`, otherUid };
 
-  // save dm record so it shows in list
-  await setDoc(doc(db, "dms", dmId), {
-    uids: [auth.currentUser.uid, otherUid],
-    updatedAt: serverTimestamp()
-  }, { merge: true });
-
-  // Switch to chat tab then open the room
+  // Switch to chat tab and open room instantly
   go("chat");
   openRoom(`dms/${dmId}/messages`, "💬 " + name);
-  // Show call buttons for DM
-  setTimeout(() => {
-    const cb = document.getElementById("callBtns");
-    if (cb) cb.style.display = "flex";
-  }, 50);
+  const cb = document.getElementById("callBtns");
+  if (cb) cb.style.display = "flex";
+
+  // Save DM record + fetch name in background (non-blocking)
+  getDoc(doc(db, "users", otherUid)).then(snap => {
+    const fetchedName = snap.data()?.name || snap.data()?.email?.split("@")[0] || name;
+    if (fetchedName !== name) {
+      const titleEl = document.getElementById("chatViewTitle");
+      if (titleEl && titleEl.innerText.includes(name)) {
+        titleEl.innerText = "💬 " + fetchedName;
+      }
+    }
+  }).catch(() => {});
+
+  setDoc(doc(db, "dms", dmId), {
+    uids: [auth.currentUser.uid, otherUid],
+    updatedAt: serverTimestamp()
+  }, { merge: true }).catch(() => {});
 };
 
 /* ---- sendMsg (works for any room) ---- */
@@ -3685,7 +3878,7 @@ function loadGroupList() {
     <b>${g.name}</b><br><small style="color:#aaa;">Password protected</small>
   </div>
   ${g.createdBy === auth.currentUser.uid
-    ? `<button onclick="deleteGroup('${d.id}')" style="background:#333;border:none;color:#ff4444;padding:6px 10px;border-radius:8px;font-size:15px;">✘</button>`
+    ? `<button onclick="deleteGroup('${d.id}')" style="background:#333;border:none;color:#ff4444;padding:6px 10px;border-radius:8px;font-size:13px;">🗑</button>`
     : ""}
 </div>`;
     });
@@ -5653,7 +5846,7 @@ function renderPostsFeed(s) {
   <div class="ig-post-actions">
     <button id="postLikeBtn-${id}" onclick="likePostFeed('${id}',this)">${isLiked ? "❤️" : "🤍"}</button>
     <button onclick="commentPost('${id}')">💬</button>
-    ${isOwner ? `<button onclick="delPost('${id}')" style="font-size:25px;color:#ff4444;background:none;border:none;color:#ff4444;cursor:pointer;padding:0;line-height:1;">✘</button>` : ""}
+    ${isOwner ? `<button onclick="delPost('${id}')" style="font-size:20px;color:#ff4444;background:none;border:none;color:#ff4444;cursor:pointer;padding:0;line-height:1;">🗑</button>` : ""}
     <button id="bookmarkBtn-${id}" class="bookmark-btn ${SAVED_POSTS.has(id)?'saved':''}" onclick="toggleSave('${id}',this)" title="Save post">${SAVED_POSTS.has(id)?'🔖':'🔖'}</button>
   </div>
   <div class="ig-post-likes"><span id="postLikeCount-${id}">${p.likes || 0}</span> likes</div>
