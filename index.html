@@ -8,6 +8,8 @@ html, body {
   -webkit-tap-highlight-color: transparent;
 }
 
+* { -webkit-tap-highlight-color: transparent; }
+
 * {-webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   box-sizing:border-box;margin:0;padding:0;}
@@ -248,6 +250,24 @@ height:100%;
   border-radius: 12px;
   color: #777;
   position: relative;
+  /* ── KILL the white circle ghost ── */
+  -webkit-tap-highlight-color: transparent !important;
+  -webkit-touch-callout: none;
+  outline: none !important;
+  user-select: none;
+  cursor: pointer;
+  background: none;
+  border: none;
+  box-shadow: none !important;
+}
+.nav span::before,
+.nav span::after { display: none !important; }
+.nav span:focus,
+.nav span:focus-visible,
+.nav span:focus-within {
+  outline: none !important;
+  box-shadow: none !important;
+  background: none !important;
 }
 
 .nav span.nav-active {
@@ -257,6 +277,9 @@ height:100%;
 .nav span:active {
   transform: translateY(-4px) scale(1.15);
   color: #ff2d55;
+  outline: none !important;
+  background: none !important;
+  box-shadow: none !important;
 }
 
 /* PROFILE GRID */
@@ -909,17 +932,152 @@ to{opacity:1;transform:none;}
   margin-top: 4px;
 }
 .chat-vid-bubble {
-  width: 260px;
-  max-width: 80vw;
-  height: 220px;
-  border-radius: 12px;
+  width: 280px;
+  max-width: 88vw;
+  height: 340px;
+  border-radius: 14px;
   display: block;
   margin-top: 4px;
   object-fit: cover;
   background: #000;
+  position: relative;
 }
 
-/* ─── DM UNREAD BADGE ─── */
+/* ═══════════════════════════════
+   CUSTOM CHAT VIDEO PLAYER
+═══════════════════════════════ */
+.cvid-wrap {
+  position: relative;
+  width: 280px;
+  max-width: 88vw;
+  height: 340px;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #000;
+  margin-top: 6px;
+  flex-shrink: 0;
+}
+.cvid-wrap video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  border-radius: 14px;
+}
+/* big centered play button on idle */
+.cvid-big-play {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  transition: opacity 0.2s;
+}
+.cvid-big-play-btn {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.62);
+  border: 2.5px solid rgba(255,255,255,0.85);
+  color: #fff;
+  font-size: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  pointer-events: all;
+  cursor: pointer;
+  transition: transform 0.15s, background 0.15s;
+  padding-left: 3px; /* optical centre for ▶ */
+}
+.cvid-big-play-btn:active { transform: scale(0.88); }
+/* bottom control bar */
+.cvid-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(transparent, rgba(0,0,0,0.82));
+  padding: 22px 10px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  transition: opacity 0.3s;
+}
+.cvid-bar.hidden { opacity: 0; pointer-events: none; }
+.cvid-seek {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 3px;
+  border-radius: 3px;
+  background: rgba(255,255,255,0.28);
+  outline: none;
+  cursor: pointer;
+}
+.cvid-seek::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: #ff2d55;
+  cursor: pointer;
+  margin-top: -5px;
+  box-shadow: 0 0 5px rgba(255,45,85,.7);
+}
+.cvid-seek::-moz-range-thumb {
+  width: 13px; height: 13px; border-radius: 50%;
+  background: #ff2d55; cursor: pointer; border: none;
+}
+.cvid-seek::-webkit-slider-runnable-track { height: 3px; border-radius: 3px; }
+.cvid-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.cvid-btn {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 17px;
+  cursor: pointer;
+  padding: 3px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: transform 0.14s;
+}
+.cvid-btn:active { transform: scale(0.82); }
+.cvid-time {
+  font-size: 10px;
+  color: rgba(255,255,255,0.82);
+  white-space: nowrap;
+  letter-spacing: 0.3px;
+  flex: 1;
+  text-align: center;
+}
+.cvid-fs-btn {
+  background: rgba(255,255,255,0.14);
+  border: 1px solid rgba(255,255,255,0.22);
+  color: #fff;
+  font-size: 13px;
+  padding: 3px 9px;
+  border-radius: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  line-height: 1;
+  transition: background 0.18s;
+  white-space: nowrap;
+}
+.cvid-fs-btn:active { background: rgba(255,45,85,0.38); }
+
+
 .dm-unread-badge {
   background: #ff2d55;
   color: #fff;
@@ -1447,12 +1605,25 @@ style="position:fixed;top:75px;right:12px;z-index:9999;background:rgba(0,0,0,.65
   <!-- Active chat view (shared for DM, global, group) -->
   <div id="chatView" style="display:none;position:absolute;top:0;left:0;width:100%;height:100%;flex-direction:column;background:#000;">
     <div id="chatViewHeader" style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#111;border-bottom:1px solid #222;position:sticky;top:0;z-index:10;flex-shrink:0;">
-      <button onclick="backToHub()" style="background:none;border:none;color:#fff;font-size:20px;">←</button>
-      <div>
-        <b id="chatViewTitle">Chat</b><br>
+      <button onclick="backToHub()" style="background:none;border:none;color:#fff;font-size:20px;display:flex;align-items:center;justify-content:center;width:32px;height:32px;"><i class="fa-solid fa-arrow-left"></i></button>
+      <div style="flex:1;min-width:0;">
+        <b id="chatViewTitle" style="font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">Chat</b>
         <small id="typingBox" style="color:#aaa;font-size:11px;"></small>
       </div>
-      <button onclick="clearChatLocal()" style="margin-left:auto;background:#333;color:#fff;border:none;padding:6px 10px;border-radius:8px;font-size:11px;">📱 Clear</button>
+      <!-- Call buttons (only shown in DM) -->
+      <div id="callBtns" style="display:none;align-items:center;gap:6px;">
+        <button onclick="startCall('voice')" title="Voice Call"
+          style="background:rgba(255,255,255,.08);border:none;color:#4ade80;width:36px;height:36px;border-radius:50%;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s;">
+          <i class="fa-solid fa-phone"></i>
+        </button>
+        <button onclick="startCall('video')" title="Video Call"
+          style="background:rgba(255,255,255,.08);border:none;color:#60a5fa;width:36px;height:36px;border-radius:50%;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s;">
+          <i class="fa-solid fa-video"></i>
+        </button>
+      </div>
+      <button onclick="clearChatLocal()" style="background:#222;color:#fff;border:none;padding:6px 10px;border-radius:8px;font-size:11px;display:flex;align-items:center;gap:4px;">
+        <i class="fa-solid fa-trash-can" style="font-size:11px;"></i> Clear
+      </button>
     </div>
 
     <div id='msgs' class="chatContainer"></div>
@@ -1474,10 +1645,16 @@ style="position:fixed;top:75px;right:12px;z-index:9999;background:rgba(0,0,0,.65
       <div style="display:flex;gap:6px;align-items:center;width:100%;">
         <!-- Media attach button -->
         <input id="chatMediaInput" type="file" accept="image/*,video/*" hidden onchange="previewChatMedia(event)">
-        <button class="chat-media-btn" onclick="document.getElementById('chatMediaInput').click()" title="Send image/video">📷</button>
+        <button class="chat-media-btn" onclick="document.getElementById('chatMediaInput').click()" title="Send image/video">
+          <i class="fa-solid fa-image"></i>
+        </button>
         <input id='msg' class='inp' placeholder='Type a message…' maxlength="500" style="flex:1;">
-        <button id="recordBtn" class="btn">🎤</button>
-        <button class='btn sendBtn' onclick='sendMsg()'>Send</button>
+        <button id="recordBtn" class="btn" title="Voice message" style="width:38px;height:38px;padding:0;display:flex;align-items:center;justify-content:center;flex-shrink:0;border-radius:10px;font-size:16px;">
+          <i class="fa-solid fa-microphone"></i>
+        </button>
+        <button class='btn sendBtn' onclick='sendMsg()' title="Send" style="width:38px;height:38px;padding:0;display:flex;align-items:center;justify-content:center;flex-shrink:0;border-radius:10px;font-size:16px;">
+          <i class="fa-solid fa-paper-plane"></i>
+        </button>
       </div>
     </div>
   </div>
@@ -2997,6 +3174,174 @@ onSnapshot(collection(db, "status"), (snap) => {
 let activeRoom = null; // { type: 'global'|'dm'|'group', id, title, unsub }
 let chatUnsubscribe = null;
 
+/* ═══ CUSTOM CHAT VIDEO PLAYER ═══ */
+let _cvidPlaying = {}; // track which player is playing
+
+function buildChatVideoPlayer(src, msgId) {
+  const pid = 'cvid_' + msgId.replace(/[^a-z0-9]/gi, '_');
+  const escapedSrc = src.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+  return `
+<div class="cvid-wrap" id="${pid}_wrap">
+  <video id="${pid}_v" src="${src}" playsinline preload="metadata"
+    style="width:100%;height:100%;object-fit:cover;display:block;border-radius:14px;"></video>
+
+  <!-- Big centre play button (shown when paused) -->
+  <div class="cvid-big-play" id="${pid}_bigplay">
+    <button class="cvid-big-play-btn" id="${pid}_bigbtn"
+      onclick="cvidToggle('${pid}')">▶</button>
+  </div>
+
+  <!-- Bottom controls bar -->
+  <div class="cvid-bar" id="${pid}_bar">
+    <input type="range" class="cvid-seek" id="${pid}_seek"
+      min="0" max="100" step="0.1" value="0"
+      oninput="cvidSeek('${pid}')">
+    <div class="cvid-row">
+      <button class="cvid-btn" id="${pid}_playbtn" onclick="cvidToggle('${pid}')">▶</button>
+      <span class="cvid-time" id="${pid}_time">0:00 / 0:00</span>
+      <button class="cvid-fs-btn" onclick="cvidFullscreen('${pid}')">⛶ Full</button>
+    </div>
+  </div>
+</div>`;
+}
+
+/* toggle play/pause */
+window.cvidToggle = (pid) => {
+  const v  = document.getElementById(pid+'_v');
+  const bb = document.getElementById(pid+'_bigbtn');
+  const pb = document.getElementById(pid+'_playbtn');
+  const bp = document.getElementById(pid+'_bigplay');
+  if (!v) return;
+
+  if (v.paused) {
+    // pause others
+    document.querySelectorAll('.cvid-wrap video').forEach(ov => {
+      if (ov !== v && !ov.paused) {
+        ov.pause();
+        const opid = ov.id.replace('_v','');
+        const obb = document.getElementById(opid+'_bigbtn');
+        const opb = document.getElementById(opid+'_playbtn');
+        const obp = document.getElementById(opid+'_bigplay');
+        if (obb) obb.textContent = '▶';
+        if (opb) opb.textContent = '▶';
+        if (obp) obp.style.opacity = '1';
+        cvidShowBar(opid);
+      }
+    });
+    v.play().catch(() => {});
+    if (bb) bb.textContent = '⏸';
+    if (pb) pb.textContent = '⏸';
+    if (bp) bp.style.opacity = '0';
+    cvidAutoHideBar(pid);
+  } else {
+    v.pause();
+    if (bb) bb.textContent = '▶';
+    if (pb) pb.textContent = '▶';
+    if (bp) bp.style.opacity = '1';
+    cvidShowBar(pid);
+  }
+};
+
+/* seek */
+window.cvidSeek = (pid) => {
+  const v    = document.getElementById(pid+'_v');
+  const seek = document.getElementById(pid+'_seek');
+  if (!v || !seek || !v.duration) return;
+  v.currentTime = (parseFloat(seek.value) / 100) * v.duration;
+  cvidUpdateSeekStyle(seek, seek.value);
+};
+
+/* fullscreen */
+window.cvidFullscreen = (pid) => {
+  const wrap = document.getElementById(pid+'_wrap');
+  const v    = document.getElementById(pid+'_v');
+  if (!wrap) return;
+  if (wrap.requestFullscreen)        wrap.requestFullscreen();
+  else if (wrap.webkitRequestFullscreen) wrap.webkitRequestFullscreen();
+  else if (v  && v.webkitEnterFullscreen) v.webkitEnterFullscreen();
+};
+
+function cvidUpdateSeekStyle(seek, val) {
+  seek.style.background = `linear-gradient(to right,#ff2d55 ${val}%,rgba(255,255,255,0.28) ${val}%)`;
+}
+
+let _cvidHideTimers = {};
+function cvidAutoHideBar(pid) {
+  clearTimeout(_cvidHideTimers[pid]);
+  cvidShowBar(pid);
+  _cvidHideTimers[pid] = setTimeout(() => {
+    const bar = document.getElementById(pid+'_bar');
+    const v   = document.getElementById(pid+'_v');
+    if (bar && v && !v.paused) bar.classList.add('hidden');
+  }, 3000);
+}
+function cvidShowBar(pid) {
+  const bar = document.getElementById(pid+'_bar');
+  if (bar) bar.classList.remove('hidden');
+}
+
+/* Attach live events once video loads into DOM — called via MutationObserver */
+function cvidInitEvents(pid) {
+  const v    = document.getElementById(pid+'_v');
+  const seek = document.getElementById(pid+'_seek');
+  const time = document.getElementById(pid+'_time');
+  const bb   = document.getElementById(pid+'_bigbtn');
+  const pb   = document.getElementById(pid+'_playbtn');
+  const bp   = document.getElementById(pid+'_bigplay');
+  const wrap = document.getElementById(pid+'_wrap');
+  if (!v || v._cvidInit) return;
+  v._cvidInit = true;
+
+  v.addEventListener('timeupdate', () => {
+    if (!v.duration) return;
+    const pct = (v.currentTime / v.duration) * 100;
+    if (seek) { seek.value = pct; cvidUpdateSeekStyle(seek, pct); }
+    if (time) time.textContent = cvidFmt(v.currentTime) + ' / ' + cvidFmt(v.duration);
+  });
+  v.addEventListener('ended', () => {
+    if (bb) bb.textContent = '▶';
+    if (pb) pb.textContent = '▶';
+    if (bp) bp.style.opacity = '1';
+    if (seek) { seek.value = 0; cvidUpdateSeekStyle(seek, 0); }
+    cvidShowBar(pid);
+  });
+  // tap on video = toggle controls visibility (not play/pause, user uses buttons)
+  wrap && wrap.addEventListener('click', (e) => {
+    const bar = document.getElementById(pid+'_bar');
+    if (!bar) return;
+    if (e.target === seek) return;
+    if (bar.classList.contains('hidden')) { cvidShowBar(pid); cvidAutoHideBar(pid); }
+    else if (!v.paused) { bar.classList.add('hidden'); }
+  });
+}
+
+function cvidFmt(s) {
+  if (!s || isNaN(s)) return '0:00';
+  const m = Math.floor(s / 60), sec = Math.floor(s % 60);
+  return m + ':' + (sec < 10 ? '0' : '') + sec;
+}
+
+/* Watch for new cvid-wrap elements inserted by chat renderer */
+(function() {
+  const obs = new MutationObserver(mutations => {
+    mutations.forEach(mut => {
+      mut.addedNodes.forEach(node => {
+        if (!node.querySelectorAll) return;
+        node.querySelectorAll('[id$="_wrap"].cvid-wrap').forEach(wrap => {
+          const pid = wrap.id.replace('_wrap','');
+          cvidInitEvents(pid);
+        });
+        // also check the node itself
+        if (node.classList && node.classList.contains('cvid-wrap')) {
+          const pid = node.id.replace('_wrap','');
+          cvidInitEvents(pid);
+        }
+      });
+    });
+  });
+  obs.observe(document.body, { childList: true, subtree: true });
+})();
+
 /* ---- helpers ---- */
 function getDmId(uid1, uid2) {
   return [uid1, uid2].sort().join("_");
@@ -3066,7 +3411,7 @@ async function openRoom(collPath, title) {
     ${(!d.chatImg && !d.chatVid) ? `<b style="font-size:13px;">${showName} : </b><br>` : `<div style="font-size:11px;padding:4px 6px 2px;opacity:.7;">${showName}</div>`}
     ${d.audio ? `<audio controls src="${d.audio}" style="width:200px;margin-top:4px;"></audio>` : ""}
     ${d.chatImg ? `<img class="chat-img-bubble" src="${d.chatImg}" onclick="openViewer('${d.chatImg}','image')">` : ""}
-    ${d.chatVid ? `<video class="chat-vid-bubble" src="${d.chatVid}" controls muted playsinline></video>` : ""}
+    ${d.chatVid ? buildChatVideoPlayer(d.chatVid, m.id) : ""}
     ${(!d.audio && !d.chatImg && !d.chatVid) ? (d.t || "") : (d.t ? `<div style="padding:4px 6px 2px;font-size:13px;">${d.t}</div>` : "")}
     <div style="font-size:9px;color:${mine?"rgba(255,255,255,.7)":"#777"};margin-top:5px;text-align:right;padding:${d.chatImg||d.chatVid?"0 6px 4px":""}">${formatTime(d.time)}</div>
     <button onclick="openDeleteOptions('${m.id}','${collPath}')"
@@ -3092,6 +3437,8 @@ async function openRoom(collPath, title) {
 window.openGroupRoom = (groupId, password, isGlobal) => {
   activeRoom = { type: isGlobal ? "global" : "group", collPath: `chat_rooms/${groupId}/messages` };
   openRoom(`chat_rooms/${groupId}/messages`, isGlobal ? "🌐 Global Chat" : "🔒 " + groupId);
+  const cb = document.getElementById("callBtns");
+  if (cb) cb.style.display = "none";
 };
 
 /* ---- open DM ---- */
@@ -3117,6 +3464,11 @@ window.openDm = async (otherUid) => {
   // Switch to chat tab then open the room
   go("chat");
   openRoom(`dms/${dmId}/messages`, "💬 " + name);
+  // Show call buttons for DM
+  setTimeout(() => {
+    const cb = document.getElementById("callBtns");
+    if (cb) cb.style.display = "flex";
+  }, 50);
 };
 
 /* ---- sendMsg (works for any room) ---- */
@@ -3714,25 +4066,38 @@ let seenStories = JSON.parse(
 
 // ── Single stories listener — prevents duplicate rings when called multiple times ──
 let _storiesUnsub = null;
+let _storiesRenderTimer = null;
 
 function loadStories() {
   // Tear down the previous listener before attaching a new one
   if (_storiesUnsub) { _storiesUnsub(); _storiesUnsub = null; }
+  if (_storiesRenderTimer) { clearTimeout(_storiesRenderTimer); _storiesRenderTimer = null; }
 
   skelStories(); // show skeleton immediately
-  _storiesUnsub = onSnapshot(collection(db, "stories"), async (snap) => {
-    
+
+  // Debounced render — coalesces rapid onSnapshot fires into one render
+  let _pendingSnap = null;
+
+  _storiesUnsub = onSnapshot(collection(db, "stories"), (snap) => {
+    _pendingSnap = snap;
+    if (_storiesRenderTimer) clearTimeout(_storiesRenderTimer);
+    _storiesRenderTimer = setTimeout(() => _renderStories(_pendingSnap), 300);
+  });
+}
+
+async function _renderStories(snap) {
+  _storiesRenderTimer = null;
+  if (!snap) return;
+
+  try {
     await cleanOldStories();
-    
+
     storiesBar.innerHTML = "";
-    
+
     const usersSnap = await getDocs(collection(db, "users"));
-    
     const userMap = {};
-    
     usersSnap.forEach(u => {
       const d = u.data();
-      
       if (d.uid) {
         userMap[d.uid] = {
           photo: d.photo || "https://i.imgur.com/6VBx3io.png",
@@ -3747,67 +4112,59 @@ function loadStories() {
       const livesSnap = await get(ref(rtdb, "lives"));
       if (livesSnap.exists()) activeLives = livesSnap.val();
     } catch(e) {}
-    
+
     const shown = new Set();
     const now = Date.now();
+    // Use a DocumentFragment + array to avoid duplicate innerHTML += calls
+    const frag = document.createDocumentFragment();
 
     // ── Show LIVE circles first ──
     Object.entries(activeLives).forEach(([uid, liveData]) => {
       if (!liveData || !liveData.active) return;
+      if (shown.has(uid)) return;
+      shown.add(uid);
       const user = userMap[uid] || { photo: "https://i.imgur.com/6VBx3io.png", name: "User" };
-      shown.add("live_" + uid);
-      storiesBar.innerHTML += `
-<div class="story" onclick="joinLive('${uid}')" style="position:relative;min-width:72px;text-align:center;cursor:pointer;">
+      const el = document.createElement("div");
+      el.className = "story";
+      el.style.cssText = "position:relative;min-width:72px;text-align:center;cursor:pointer;";
+      el.onclick = () => joinLive(uid);
+      el.innerHTML = `
   <div style="position:absolute;top:-8px;left:50%;transform:translateX(-50%);font-size:10px;padding:2px 7px;border-radius:12px;background:linear-gradient(45deg,#ff2d55,#ff6a00);box-shadow:0 0 10px rgba(255,45,85,.5);border:1px solid rgba(255,45,85,.3);color:#fff;font-weight:700;white-space:nowrap;z-index:5;letter-spacing:.5px;">
     🔴 LIVE
   </div>
-  <div class="storyRing live-ring">
-    <img src="${user.photo}">
-  </div>
+  <div class="storyRing live-ring"><img src="${user.photo}"></div>
   <div class="small">${user.name}</div>
-  <div class="live-badge">LIVE</div>
-</div>`;
+  <div class="live-badge">LIVE</div>`;
+      frag.appendChild(el);
     });
-    
+
     snap.forEach(s => {
       const d = s.data();
       if (!d.uid) return;
       let created = 0;
-      
-      if (d.time?.toDate) {
-        created = d.time.toDate().getTime();
-      } else if (d.time?.seconds) {
-        created = d.time.seconds * 1000;
-      }
+      if (d.time?.toDate) { created = d.time.toDate().getTime(); }
+      else if (d.time?.seconds) { created = d.time.seconds * 1000; }
       if (created && now - created >= 24 * 60 * 60 * 1000) return;
-      
       if (shown.has(d.uid)) return;
       shown.add(d.uid);
-      
-      const user = userMap[d.uid] || {
-        photo: "https://i.imgur.com/6VBx3io.png",
-        name: "User"
-      };
-      
-      storiesBar.innerHTML += `
-<div class="story" onclick="openStory('${d.uid}')" style="position:relative;min-width:72px;text-align:center;">
 
-  <!-- TIME ON TOP -->
-<div style="position:absolute;top:-8px;left:50%;transform:translateX(-50%);font-size:10px;padding:2px 7px;border-radius:12px;background:linear-gradient(45deg,#111,#222);box-shadow:0 0 8px rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.06);color:#fff;font-weight:600;white-space:nowrap;z-index:5;">
-  ${timeAgo(d.time)}
-</div>
-
-  <div class="storyRing">
-    <img src="${user.photo}">
-  </div>
-
-  <div class="small">${user.name}</div>
-
-</div>
-`;
+      const user = userMap[d.uid] || { photo: "https://i.imgur.com/6VBx3io.png", name: "User" };
+      const el = document.createElement("div");
+      el.className = "story";
+      el.style.cssText = "position:relative;min-width:72px;text-align:center;";
+      el.onclick = () => openStory(d.uid);
+      el.innerHTML = `
+  <div style="position:absolute;top:-8px;left:50%;transform:translateX(-50%);font-size:10px;padding:2px 7px;border-radius:12px;background:linear-gradient(45deg,#111,#222);box-shadow:0 0 8px rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.06);color:#fff;font-weight:600;white-space:nowrap;z-index:5;">${timeAgo(d.time)}</div>
+  <div class="storyRing"><img src="${user.photo}"></div>
+  <div class="small">${user.name}</div>`;
+      frag.appendChild(el);
     });
-    
-  });
+
+    storiesBar.innerHTML = "";
+    storiesBar.appendChild(frag);
+  } catch(e) {
+    console.error("Stories render error:", e);
+  }
 }
 
 setInterval(cleanOldStories, 10 * 60 * 1000);
@@ -5846,43 +6203,65 @@ window.flipLiveCamera = async () => {
   _liveFacingMode = _liveFacingMode === "user" ? "environment" : "user";
   const hostVid = document.getElementById("liveHostVideo");
 
-  // Stop old tracks
+  // Stop OLD video tracks only (keep existing audio!)
   if (liveStream) liveStream.getVideoTracks().forEach(t => t.stop());
 
   try {
-    const newStream = await navigator.mediaDevices.getUserMedia({
+    // Get new video-only stream (no audio re-request = no lag/echo)
+    const newVidStream = await navigator.mediaDevices.getUserMedia({
       video: {
-        facingMode: { ideal: _liveFacingMode },
-        width:  { ideal: 1080 },
-        height: { ideal: 1920 },
-        frameRate: { ideal: 30, max: 30 },
-        aspectRatio: { ideal: 9/16 }
+        facingMode: { exact: _liveFacingMode },
+        width:  { ideal: 720 },
+        height: { ideal: 1280 },
+        frameRate: { ideal: 24, max: 30 }
       },
-      audio: { echoCancellation: true, noiseSuppression: true, sampleRate: 48000 }
+      audio: false
     });
 
-    const newVideoTrack = newStream.getVideoTracks()[0];
+    const newVideoTrack = newVidStream.getVideoTracks()[0];
+    if (!newVideoTrack) throw new Error("No video track");
 
-    // Replace the track in all existing peer connections (no reconnect needed)
+    // Hot-swap the video track in ALL active peer connections instantly
+    const senders = [];
     Object.values(liveHostPeers).forEach(pc => {
       const sender = pc.getSenders().find(s => s.track?.kind === "video");
-      if (sender) sender.replaceTrack(newVideoTrack).catch(() => {});
+      if (sender) senders.push(sender.replaceTrack(newVideoTrack));
     });
+    await Promise.all(senders);
 
-    // Replace video track in liveStream
-    liveStream.getVideoTracks().forEach(t => liveStream.removeTrack(t));
+    // Update the liveStream object
+    liveStream.getVideoTracks().forEach(t => { t.stop(); liveStream.removeTrack(t); });
     liveStream.addTrack(newVideoTrack);
 
-    // Update local preview
+    // Update local preview — instant, no reconnect
     hostVid.srcObject = null;
     hostVid.srcObject = liveStream;
-    // Mirror front cam (selfie), don't mirror back cam
+    // Mirror front cam (selfie), natural for back cam
     hostVid.style.transform = _liveFacingMode === "user" ? "scaleX(-1)" : "scaleX(1)";
     await hostVid.play().catch(() => {});
+    showToast(_liveFacingMode === "user" ? "📷 Front camera" : "📸 Back camera");
 
   } catch(e) {
-    showToast("Could not flip camera", "error");
-    _liveFacingMode = _liveFacingMode === "user" ? "environment" : "user"; // revert
+    // Revert facing mode on failure
+    _liveFacingMode = _liveFacingMode === "user" ? "environment" : "user";
+    // Try ideal instead of exact as fallback
+    try {
+      const fallback = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: _liveFacingMode === "user" ? "environment" : "user" }, width: { ideal: 720 }, height: { ideal: 1280 } },
+        audio: false
+      });
+      const ft = fallback.getVideoTracks()[0];
+      Object.values(liveHostPeers).forEach(pc => {
+        const s = pc.getSenders().find(s => s.track?.kind === "video");
+        if (s) s.replaceTrack(ft).catch(() => {});
+      });
+      liveStream.getVideoTracks().forEach(t => { t.stop(); liveStream.removeTrack(t); });
+      liveStream.addTrack(ft);
+      hostVid.srcObject = liveStream;
+      await hostVid.play().catch(() => {});
+    } catch(e2) {
+      showToast("Could not flip camera", "error");
+    }
   }
 };
 
@@ -5895,12 +6274,11 @@ window.startLive = async () => {
     liveStream = await navigator.mediaDevices.getUserMedia({
       video: {
         facingMode: { ideal: "user" },
-        width:  { ideal: 1080 },
-        height: { ideal: 1920 },
-        frameRate: { ideal: 30, max: 30 },
-        aspectRatio: { ideal: 9/16 }
+        width:  { ideal: 720 },
+        height: { ideal: 1280 },
+        frameRate: { ideal: 24, max: 30 }
       },
-      audio: { echoCancellation: true, noiseSuppression: true, sampleRate: 48000 }
+      audio: { echoCancellation: true, noiseSuppression: true, sampleRate: 44100 }
     });
 
     // Show local preview
@@ -6122,9 +6500,18 @@ window.joinLive = async (hostUid) => {
     }
   };
 
-  // Add transceiver so host knows we want video + audio
+  // Low-latency receive hints
   liveViewerPeer.addTransceiver("video", { direction: "recvonly" });
   liveViewerPeer.addTransceiver("audio", { direction: "recvonly" });
+
+  // Ask browser to prefer low-latency decoding
+  try {
+    liveViewerPeer.getReceivers().forEach(r => {
+      if (r.track?.kind === "video" && r.jitterBufferTarget !== undefined) {
+        r.jitterBufferTarget = 0; // minimise buffering delay
+      }
+    });
+  } catch(e) {}
 
   // Create & send offer to host
   const offer = await liveViewerPeer.createOffer();
@@ -6285,6 +6672,225 @@ document.addEventListener("keydown", e => {
   if (document.activeElement === document.getElementById("liveViewMsgInput"))   sendLiveMsg("viewer");
 });
 
+/* ═══════════════════════════════════════════════════════
+   CALL SYSTEM (Voice + Video) — Firebase Realtime DB
+   ═══════════════════════════════════════════════════════ */
+let _currentCallId  = null;
+let _callRole       = null; // "caller" | "callee"
+let _callType       = null; // "voice" | "video"
+let _callTimerInt   = null;
+let _callSecs       = 0;
+let _callMuted      = false;
+let _localStream    = null;
+let _callUnsub      = null; // RTDB listener off fn
+
+/* ── Start a call (I am the caller) ── */
+window.startCall = async (type) => {
+  if (!auth.currentUser || !activeRoom || activeRoom.type !== "dm") return showToast("Open a DM first to call", "error");
+  _callType = type;
+  _callRole = "caller";
+  const otherUid = activeRoom.otherUid;
+  if (!otherUid) return showToast("Open a DM first", "error");
+
+  const myUid  = auth.currentUser.uid;
+  const callId = [myUid, otherUid].sort().join("_call_");
+  _currentCallId = callId;
+
+  // Write call signal to RTDB
+  await set(ref(rtdb, `calls/${callId}`), {
+    callId,
+    callerUid: myUid,
+    calleeUid: otherUid,
+    type,
+    status: "ringing",
+    callerName: USER_CACHE[myUid]?.name || auth.currentUser.email.split("@")[0],
+    callerPhoto: USER_CACHE[myUid]?.photo || "https://i.imgur.com/6VBx3io.png",
+    startedAt: Date.now()
+  });
+
+  // Show active call screen immediately (as caller)
+  _showActiveCallScreen(
+    USER_CACHE[otherUid]?.name || "User",
+    USER_CACHE[otherUid]?.photo || "https://i.imgur.com/6VBx3io.png"
+  );
+  document.getElementById("callStatusText").textContent = type === "voice" ? "📞 Calling…" : "📹 Calling…";
+
+  // Get local media
+  try {
+    _localStream = await navigator.mediaDevices.getUserMedia(
+      type === "video" ? { audio: true, video: { facingMode: "user" } } : { audio: true }
+    );
+    if (type === "video") {
+      const localVid = document.getElementById("localVideoEl");
+      localVid.srcObject = _localStream;
+      localVid.style.display = "block";
+    }
+  } catch(e) { showToast("Mic/Camera access denied", "error"); }
+
+  // Listen for answer / cancel
+  const callRef = ref(rtdb, `calls/${callId}/status`);
+  _callUnsub = onValue(callRef, (snap) => {
+    const status = snap.val();
+    if (status === "accepted") {
+      document.getElementById("callStatusText").textContent = type === "voice" ? "🔊 Connected" : "📹 Connected";
+      if (type === "video") {
+        document.getElementById("remoteVideoEl").style.display = "block";
+      }
+      _startCallTimer();
+    } else if (status === "rejected" || status === "ended") {
+      _cleanupCall();
+      showToast(status === "rejected" ? "Call declined" : "Call ended");
+    }
+  });
+
+  // Auto-cancel after 45 seconds
+  setTimeout(() => {
+    if (_currentCallId === callId) {
+      endCall();
+      showToast("No answer");
+    }
+  }, 45000);
+};
+
+/* ── Show incoming call (callee sees this) ── */
+function _showIncomingCall(callerName, callerPhoto, callId, type) {
+  _currentCallId = callId;
+  _callRole = "callee";
+  _callType = type;
+
+  document.getElementById("callerName").textContent   = callerName;
+  document.getElementById("callerPhoto").src          = callerPhoto;
+  document.getElementById("callTypeLabel").textContent = type === "video" ? "Incoming video call…" : "Incoming voice call…";
+  document.getElementById("acceptCallIcon").className  = type === "video" ? "fa-solid fa-video" : "fa-solid fa-phone";
+
+  const overlay = document.getElementById("incomingCallOverlay");
+  overlay.style.display = "flex";
+}
+
+/* ── Accept call ── */
+window.acceptCall = async () => {
+  if (!_currentCallId) return;
+  document.getElementById("incomingCallOverlay").style.display = "none";
+
+  const callerUid = _currentCallId.replace("_call_" + auth.currentUser.uid, "").replace(auth.currentUser.uid + "_call_", "");
+  _showActiveCallScreen(
+    document.getElementById("callerName").textContent,
+    document.getElementById("callerPhoto").src
+  );
+  document.getElementById("callStatusText").textContent = _callType === "video" ? "📹 Connected" : "🔊 Connected";
+
+  if (_callType === "video") document.getElementById("remoteVideoEl").style.display = "block";
+
+  try {
+    _localStream = await navigator.mediaDevices.getUserMedia(
+      _callType === "video" ? { audio: true, video: { facingMode: "user" } } : { audio: true }
+    );
+    if (_callType === "video") {
+      const localVid = document.getElementById("localVideoEl");
+      localVid.srcObject = _localStream;
+      localVid.style.display = "block";
+    }
+  } catch(e) {}
+
+  await set(ref(rtdb, `calls/${_currentCallId}/status`), "accepted");
+  _startCallTimer();
+};
+
+/* ── Reject call ── */
+window.rejectCall = async () => {
+  if (_currentCallId) await set(ref(rtdb, `calls/${_currentCallId}/status`), "rejected");
+  document.getElementById("incomingCallOverlay").style.display = "none";
+  _currentCallId = null;
+};
+
+/* ── End call ── */
+window.endCall = async () => {
+  if (_currentCallId) await set(ref(rtdb, `calls/${_currentCallId}/status`), "ended");
+  _cleanupCall();
+};
+
+function _cleanupCall() {
+  if (_callUnsub) { _callUnsub(); _callUnsub = null; }
+  clearInterval(_callTimerInt);
+  _callSecs = 0;
+  if (_localStream) { _localStream.getTracks().forEach(t => t.stop()); _localStream = null; }
+
+  document.getElementById("activeCallScreen").style.display = "none";
+  document.getElementById("incomingCallOverlay").style.display = "none";
+  document.getElementById("remoteVideoEl").style.display = "none";
+  document.getElementById("localVideoEl").style.display = "none";
+  document.getElementById("localVideoEl").srcObject = null;
+  document.getElementById("remoteVideoEl").srcObject = null;
+
+  _currentCallId = null;
+  _callRole      = null;
+  _callType      = null;
+}
+
+function _showActiveCallScreen(name, photo) {
+  document.getElementById("activeCallName").textContent = name;
+  document.getElementById("activeCallPhoto").src = photo;
+  document.getElementById("activeCallTimer").textContent = "0:00";
+  document.getElementById("activeCallScreen").style.display = "flex";
+}
+
+function _startCallTimer() {
+  _callSecs = 0;
+  clearInterval(_callTimerInt);
+  _callTimerInt = setInterval(() => {
+    _callSecs++;
+    const m = Math.floor(_callSecs / 60);
+    const s = _callSecs % 60;
+    const el = document.getElementById("activeCallTimer");
+    if (el) el.textContent = m + ":" + (s < 10 ? "0" : "") + s;
+  }, 1000);
+}
+
+window.toggleMute = () => {
+  _callMuted = !_callMuted;
+  if (_localStream) _localStream.getAudioTracks().forEach(t => { t.enabled = !_callMuted; });
+  const btn = document.getElementById("muteBtn");
+  if (btn) btn.innerHTML = _callMuted
+    ? '<i class="fa-solid fa-microphone-slash" style="color:#ff3b30;"></i>'
+    : '<i class="fa-solid fa-microphone"></i>';
+};
+
+window.toggleSpeaker = () => {
+  const btn = document.getElementById("speakerBtn");
+  if (btn) btn.style.color = btn.style.color === "rgb(52, 199, 89)" ? "" : "#34c759";
+};
+
+/* ── Listen for incoming calls (runs after login) ── */
+function _listenForCalls() {
+  if (!auth.currentUser) return;
+  const myUid = auth.currentUser.uid;
+  onValue(ref(rtdb, "calls"), (snap) => {
+    if (!snap.exists()) return;
+    snap.forEach(child => {
+      const call = child.val();
+      if (!call || call.calleeUid !== myUid || call.status !== "ringing") return;
+      if (_currentCallId) return; // already in a call
+      // Don't re-show if already showing
+      const overlay = document.getElementById("incomingCallOverlay");
+      if (overlay.style.display === "flex") return;
+      _showIncomingCall(
+        call.callerName || "Unknown",
+        call.callerPhoto || "https://i.imgur.com/6VBx3io.png",
+        call.callId,
+        call.type || "voice"
+      );
+    });
+  });
+}
+
+// Hook into auth state — _listenForCalls fires after login
+// Attach to existing onAuthStateChanged via the user variable set earlier
+setTimeout(() => {
+  if (auth.currentUser) _listenForCalls();
+}, 3000);
+// Also fire when auth changes
+onAuthStateChanged(auth, (u) => { if (u) setTimeout(_listenForCalls, 2500); });
+
 </script></body>
 
 <!-- ══ LIVE HOST SCREEN ══ -->
@@ -6330,7 +6936,7 @@ document.addEventListener("keydown", e => {
 
   <!-- Actual stream video — no controls, covers full screen -->
   <video id="liveViewVideo" autoplay playsinline
-    style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;display:none;pointer-events:none;">
+    style="width:100%;height:100%;object-fit:contain;position:absolute;inset:0;display:none;pointer-events:none;background:#000;">
   </video>
 
   <!-- Dark blurred background shown while connecting (matches screenshot grey blur) -->
@@ -6524,6 +7130,90 @@ border:none;border-radius:12px;background:#4285F4;color:#fff;font-size:16px;">Co
   style="color:#fff;font-weight:600;"></span>
 
 </div>
+<!-- ═══════════ CALL OVERLAY (Incoming) ═══════════ -->
+<div id="incomingCallOverlay" style="
+  display:none;position:fixed;top:0;left:0;width:100%;height:100%;
+  background:rgba(0,0,0,0.92);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  z-index:9999999;flex-direction:column;align-items:center;justify-content:center;gap:24px;
+  animation:callFadeIn .3s ease;">
+  <div style="text-align:center;">
+    <img id="callerPhoto" src="https://i.imgur.com/6VBx3io.png"
+      style="width:100px;height:100px;border-radius:50%;object-fit:cover;border:3px solid #fff;box-shadow:0 0 0 0 rgba(255,255,255,0.3);animation:callerPulse 1.5s infinite;">
+    <h2 id="callerName" style="margin:16px 0 4px;font-size:22px;letter-spacing:.3px;">Unknown</h2>
+    <p id="callTypeLabel" style="color:#aaa;font-size:15px;margin:0;">Incoming voice call…</p>
+  </div>
+  <div style="display:flex;gap:36px;margin-top:16px;">
+    <!-- Reject -->
+    <div style="text-align:center;">
+      <button onclick="rejectCall()"
+        style="width:68px;height:68px;border-radius:50%;background:#ff3b30;border:none;color:#fff;font-size:26px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 24px rgba(255,59,48,.5);transition:.2s;margin:0 auto;">
+        <i class="fa-solid fa-phone-slash"></i>
+      </button>
+      <span style="color:#aaa;font-size:12px;margin-top:8px;display:block;">Decline</span>
+    </div>
+    <!-- Accept -->
+    <div style="text-align:center;">
+      <button onclick="acceptCall()"
+        style="width:68px;height:68px;border-radius:50%;background:#34c759;border:none;color:#fff;font-size:26px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 24px rgba(52,199,89,.5);transition:.2s;margin:0 auto;">
+        <i id="acceptCallIcon" class="fa-solid fa-phone"></i>
+      </button>
+      <span style="color:#aaa;font-size:12px;margin-top:8px;display:block;">Accept</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ ACTIVE CALL SCREEN ═══════════ -->
+<div id="activeCallScreen" style="
+  display:none;position:fixed;top:0;left:0;width:100%;height:100%;
+  background:#0a0a0a;z-index:9999998;flex-direction:column;align-items:center;justify-content:space-between;
+  padding:60px 20px 50px;">
+  <!-- Top: caller info -->
+  <div style="text-align:center;">
+    <div id="callStatusText" style="color:#aaa;font-size:13px;margin-bottom:16px;letter-spacing:.5px;">Calling…</div>
+    <img id="activeCallPhoto" src="https://i.imgur.com/6VBx3io.png"
+      style="width:110px;height:110px;border-radius:50%;object-fit:cover;border:3px solid #222;">
+    <h2 id="activeCallName" style="margin:14px 0 4px;font-size:22px;"></h2>
+    <p id="activeCallTimer" style="color:#aaa;font-size:15px;margin:0;">0:00</p>
+    <!-- Video element (shown in video call) -->
+    <video id="remoteVideoEl" autoplay playsinline muted
+      style="display:none;width:100%;max-height:55vh;object-fit:cover;border-radius:16px;margin-top:16px;"></video>
+    <video id="localVideoEl" autoplay playsinline muted
+      style="display:none;width:90px;height:120px;object-fit:cover;border-radius:10px;position:absolute;bottom:140px;right:20px;border:2px solid #333;"></video>
+  </div>
+  <!-- Bottom: control buttons -->
+  <div style="display:flex;gap:28px;align-items:center;">
+    <div style="text-align:center;">
+      <button id="muteBtn" onclick="toggleMute()"
+        style="width:56px;height:56px;border-radius:50%;background:#333;border:none;color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;margin:0 auto;transition:.2s;">
+        <i class="fa-solid fa-microphone"></i>
+      </button>
+      <span style="color:#aaa;font-size:11px;margin-top:6px;display:block;">Mute</span>
+    </div>
+    <div style="text-align:center;">
+      <button onclick="endCall()"
+        style="width:68px;height:68px;border-radius:50%;background:#ff3b30;border:none;color:#fff;font-size:26px;cursor:pointer;display:flex;align-items:center;justify-content:center;margin:0 auto;box-shadow:0 4px 20px rgba(255,59,48,.4);transition:.2s;">
+        <i class="fa-solid fa-phone-slash"></i>
+      </button>
+      <span style="color:#aaa;font-size:11px;margin-top:6px;display:block;">End</span>
+    </div>
+    <div style="text-align:center;">
+      <button id="speakerBtn" onclick="toggleSpeaker()"
+        style="width:56px;height:56px;border-radius:50%;background:#333;border:none;color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;margin:0 auto;transition:.2s;">
+        <i class="fa-solid fa-volume-high"></i>
+      </button>
+      <span style="color:#aaa;font-size:11px;margin-top:6px;display:block;">Speaker</span>
+    </div>
+  </div>
+</div>
+
+<style>
+@keyframes callFadeIn { from{opacity:0;transform:scale(.95)} to{opacity:1;transform:scale(1)} }
+@keyframes callerPulse {
+  0%,100%{box-shadow:0 0 0 0 rgba(255,255,255,.35),0 0 0 0 rgba(255,255,255,.15)}
+  50%{box-shadow:0 0 0 18px rgba(255,255,255,0),0 0 0 36px rgba(255,255,255,0)}
+}
+</style>
+
 <div id="storyViewer" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#000;z-index:99999;overflow:hidden;">
   
 <button id="storyDeleteBtn"
