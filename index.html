@@ -3251,14 +3251,55 @@ window.cvidSeek = (pid) => {
   cvidUpdateSeekStyle(seek, seek.value);
 };
 
-/* fullscreen */
+/* fullscreen — custom overlay with back button (FIX #4) */
 window.cvidFullscreen = (pid) => {
-  const wrap = document.getElementById(pid+'_wrap');
-  const v    = document.getElementById(pid+'_v');
-  if (!wrap) return;
-  if (wrap.requestFullscreen)        wrap.requestFullscreen();
-  else if (wrap.webkitRequestFullscreen) wrap.webkitRequestFullscreen();
-  else if (v  && v.webkitEnterFullscreen) v.webkitEnterFullscreen();
+  const wrap = document.getElementById(pid + "_wrap");
+  const v    = document.getElementById(pid + "_v");
+  if (!wrap || !v) return;
+
+  // Build overlay if not exists
+  let overlay = document.getElementById("_vidFsOverlay");
+  if (!overlay) {
+    overlay = document.createElement("div");
+    overlay.id = "_vidFsOverlay";
+    overlay.style.cssText = "display:none;position:fixed;inset:0;background:#000;z-index:9999990;flex-direction:column;align-items:center;justify-content:center;";
+    overlay.innerHTML = `
+      <button onclick="cvidExitFullscreen()" style="
+        position:absolute;top:env(safe-area-inset-top,14px);left:14px;
+        background:rgba(0,0,0,.6);border:none;color:#fff;
+        width:40px;height:40px;border-radius:50%;font-size:18px;
+        cursor:pointer;display:flex;align-items:center;justify-content:center;
+        backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:2;">
+        <i class="fa-solid fa-arrow-left"></i>
+      </button>
+      <video id="_vidFsVideo" autoplay playsinline controls
+        style="width:100%;height:100%;object-fit:contain;background:#000;"></video>`;
+    document.body.appendChild(overlay);
+  }
+
+  const fsVid = document.getElementById("_vidFsVideo");
+  fsVid.src         = v.src || v.currentSrc;
+  fsVid.currentTime = v.currentTime;
+  fsVid.muted       = false;
+  overlay.style.display = "flex";
+  fsVid.play().catch(() => {});
+
+  // Sync position back when overlay closes
+  overlay._sourcePid = pid;
+};
+
+window.cvidExitFullscreen = () => {
+  const overlay = document.getElementById("_vidFsOverlay");
+  if (!overlay) return;
+  const fsVid = document.getElementById("_vidFsVideo");
+  const pid   = overlay._sourcePid;
+  if (pid) {
+    const v = document.getElementById(pid + "_v");
+    if (v) { v.currentTime = fsVid.currentTime; }
+  }
+  fsVid.pause();
+  fsVid.src = "";
+  overlay.style.display = "none";
 };
 
 function cvidUpdateSeekStyle(seek, val) {
@@ -3644,7 +3685,7 @@ function loadGroupList() {
     <b>${g.name}</b><br><small style="color:#aaa;">Password protected</small>
   </div>
   ${g.createdBy === auth.currentUser.uid
-    ? `<button onclick="deleteGroup('${d.id}')" style="background:#333;border:none;color:#ff4444;padding:6px 10px;border-radius:8px;font-size:13px;">🗑</button>`
+    ? `<button onclick="deleteGroup('${d.id}')" style="background:#333;border:none;color:#ff4444;padding:6px 10px;border-radius:8px;font-size:15px;">✘</button>`
     : ""}
 </div>`;
     });
@@ -5612,7 +5653,7 @@ function renderPostsFeed(s) {
   <div class="ig-post-actions">
     <button id="postLikeBtn-${id}" onclick="likePostFeed('${id}',this)">${isLiked ? "❤️" : "🤍"}</button>
     <button onclick="commentPost('${id}')">💬</button>
-    ${isOwner ? `<button onclick="delPost('${id}')" style="font-size:20px;color:#ff4444;background:none;border:none;color:#ff4444;cursor:pointer;padding:0;line-height:1;">🗑</button>` : ""}
+    ${isOwner ? `<button onclick="delPost('${id}')" style="font-size:25px;color:#ff4444;background:none;border:none;color:#ff4444;cursor:pointer;padding:0;line-height:1;">✘</button>` : ""}
     <button id="bookmarkBtn-${id}" class="bookmark-btn ${SAVED_POSTS.has(id)?'saved':''}" onclick="toggleSave('${id}',this)" title="Save post">${SAVED_POSTS.has(id)?'🔖':'🔖'}</button>
   </div>
   <div class="ig-post-likes"><span id="postLikeCount-${id}">${p.likes || 0}</span> likes</div>
@@ -6672,180 +6713,343 @@ document.addEventListener("keydown", e => {
   if (document.activeElement === document.getElementById("liveViewMsgInput"))   sendLiveMsg("viewer");
 });
 
-/* ═══════════════════════════════════════════════════════
-   CALL SYSTEM (Voice + Video) — Firebase Realtime DB
-   ═══════════════════════════════════════════════════════ */
-let _currentCallId  = null;
-let _callRole       = null; // "caller" | "callee"
-let _callType       = null; // "voice" | "video"
-let _callTimerInt   = null;
-let _callSecs       = 0;
-let _callMuted      = false;
-let _localStream    = null;
-let _callUnsub      = null; // RTDB listener off fn
+/* ═══════════════════════════════════════════════════════════════
+   CALL SYSTEM — WebRTC peer-to-peer audio/video
+   Signaling via Firebase RTDB  (calls/{callId})
+   ═══════════════════════════════════════════════════════════════ */
+const CALL_ICE = { iceServers:[{urls:"stun:stun.l.google.com:19302"},{urls:"stun:stun1.l.google.com:19302"}] };
 
-/* ── Start a call (I am the caller) ── */
+let _currentCallId = null;
+let _callRole      = null;   // "caller" | "callee"
+let _callType      = null;   // "voice"  | "video"
+let _callTimerInt  = null;
+let _callSecs      = 0;
+let _callMuted     = false;
+let _localStream   = null;
+let _callPc        = null;   // RTCPeerConnection
+let _callSignalUnsub = null; // RTDB off-fn for signaling
+let _callStatusUnsub = null; // RTDB off-fn for status
+let _callListenUnsub = null; // RTDB off-fn for incoming ring listener
+let _autoCancel    = null;   // timeout id
+
+/* ─────────────────────────────────────────
+   Helpers
+───────────────────────────────────────── */
+function _callRef(path) { return ref(rtdb, path); }
+
+async function _getMedia(type) {
+  const constraints = type === "video"
+    ? { audio: true, video: { facingMode: "user", width:640, height:480 } }
+    : { audio: true };
+  return navigator.mediaDevices.getUserMedia(constraints);
+}
+
+function _buildPc() {
+  const pc = new RTCPeerConnection(CALL_ICE);
+  _callPc = pc;
+  return pc;
+}
+
+/* Send audio tracks to remote */
+function _addTracksToPC(pc, stream) {
+  stream.getTracks().forEach(t => pc.addTrack(t, stream));
+}
+
+/* Wire the remote stream → audio/video elements */
+function _wireRemote(pc, type) {
+  pc.ontrack = (e) => {
+    const stream = e.streams[0];
+    if (type === "video") {
+      const rv = document.getElementById("remoteVideoEl");
+      rv.srcObject = stream;
+      rv.muted = false;
+      rv.play().catch(()=>{});
+    } else {
+      // Voice: play through a hidden <audio> element
+      let aud = document.getElementById("_callAudioEl");
+      if (!aud) {
+        aud = document.createElement("audio");
+        aud.id = "_callAudioEl";
+        aud.autoplay = true;
+        document.body.appendChild(aud);
+      }
+      aud.srcObject = stream;
+      aud.muted = false;
+      aud.play().catch(()=>{});
+    }
+  };
+}
+
+/* Exchange ICE candidates via RTDB */
+function _listenIce(pc, callId, mySide) {
+  const otherSide = mySide === "caller" ? "callee" : "caller";
+  // Push my ICE candidates
+  pc.onicecandidate = async (e) => {
+    if (!e.candidate) return;
+    const newRef = ref(rtdb, `calls/${callId}/ice_${mySide}`);
+    const snap   = await get(newRef);
+    const arr    = snap.exists() ? snap.val() : [];
+    arr.push(e.candidate.toJSON());
+    await set(newRef, arr);
+  };
+  // Apply remote ICE candidates
+  const iceRef = _callRef(`calls/${callId}/ice_${otherSide}`);
+  let appliedCount = 0;
+  onValue(iceRef, async (snap) => {
+    if (!snap.exists() || !_callPc) return;
+    const arr = snap.val() || [];
+    for (let i = appliedCount; i < arr.length; i++) {
+      try { await _callPc.addIceCandidate(new RTCIceCandidate(arr[i])); } catch(e){}
+    }
+    appliedCount = arr.length;
+  });
+}
+
+/* ─────────────────────────────────────────
+   START CALL (caller side)
+───────────────────────────────────────── */
 window.startCall = async (type) => {
-  if (!auth.currentUser || !activeRoom || activeRoom.type !== "dm") return showToast("Open a DM first to call", "error");
-  _callType = type;
-  _callRole = "caller";
+  if (!auth.currentUser || !activeRoom || activeRoom.type !== "dm")
+    return showToast("Open a DM first to call", "error");
+
   const otherUid = activeRoom.otherUid;
   if (!otherUid) return showToast("Open a DM first", "error");
 
+  _callType  = type;
+  _callRole  = "caller";
   const myUid  = auth.currentUser.uid;
   const callId = [myUid, otherUid].sort().join("_call_");
   _currentCallId = callId;
 
-  // Write call signal to RTDB
-  await set(ref(rtdb, `calls/${callId}`), {
-    callId,
-    callerUid: myUid,
-    calleeUid: otherUid,
-    type,
+  // 1. Get local media first
+  try {
+    _localStream = await _getMedia(type);
+  } catch(e) {
+    return showToast("Mic/Camera access denied", "error");
+  }
+
+  // 2. Build peer connection & add tracks
+  const pc = _buildPc();
+  _addTracksToPC(pc, _localStream);
+  _wireRemote(pc, type);
+  _listenIce(pc, callId, "caller");
+
+  // 3. Create SDP offer
+  const offer = await pc.createOffer();
+  await pc.setLocalDescription(offer);
+
+  // 4. Write call signal to RTDB (includes offer)
+  await set(_callRef(`calls/${callId}`), {
+    callId, callerUid: myUid, calleeUid: otherUid, type,
     status: "ringing",
-    callerName: USER_CACHE[myUid]?.name || auth.currentUser.email.split("@")[0],
+    callerName:  USER_CACHE[myUid]?.name  || auth.currentUser.email.split("@")[0],
     callerPhoto: USER_CACHE[myUid]?.photo || "https://i.imgur.com/6VBx3io.png",
+    offer: { type: offer.type, sdp: offer.sdp },
     startedAt: Date.now()
   });
 
-  // Show active call screen immediately (as caller)
+  // 5. Show calling screen  (timer hidden until accepted — FIX #1)
   _showActiveCallScreen(
-    USER_CACHE[otherUid]?.name || "User",
-    USER_CACHE[otherUid]?.photo || "https://i.imgur.com/6VBx3io.png"
+    USER_CACHE[otherUid]?.name  || "User",
+    USER_CACHE[otherUid]?.photo || "https://i.imgur.com/6VBx3io.png",
+    false  // <-- timerVisible = false
   );
   document.getElementById("callStatusText").textContent = type === "voice" ? "📞 Calling…" : "📹 Calling…";
+  if (type === "video") {
+    const lv = document.getElementById("localVideoEl");
+    lv.srcObject = _localStream;
+    lv.style.display = "block";
+  }
 
-  // Get local media
-  try {
-    _localStream = await navigator.mediaDevices.getUserMedia(
-      type === "video" ? { audio: true, video: { facingMode: "user" } } : { audio: true }
-    );
-    if (type === "video") {
-      const localVid = document.getElementById("localVideoEl");
-      localVid.srcObject = _localStream;
-      localVid.style.display = "block";
+  // 6. Watch for answer SDP + status changes
+  _callStatusUnsub = onValue(_callRef(`calls/${callId}`), async (snap) => {
+    if (!snap.exists() || !_callPc) return;
+    const data   = snap.val();
+    const status = data?.status;
+
+    // Apply answer SDP once
+    if (data?.answer && _callPc.signalingState === "have-local-offer") {
+      try {
+        await _callPc.setRemoteDescription(new RTCSessionDescription(data.answer));
+      } catch(e){}
     }
-  } catch(e) { showToast("Mic/Camera access denied", "error"); }
 
-  // Listen for answer / cancel
-  const callRef = ref(rtdb, `calls/${callId}/status`);
-  _callUnsub = onValue(callRef, (snap) => {
-    const status = snap.val();
     if (status === "accepted") {
+      // FIX #1: start timer only NOW
       document.getElementById("callStatusText").textContent = type === "voice" ? "🔊 Connected" : "📹 Connected";
-      if (type === "video") {
-        document.getElementById("remoteVideoEl").style.display = "block";
-      }
+      document.getElementById("activeCallTimer").style.display = "block";
+      if (type === "video") document.getElementById("remoteVideoEl").style.display = "block";
       _startCallTimer();
-    } else if (status === "rejected" || status === "ended") {
+      if (_autoCancel) { clearTimeout(_autoCancel); _autoCancel = null; }
+    } else if (status === "rejected") {
+      // FIX #3: properly clean up on both sides
       _cleanupCall();
-      showToast(status === "rejected" ? "Call declined" : "Call ended");
+      showToast("Call declined");
+    } else if (status === "ended") {
+      _cleanupCall();
+      showToast("Call ended");
     }
   });
 
-  // Auto-cancel after 45 seconds
-  setTimeout(() => {
-    if (_currentCallId === callId) {
-      endCall();
-      showToast("No answer");
-    }
+  // Auto-cancel after 45s
+  _autoCancel = setTimeout(() => {
+    if (_currentCallId === callId) { endCall(); showToast("No answer"); }
   }, 45000);
 };
 
-/* ── Show incoming call (callee sees this) ── */
+/* ─────────────────────────────────────────
+   INCOMING CALL (callee side)
+───────────────────────────────────────── */
 function _showIncomingCall(callerName, callerPhoto, callId, type) {
   _currentCallId = callId;
   _callRole = "callee";
   _callType = type;
 
-  document.getElementById("callerName").textContent   = callerName;
-  document.getElementById("callerPhoto").src          = callerPhoto;
+  document.getElementById("callerName").textContent    = callerName;
+  document.getElementById("callerPhoto").src           = callerPhoto;
   document.getElementById("callTypeLabel").textContent = type === "video" ? "Incoming video call…" : "Incoming voice call…";
   document.getElementById("acceptCallIcon").className  = type === "video" ? "fa-solid fa-video" : "fa-solid fa-phone";
-
-  const overlay = document.getElementById("incomingCallOverlay");
-  overlay.style.display = "flex";
+  document.getElementById("incomingCallOverlay").style.display = "flex";
 }
 
-/* ── Accept call ── */
+/* ── Accept ── */
 window.acceptCall = async () => {
   if (!_currentCallId) return;
   document.getElementById("incomingCallOverlay").style.display = "none";
 
-  const callerUid = _currentCallId.replace("_call_" + auth.currentUser.uid, "").replace(auth.currentUser.uid + "_call_", "");
-  _showActiveCallScreen(
-    document.getElementById("callerName").textContent,
-    document.getElementById("callerPhoto").src
-  );
-  document.getElementById("callStatusText").textContent = _callType === "video" ? "📹 Connected" : "🔊 Connected";
+  const callerName  = document.getElementById("callerName").textContent;
+  const callerPhoto = document.getElementById("callerPhoto").src;
 
-  if (_callType === "video") document.getElementById("remoteVideoEl").style.display = "block";
-
+  // 1. Get local media
   try {
-    _localStream = await navigator.mediaDevices.getUserMedia(
-      _callType === "video" ? { audio: true, video: { facingMode: "user" } } : { audio: true }
-    );
-    if (_callType === "video") {
-      const localVid = document.getElementById("localVideoEl");
-      localVid.srcObject = _localStream;
-      localVid.style.display = "block";
-    }
-  } catch(e) {}
+    _localStream = await _getMedia(_callType);
+  } catch(e) { showToast("Mic/Camera access denied", "error"); }
 
-  await set(ref(rtdb, `calls/${_currentCallId}/status`), "accepted");
+  // 2. Build peer connection
+  const pc = _buildPc();
+  if (_localStream) _addTracksToPC(pc, _localStream);
+  _wireRemote(pc, _callType);
+  _listenIce(pc, _currentCallId, "callee");
+
+  // 3. Get offer from RTDB and set remote description
+  const snap = await get(_callRef(`calls/${_currentCallId}`));
+  const data = snap.val();
+  if (data?.offer) {
+    await pc.setRemoteDescription(new RTCSessionDescription(data.offer));
+  }
+
+  // 4. Create answer SDP
+  const answer = await pc.createAnswer();
+  await pc.setLocalDescription(answer);
+
+  // 5. Write answer + status = accepted atomically
+  await set(_callRef(`calls/${_currentCallId}/answer`), { type: answer.type, sdp: answer.sdp });
+  await set(_callRef(`calls/${_currentCallId}/status`), "accepted");
+
+  // 6. Show active call screen (timer starts immediately for callee — FIX #1)
+  _showActiveCallScreen(callerName, callerPhoto, true);
+  document.getElementById("callStatusText").textContent = _callType === "video" ? "📹 Connected" : "🔊 Connected";
+  if (_callType === "video") {
+    document.getElementById("remoteVideoEl").style.display = "block";
+    if (_localStream) {
+      const lv = document.getElementById("localVideoEl");
+      lv.srcObject = _localStream;
+      lv.style.display = "block";
+    }
+  }
   _startCallTimer();
+
+  // FIX #3: watch for the caller hanging up
+  _callStatusUnsub = onValue(_callRef(`calls/${_currentCallId}/status`), (snap) => {
+    const status = snap.val();
+    if (status === "ended" || status === "rejected") {
+      _cleanupCall();
+      showToast("Call ended");
+    }
+  });
 };
 
-/* ── Reject call ── */
+/* ── Reject ── */
 window.rejectCall = async () => {
-  if (_currentCallId) await set(ref(rtdb, `calls/${_currentCallId}/status`), "rejected");
+  if (_currentCallId) {
+    await set(_callRef(`calls/${_currentCallId}/status`), "rejected");
+    // FIX #3: delete after reject so caller's listener fires properly
+    setTimeout(() => remove(_callRef(`calls/${_currentCallId}`)).catch(()=>{}), 2000);
+  }
   document.getElementById("incomingCallOverlay").style.display = "none";
-  _currentCallId = null;
+  _currentCallId = null; _callRole = null; _callType = null;
 };
 
 /* ── End call ── */
 window.endCall = async () => {
-  if (_currentCallId) await set(ref(rtdb, `calls/${_currentCallId}/status`), "ended");
+  const cid = _currentCallId;
+  if (cid) {
+    try { await set(_callRef(`calls/${cid}/status`), "ended"); } catch(e){}
+    // FIX #3: remove doc after 3s so the other side's listener fires
+    setTimeout(() => remove(_callRef(`calls/${cid}`)).catch(()=>{}), 3000);
+  }
   _cleanupCall();
 };
 
+/* ─────────────────────────────────────────
+   CLEANUP — always runs on both sides
+───────────────────────────────────────── */
 function _cleanupCall() {
-  if (_callUnsub) { _callUnsub(); _callUnsub = null; }
+  if (_autoCancel)       { clearTimeout(_autoCancel); _autoCancel = null; }
+  if (_callStatusUnsub)  { _callStatusUnsub(); _callStatusUnsub = null; }
   clearInterval(_callTimerInt);
   _callSecs = 0;
+
+  // Stop peer connection
+  if (_callPc) { try { _callPc.close(); } catch(e){} _callPc = null; }
+
+  // Stop all local media tracks  (FIX #2 / #3)
   if (_localStream) { _localStream.getTracks().forEach(t => t.stop()); _localStream = null; }
 
-  document.getElementById("activeCallScreen").style.display = "none";
-  document.getElementById("incomingCallOverlay").style.display = "none";
-  document.getElementById("remoteVideoEl").style.display = "none";
-  document.getElementById("localVideoEl").style.display = "none";
-  document.getElementById("localVideoEl").srcObject = null;
-  document.getElementById("remoteVideoEl").srcObject = null;
+  // Stop hidden audio element
+  const aud = document.getElementById("_callAudioEl");
+  if (aud) { aud.srcObject = null; aud.remove(); }
 
-  _currentCallId = null;
-  _callRole      = null;
-  _callType      = null;
+  // Reset UI
+  document.getElementById("activeCallScreen").style.display       = "none";
+  document.getElementById("incomingCallOverlay").style.display    = "none";
+  document.getElementById("remoteVideoEl").style.display          = "none";
+  document.getElementById("localVideoEl").style.display           = "none";
+  document.getElementById("remoteVideoEl").srcObject              = null;
+  document.getElementById("localVideoEl").srcObject               = null;
+  document.getElementById("activeCallTimer").style.display        = "none";  // FIX #1
+  document.getElementById("muteBtn").innerHTML = '<i class="fa-solid fa-microphone"></i>';
+
+  _currentCallId = null; _callRole = null; _callType = null; _callMuted = false;
 }
 
-function _showActiveCallScreen(name, photo) {
-  document.getElementById("activeCallName").textContent = name;
-  document.getElementById("activeCallPhoto").src = photo;
+/* ─────────────────────────────────────────
+   Active call screen helper
+───────────────────────────────────────── */
+function _showActiveCallScreen(name, photo, showTimer) {
+  document.getElementById("activeCallName").textContent  = name;
+  document.getElementById("activeCallPhoto").src         = photo;
   document.getElementById("activeCallTimer").textContent = "0:00";
+  // FIX #1: only show timer when call is actually connected
+  document.getElementById("activeCallTimer").style.display = showTimer ? "block" : "none";
   document.getElementById("activeCallScreen").style.display = "flex";
 }
 
 function _startCallTimer() {
   _callSecs = 0;
   clearInterval(_callTimerInt);
+  const el = document.getElementById("activeCallTimer");
+  if (el) { el.style.display = "block"; el.textContent = "0:00"; }
   _callTimerInt = setInterval(() => {
     _callSecs++;
-    const m = Math.floor(_callSecs / 60);
-    const s = _callSecs % 60;
-    const el = document.getElementById("activeCallTimer");
+    const m = Math.floor(_callSecs / 60), s = _callSecs % 60;
     if (el) el.textContent = m + ":" + (s < 10 ? "0" : "") + s;
   }, 1000);
 }
 
+/* ─────────────────────────────────────────
+   Controls
+───────────────────────────────────────── */
 window.toggleMute = () => {
   _callMuted = !_callMuted;
   if (_localStream) _localStream.getAudioTracks().forEach(t => { t.enabled = !_callMuted; });
@@ -6854,41 +7058,36 @@ window.toggleMute = () => {
     ? '<i class="fa-solid fa-microphone-slash" style="color:#ff3b30;"></i>'
     : '<i class="fa-solid fa-microphone"></i>';
 };
-
 window.toggleSpeaker = () => {
   const btn = document.getElementById("speakerBtn");
   if (btn) btn.style.color = btn.style.color === "rgb(52, 199, 89)" ? "" : "#34c759";
 };
 
-/* ── Listen for incoming calls (runs after login) ── */
+/* ─────────────────────────────────────────
+   Listen for incoming calls (runs after login)
+───────────────────────────────────────── */
 function _listenForCalls() {
   if (!auth.currentUser) return;
+  if (_callListenUnsub) { _callListenUnsub(); _callListenUnsub = null; }
   const myUid = auth.currentUser.uid;
-  onValue(ref(rtdb, "calls"), (snap) => {
+  _callListenUnsub = onValue(_callRef("calls"), (snap) => {
     if (!snap.exists()) return;
     snap.forEach(child => {
       const call = child.val();
       if (!call || call.calleeUid !== myUid || call.status !== "ringing") return;
-      if (_currentCallId) return; // already in a call
-      // Don't re-show if already showing
+      if (_currentCallId) return;
       const overlay = document.getElementById("incomingCallOverlay");
       if (overlay.style.display === "flex") return;
       _showIncomingCall(
-        call.callerName || "Unknown",
+        call.callerName  || "Unknown",
         call.callerPhoto || "https://i.imgur.com/6VBx3io.png",
-        call.callId,
-        call.type || "voice"
+        call.callId, call.type || "voice"
       );
     });
   });
 }
 
-// Hook into auth state — _listenForCalls fires after login
-// Attach to existing onAuthStateChanged via the user variable set earlier
-setTimeout(() => {
-  if (auth.currentUser) _listenForCalls();
-}, 3000);
-// Also fire when auth changes
+setTimeout(() => { if (auth.currentUser) _listenForCalls(); }, 3000);
 onAuthStateChanged(auth, (u) => { if (u) setTimeout(_listenForCalls, 2500); });
 
 </script></body>
