@@ -132,9 +132,42 @@ opacity:.7;
 
 .story{min-width:72px;text-align:center;}
 
-.storyRing{width:62px;height:62px;border-radius:50%;padding:2.3px;background:linear-gradient(45deg,#feda75,#fa7e1e,#d62976,#962fbf,#4f5bd5);will-change:box-shadow;}
-@keyframes ringPulse {0%, 100% { box-shadow: 0 0 0 0 rgba(255,45,85,0.7);}
-  70% { box-shadow: 0 0 0 12px rgba(255,45,85,0); }}
+.storyRing{width:62px;height:62px;border-radius:50%;padding:2.3px;
+background: linear-gradient(
+  135deg,
+  rgba(20,20,20,1),
+  rgba(115,0,255,1),
+  rgba(168,85,247,1),
+  rgba(10,10,10,1)
+) !important;
+
+animation: ringPulse 2.3s ease-in-out infinite;
+will-change: box-shadow, transform;
+}
+@keyframes ringPulse {
+
+  0%{
+    box-shadow:
+      0 0 0 0 rgba(168,85,247,.7),
+      0 0 15px rgba(168,85,247,.5);
+    transform: scale(1);
+  }
+
+  50%{
+    box-shadow:
+      0 0 0 12px rgba(168,85,247,0),
+      0 0 30px rgba(140,80,255,.7);
+    transform: scale(1.03);
+  }
+
+  100%{
+    box-shadow:
+      0 0 0 0 rgba(168,85,247,0),
+      0 0 15px rgba(168,85,247,.4);
+    transform: scale(1);
+  }
+}
+
 /* ringPulse only applied when needed, not auto-run on all rings */
 .storyRing img{width:100%;height:100%;border-radius:50%;object-fit:cover;border:2px solid #000;}
 
@@ -147,7 +180,9 @@ opacity:.7;
 #profile,#chat,#upload,#notify,#trending{top:56px;height:calc(100vh - 116px);}
 
 
-
+#uploadBtn,#storyUploadBtn{
+  box-shadow: 0 0 2px white,0 1px 0 #fff;
+}
 
 .reelsWrap{
   position:relative;
@@ -187,16 +222,17 @@ opacity:.7;
   border: none;
   padding: 9px 14px;
   border-radius: 14px;
-  background: linear-gradient(45deg, #ff2d55, #ff0066, #ff6a00);
+  background: linear-gradient(45deg, #000, #A856FB);
+  box-shadow:0 0 2px #fff, 0 0 3px #000;
   color: #fff;
   margin-top: 6px;
   font-weight: 600;
-  box-shadow: 0 0 16px rgba(255, 45, 85, .35);
-  transition: .25s ease;
+  transition: transform 0.18s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.18s ease;
 }
 
 .btn:active {
-  transform: scale(.94);
+  transform: scale(.88);
+  box-shadow: 0 0 0 rgba(168,86,251,0);
 }
 
 .card{background:#121212;margin:10px;padding:12px;border-radius:14px;
@@ -271,12 +307,12 @@ height:100%;
 }
 
 .nav span.nav-active {
-  color: #ff2d55;
+  color:#fff;
 }
 
 .nav span:active {
   transform: translateY(-4px) scale(1.15);
-  color: #ff2d55;
+  color:red;
   outline: none !important;
   background: none !important;
   box-shadow: none !important;
@@ -394,7 +430,7 @@ to{opacity:1;transform:scale(1);}
   padding: 10px 14px;
   border: none;
   border-radius: 10px;
-  background: #ff2d55;
+  background: #A856FB;
   color: #fff;
 }
 
@@ -427,7 +463,7 @@ to{opacity:1;transform:scale(1);}
 }
 
 .primary{
-  background:linear-gradient(45deg,#ff2d55,#ff6b81);
+  background:linear-gradient(45deg,#000,#A856FB);
   color:#fff;
 }
 
@@ -461,7 +497,7 @@ to{opacity:1;transform:scale(1);}
   
   border-radius: 18px;
   background: #1c1c1c;
-  color: #ff2d55;
+  color: #A856FB;
   
   cursor: pointer;
   transition: .3s;
@@ -781,7 +817,7 @@ to{opacity:1;transform:none;}
 .wave span {
   width: 3px;
   height: 6px;
-  background: #ff2d55;
+  background: #A856FB;
   border-radius: 3px;
   animation: waveAnim 1s infinite ease-in-out;
 }
@@ -813,7 +849,7 @@ to{opacity:1;transform:none;}
 }
 
 .cancel {
-  background: #ff2d55;
+  background: #A856FB;
 }
 
 
@@ -822,7 +858,7 @@ to{opacity:1;transform:none;}
 #profileBig { animation: profileGlow2 3s infinite ease-in-out; }
 @keyframes profileGlow2 {
   0%,100% { box-shadow: 0 0 10px rgba(255,45,85,.4); }
-  50%      { box-shadow: 0 0 28px rgba(255,45,85,.85); }
+  50%      { box-shadow: 0 0 28px rgba(168, 86, 251, 1) }
 }
 .postMini {
   width: 100%;
@@ -848,7 +884,7 @@ to{opacity:1;transform:none;}
   transition: transform 0.15s ease;
 }
 .bookmark-btn:active { transform: scale(0.82); }
-.bookmark-btn.saved { color: #ff2d55; text-shadow: 0 0 8px rgba(255,45,85,.5); }
+.bookmark-btn.saved { color:#B92DFF; text-shadow: 0 0 8px rgba(255,45,85,.5); }
 
 /* Profile saved tab */
 .profile-tabs {
@@ -869,7 +905,7 @@ to{opacity:1;transform:none;}
 }
 .profile-tab-btn.active {
   color: #fff;
-  border-bottom: 2px solid #ff2d55;
+  border-bottom: 2px solid #fff;
 }
 
 /* ═══ CHAT MEDIA SEND ═══ */
@@ -1023,14 +1059,14 @@ to{opacity:1;transform:none;}
   width: 13px;
   height: 13px;
   border-radius: 50%;
-  background: #ff2d55;
+  background: #A856FB;
   cursor: pointer;
   margin-top: -5px;
   box-shadow: 0 0 5px rgba(255,45,85,.7);
 }
 .cvid-seek::-moz-range-thumb {
   width: 13px; height: 13px; border-radius: 50%;
-  background: #ff2d55; cursor: pointer; border: none;
+  background: #A856FB; cursor: pointer; border: none;
 }
 .cvid-seek::-webkit-slider-runnable-track { height: 3px; border-radius: 3px; }
 .cvid-row {
@@ -1080,7 +1116,7 @@ to{opacity:1;transform:none;}
 
 
 .dm-unread-badge {
-  background: #ff2d55;
+  background: #A856FB;
   color: #fff;
   font-size: 10px;
   font-weight: 700;
@@ -1103,6 +1139,14 @@ to{opacity:1;transform:none;}
 @keyframes pageSlideOut {
   from { opacity: 1; transform: translateX(0) scale(1); }
   to   { opacity: 0; transform: translateX(-30px) scale(0.98); }
+}
+
+/* ─── Nav tap ripple micro-feedback ─── */
+.nav span:active {
+  transform: translateY(-5px) scale(1.18);
+}
+.nav span {
+  transition: transform 0.18s cubic-bezier(0.34,1.56,0.64,1), color 0.18s ease;
 }
 
 /* ─── POST/REEL TRANSITION ─── */
@@ -1138,7 +1182,7 @@ to{opacity:1;transform:none;}
   bottom: 42px;
   left: 50%;
   transform: translateX(36px);
-  background: #ff2d55;
+  background: #A856FB;
   color: #fff;
   font-size: 10px;
   font-weight: 700;
@@ -1159,7 +1203,7 @@ to{opacity:1;transform:none;}
   bottom: -4px;
   left: 50%;
   transform: translateX(-50%);
-  background: #ff2d55;
+  background:#A856FB;
   color: #fff;
   font-size: 9px;
   font-weight: 800;
@@ -1175,7 +1219,7 @@ to{opacity:1;transform:none;}
   50%      { box-shadow: 0 0 0 6px rgba(255,45,85,0); }
 }
 .live-ring {
-  background: linear-gradient(45deg,#ff2d55,#ff6a00,#ff2d55) !important;
+  background: linear-gradient(45deg,#ff2d55,#ff6a00,#ff2d55) !important;#42445A
   animation: liveRingSpin 2s linear infinite;
 }
 @keyframes liveRingSpin {
@@ -1214,7 +1258,7 @@ to{opacity:1;transform:none;}
   pointer-events: all;
 }
 .live-indicator {
-  background: #ff2d55;
+  background: #A856FB;
   color: #fff;
   font-size: 12px;
   font-weight: 800;
@@ -1238,8 +1282,8 @@ to{opacity:1;transform:none;}
 .live-end-btn {
   margin-left: auto;
   background: rgba(0,0,0,0.6);
-  border: 1.5px solid #ff2d55;
-  color: #ff2d55;
+  border: 1.5px solid #A856FB;
+  color: #A856FB;
   font-size: 13px;
   font-weight: 700;
   padding: 6px 14px;
@@ -1283,7 +1327,7 @@ to{opacity:1;transform:none;}
   height: 26px;
   border-radius: 50%;
   object-fit: cover;
-  border: 1.5px solid #ff2d55;
+  border: 1.5px solid #A856FB;
   flex-shrink: 0;
 }
 @keyframes liveMsg {
@@ -1316,7 +1360,7 @@ to{opacity:1;transform:none;}
   width: 42px;
   height: 42px;
   border-radius: 50%;
-  background: #ff2d55;
+  background: #A856FB;
   border: none;
   color: #fff;
   font-size: 18px;
@@ -1372,7 +1416,7 @@ to{opacity:1;transform:none;}
   height: 32px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid #ff2d55;
+  border: 2px solid #A856FB;
 }
 
 /* Upload Live button */
@@ -1380,7 +1424,7 @@ to{opacity:1;transform:none;}
   display: flex;
   align-items: center;
   gap: 10px;
-  background: linear-gradient(135deg,#ff2d55,#ff6a00);
+  background: linear-gradient(135deg,#000,#A54DFF);
   border: none;
   border-radius: 14px;
   padding: 14px 18px;
@@ -1389,7 +1433,7 @@ to{opacity:1;transform:none;}
   font-weight: 700;
   cursor: pointer;
   width: 100%;
-  box-shadow: 0 4px 20px rgba(255,45,85,0.4);
+  box-shadow: 1px 1px 3px #BD7BFF;
   transition: 0.2s ease;
   margin-top: 4px;
 }
@@ -1416,6 +1460,62 @@ to{opacity:1;transform:none;}
   40% { transform: scale(0.95); }
   60% { transform: scale(1.2); }
 }
+header b {
+  color: #A856FB;
+  background: linear-gradient(45deg, #fff, #A856FB);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* ══════════ BADGES ══════════ */
+.usr-badge{
+  display:inline-flex;align-items:center;gap:2px;
+  padding:1px 6px;border-radius:20px;
+  font-size:9px;font-weight:800;letter-spacing:.2px;
+  vertical-align:middle;margin-left:3px;
+  position:relative;top:-1px;
+  animation:badgeGlowApp 2.2s ease-in-out infinite;
+  cursor:default;
+}
+@keyframes badgeGlowApp{
+  0%,100%{filter:brightness(1) drop-shadow(0 0 3px currentColor);}
+  50%{filter:brightness(1.35) drop-shadow(0 0 8px currentColor);}
+}
+.ubadge-king  {background:linear-gradient(135deg,#1a0a00,#3d1a00);color:#FFD700;border:1px solid rgba(255,215,0,.35);}
+.ubadge-verified{background:linear-gradient(135deg,#001a2e,#003d6b);color:#4FC3F7;border:1px solid rgba(79,195,247,.35);}
+.ubadge-elite {background:linear-gradient(135deg,#0a0a1a,#1a1a40);color:#CE93D8;border:1px solid rgba(156,39,176,.35);}
+.ubadge-og    {background:linear-gradient(135deg,#1a0500,#3d0f00);color:#FFB74D;border:1px solid rgba(255,111,0,.35);}
+.ubadge-premium{background:linear-gradient(135deg,#001a0a,#003d1a);color:#69F0AE;border:1px solid rgba(0,230,118,.35);}
+/* ── DEVELOPER BADGE — premium holographic design ── */
+.ubadge-developer{
+  background:linear-gradient(135deg,#0a001a,#0d0030,#1a0040);
+  color:#c084fc;
+  border:1px solid rgba(167,139,250,.5);
+  box-shadow:0 0 8px rgba(139,92,246,.35),inset 0 1px 0 rgba(255,255,255,.06);
+  position:relative;
+  overflow:hidden;
+}
+.ubadge-developer::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:linear-gradient(105deg,transparent 40%,rgba(167,139,250,.15) 50%,transparent 60%);
+  animation:devShimmer 2.8s ease-in-out infinite;
+}
+@keyframes devShimmer{
+  0%,100%{transform:translateX(-100%);}
+  50%{transform:translateX(200%);}
+}
+@keyframes badgeGlowApp{
+  0%,100%{filter:brightness(1) drop-shadow(0 0 3px currentColor);}
+  50%{filter:brightness(1.4) drop-shadow(0 0 9px currentColor);}
+}
+/* profile page badge row */
+#profileBadgesRow{display:flex;gap:5px;justify-content:center;flex-wrap:wrap;margin:6px 0 2px;}
+#profileBadgesRow .usr-badge{font-size:11px;padding:3px 9px;}
+/* mini profile badge row */
+#miniProfileBadgesRow{display:flex;gap:5px;justify-content:center;flex-wrap:wrap;margin:5px 0;}
+#miniProfileBadgesRow .usr-badge{font-size:11px;padding:3px 9px;}
 </style></head><body>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <header>
@@ -1450,7 +1550,7 @@ style="
 flex:1;
 padding:10px;
 border:none;
-border-bottom:2px solid #ff2d55;
+border-bottom:2px solid #fff;
 background:none;
 color:#fff;
 display:flex;align-items:center;justify-content:center;gap:6px;font-size:14px;font-weight:600;">
@@ -1505,12 +1605,12 @@ style="position:fixed;top:75px;right:12px;z-index:9999;background:rgba(0,0,0,.65
   <!-- Header tabs -->
   <div style="position:sticky;top:0;z-index:10;background:#000;border-bottom:1px solid #1a1a1a;">
     <div style="padding:14px 14px 0;display:flex;align-items:center;gap:8px;">
-      <i class="fa-solid fa-fire" style="color:#ff6a00;font-size:20px;"></i>
-      <b style="font-size:18px;background:linear-gradient(90deg,#ff6a00,#ff2d55);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Trending Reels</b>
+      <i class="fa-solid fa-fire" style="color:#fff;font-size:20px;"></i>
+      <b style="font-size:18px;background:linear-gradient(90deg,#fff,#A856FB);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Trending Reels</b>
     </div>
     <!-- Filter tabs -->
     <div style="display:flex;gap:0;overflow-x:auto;padding:10px 10px 0;scrollbar-width:none;">
-      <button id="trendTab-top" onclick="switchTrendTab('top')" style="flex-shrink:0;padding:7px 16px;border:none;border-bottom:2px solid #ff2d55;background:none;color:#fff;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">🔥 Top</button>
+      <button id="trendTab-top" onclick="switchTrendTab('top')" style="flex-shrink:0;padding:7px 16px;border:none;border-bottom:2px solid #A856FB;background:none;color:#fff;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">🔥 Top</button>
       <button id="trendTab-mix" onclick="switchTrendTab('mix')" style="flex-shrink:0;padding:7px 16px;border:none;border-bottom:2px solid transparent;background:none;color:#aaa;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">🎲 Mix</button>
       <button id="trendTab-watched" onclick="switchTrendTab('watched')" style="flex-shrink:0;padding:7px 16px;border:none;border-bottom:2px solid transparent;background:none;color:#aaa;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">👁 Most Watched</button>
       <button id="trendTab-liked" onclick="switchTrendTab('liked')" style="flex-shrink:0;padding:7px 16px;border:none;border-bottom:2px solid transparent;background:none;color:#aaa;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">❤️ Most Liked</button>
@@ -1556,7 +1656,7 @@ style="position:fixed;top:75px;right:12px;z-index:9999;background:rgba(0,0,0,.65
     <!-- 🔥 REAL PROGRESS BAR -->
     <div id="uploadProgressWrap" style="display:none;margin-top:8px;">
       <div style="background:#222;border-radius:8px;overflow:hidden;height:8px;">
-        <div id="uploadProgressBar" style="height:100%;width:0%;background:linear-gradient(90deg,#ff2d55,#ff6a00);border-radius:8px;transition:width 0.2s ease;"></div>
+        <div id="uploadProgressBar" style="height:100%;width:0%;background:linear-gradient(90deg,#fff, #A856FB);border-radius:8px;transition:width 0.2s ease;"></div>
       </div>
       <div id="uploadProgressText" style="font-size:11px;color:#aaa;margin-top:4px;text-align:center;">0%</div>
     </div>
@@ -1592,7 +1692,7 @@ style="position:fixed;top:75px;right:12px;z-index:9999;background:rgba(0,0,0,.65
 <!-- 🔥 REAL PROGRESS BAR (Story) -->
 <div id="storyProgressWrap" style="display:none;margin-top:8px;">
   <div style="background:#222;border-radius:8px;overflow:hidden;height:8px;">
-    <div id="storyProgressBar" style="height:100%;width:0%;background:linear-gradient(90deg,#ff2d55,#ff6a00);border-radius:8px;transition:width 0.2s ease;"></div>
+    <div id="storyProgressBar" style="height:100%;width:0%;background:linear-gradient(90deg,#fff, #A856FB);border-radius:8px;transition:width 0.2s ease;"></div>
   </div>
   <div id="storyProgressText" style="font-size:11px;color:#aaa;margin-top:4px;text-align:center;">0%</div>
 </div>
@@ -1600,7 +1700,7 @@ style="position:fixed;top:75px;right:12px;z-index:9999;background:rgba(0,0,0,.65
     <hr style="margin:12px 0;border:1px solid #222">
 
     <!-- GO LIVE SECTION -->
-    <h4>🔴 Go Live</h4>
+    <h4>🟣 Go Live</h4>
     <p style="font-size:12px;color:#aaa;margin:4px 0 10px;">Stream live to your followers in real time</p>
     <button class="live-upload-btn" onclick="startLive()">
       <div class="live-pulse-dot"></div>
@@ -1672,7 +1772,7 @@ style="position:fixed;top:75px;right:12px;z-index:9999;background:rgba(0,0,0,.65
     <div id='msgs' class="chatContainer"></div>
 
     <button id="scrollBtn" onclick="scrollToBottom()"
-      style="position:fixed;bottom:140px;right:15px;z-index:9999;background:#ff2d55;border:none;color:#fff;width:42px;height:42px;border-radius:50%;font-size:18px;display:none;box-shadow:0 5px 15px rgba(0,0,0,.3);">↓</button>
+      style="position:fixed;bottom:140px;right:15px;z-index:9999;background: #ff2d55;border:none;color:#fff;width:42px;height:42px;border-radius:50%;font-size:18px;display:none;box-shadow:0 5px 15px rgba(0,0,0,.3);">↓</button>
 
     <div class="chatInputArea">
       <div id="recordUI" style="display:none;align-items:center;gap:10px;padding:4px 0;">
@@ -1737,12 +1837,13 @@ style="position:fixed;top:75px;right:12px;z-index:9999;background:rgba(0,0,0,.65
     <div style="position:relative;display:inline-block;">
       <img id="profileBig" src="https://i.imgur.com/6VBx3io.png"
         decoding="async" loading="lazy"
-        style="width:92px;height:92px;border-radius:50%;object-fit:cover;border:3px solid #ff2d55;box-shadow:0 0 22px rgba(255,45,85,.5);">
+        style="width:92px;height:92px;border-radius:50%;object-fit:cover;border:2px solid #A856FB;box-shadow:0 0 22px rgba(255,45,85,.5);">
       <!-- online dot -->
       <div id="profileOnlineDot" style="position:absolute;bottom:4px;right:4px;width:14px;height:14px;border-radius:50%;background:#555;border:2px solid #0d0d0d;"></div>
     </div>
 
     <h2 id="profileName" style="margin:10px 0 2px;font-size:20px;letter-spacing:.3px;">User</h2>
+    <div id="profileBadgesRow"></div>
     <p id="profileBio" style="color:#aaa;font-size:13px;margin:0 0 8px;min-height:18px;"></p>
 
     <!-- Profile views -->
@@ -1830,8 +1931,9 @@ style="position:fixed;top:75px;right:12px;z-index:9999;background:rgba(0,0,0,.65
   <!-- hero -->
   <div style="text-align:center;padding:24px 16px 16px;background:linear-gradient(160deg,#1a0010,#0d0d0d);">
     <img id="miniProfilePhoto" src="https://i.imgur.com/6VBx3io.png"
-      style="width:84px;height:84px;border-radius:50%;object-fit:cover;border:3px solid #ff2d55;box-shadow:0 0 18px rgba(255,45,85,.4);">
+      style="width:84px;height:84px;border-radius:50%;object-fit:cover;border:3px solid #A856FB;box-shadow:0 0 18px rgba(255,45,85,.4);">
     <h3 id="miniProfileName" style="margin:10px 0 3px;"></h3>
+    <div id="miniProfileBadgesRow"></div>
     <p id="miniProfileBio" style="color:#aaa;font-size:13px;margin:0 0 10px;min-height:16px;"></p>
     <div style="display:flex;justify-content:space-around;margin-top:8px;">
       <div style="text-align:center;"><b id="miniPostCount">0</b><br><span style="font-size:11px;color:#aaa;">Posts</span></div>
@@ -1865,13 +1967,46 @@ window.onload = () => {
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 /* REPLACE FIREBASE AUTH IMPORT */
 
-import {getAuth,signInWithPopup,GoogleAuthProvider,onAuthStateChanged,signOut,signInWithEmailAndPassword,createUserWithEmailAndPassword,setPersistence,browserLocalPersistence} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+import {getAuth,signInWithPopup,GoogleAuthProvider,onAuthStateChanged,signOut,signInWithEmailAndPassword,createUserWithEmailAndPassword,setPersistence,browserLocalPersistence,sendPasswordResetEmail} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 
 import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, updateDoc, deleteDoc, setDoc ,getDocs,arrayUnion,increment,where}from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import { getDatabase, ref, set, onValue, push, remove, onDisconnect, get } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
 const firebaseConfig = {apiKey: "AIzaSyA_sBTAt90Y-RrLo6Hfs_7-Y1VM_ASix34",authDomain: "brosmarket-9b3b0.firebaseapp.com",projectId: "brosmarket-9b3b0",databaseURL: "https://brosmarket-9b3b0-default-rtdb.firebaseio.com/"
 };
 let soundOn = false;
+
+/* ══ BADGE SYSTEM ══ */
+const BADGE_DEFS = [
+  {id:'king',      icon:'👑', label:'King',           cls:'ubadge-king'},
+  {id:'verified',  icon:'✅', label:'Verified',        cls:'ubadge-verified'},
+  {id:'elite',     icon:'💎', label:'Elite Member',    cls:'ubadge-elite'},
+  {id:'og',        icon:'🔥', label:'OG',              cls:'ubadge-og'},
+  {id:'premium',   icon:'⭐', label:'Premium',         cls:'ubadge-premium'},
+  {id:'developer', icon:'⚡', label:'Developer',       cls:'ubadge-developer'},
+];
+// cache: uid → badges object e.g. {king:true, verified:false,...}
+const BADGES_CACHE = {};
+
+/** Returns HTML string of badge pills for a given badges object */
+function getBadgeHTML(badges) {
+  if (!badges) return '';
+  return BADGE_DEFS
+    .filter(b => badges[b.id])
+    .map(b => `<span class="usr-badge ${b.cls}" title="${b.label}">${b.icon} ${b.label}</span>`)
+    .join('');
+}
+
+/** Fetch & cache badges for a uid, then call cb(badgeHTML) */
+async function loadBadgesForUid(uid, cb) {
+  if (!uid) return cb('');
+  if (BADGES_CACHE[uid] !== undefined) return cb(getBadgeHTML(BADGES_CACHE[uid]));
+  try {
+    const snap = await getDoc(doc(db, 'users', uid));
+    const badges = snap.exists() ? (snap.data().badges || {}) : {};
+    BADGES_CACHE[uid] = badges;
+    cb(getBadgeHTML(badges));
+  } catch(e) { cb(''); }
+}
 
 const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app);
 const rtdb = getDatabase(app);
@@ -1953,7 +2088,7 @@ window.go = (id) => {
   if (outEl) {
     outEl.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
     outEl.style.opacity    = '0';
-    outEl.style.transform  = goRight ? 'translateX(-16px)' : 'translateX(16px)';
+    outEl.style.transform  = goRight ? 'translateX(-12px)' : 'translateX(16px)';
     setTimeout(() => {
       outEl.classList.remove('show');
       outEl.style.transition = '';
@@ -1965,7 +2100,7 @@ window.go = (id) => {
   // prep incoming page — start offscreen
   inEl.style.transition = 'none';
   inEl.style.opacity    = '0';
-  inEl.style.transform  = goRight ? 'translateX(20px)' : 'translateX(-20px)';
+  inEl.style.transform  = goRight ? 'translateX(10px)' : 'translateX(-20px)';
   inEl.classList.add('show');
 
   // trigger slide in on next frame
@@ -2092,6 +2227,33 @@ window.switchTrendTab = (tab) => {
   loadTrendingReels(tab);
 };
 
+/* ── FIX 5: generate a canvas thumbnail from a video URL ── */
+function _genThumb(videoSrc) {
+  return new Promise(resolve => {
+    const v = document.createElement('video');
+    v.crossOrigin = 'anonymous';
+    v.muted = true;
+    v.playsInline = true;
+    v.preload = 'metadata';
+    const timeout = setTimeout(() => { v.src = ''; resolve(''); }, 5000);
+    v.onloadeddata = () => {
+      v.currentTime = Math.min(1, v.duration * 0.1);
+    };
+    v.onseeked = () => {
+      clearTimeout(timeout);
+      try {
+        const c = document.createElement('canvas');
+        c.width = 160; c.height = 284; // 9:16 ratio
+        c.getContext('2d').drawImage(v, 0, 0, 160, 284);
+        v.src = '';
+        resolve(c.toDataURL('image/jpeg', 0.6));
+      } catch(e) { v.src = ''; resolve(''); }
+    };
+    v.onerror = () => { clearTimeout(timeout); resolve(''); };
+    v.src = videoSrc;
+  });
+}
+
 async function loadTrendingReels(tab) {
   const grid = document.getElementById('trendingGrid');
   const loader = document.getElementById('trendingLoader');
@@ -2151,25 +2313,51 @@ async function loadTrendingReels(tab) {
       // Thumbnail or video
       if (p.video) {
         const thumb = p.thumbnail || '';
-        wrapper.innerHTML = `
-          ${thumb
-            ? `<img src="${thumb}" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;">`
-            : `<video src="${p.video}" muted preload="none" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;" onmouseenter="this.play()" onmouseleave="this.pause()"></video>`}
-          <div style="position:absolute;inset:0;background:linear-gradient(transparent 55%,rgba(0,0,0,0.85));"></div>
-          <div style="position:absolute;top:8px;left:8px;background:linear-gradient(45deg,#ff6a00,#ff2d55);border-radius:6px;padding:2px 7px;font-size:10px;font-weight:700;color:#fff;">🎬 REEL</div>
-          ${(p.likes||0) > 0 ? `<div style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.6);border-radius:20px;padding:2px 7px;font-size:10px;color:#fff;">❤️ ${p.likes||0}</div>` : ''}
-          <div style="position:absolute;bottom:6px;left:6px;right:6px;display:flex;align-items:center;gap:5px;">
-            <img src="${user.photo}" style="width:22px;height:22px;border-radius:50%;object-fit:cover;border:1.5px solid #ff2d55;flex-shrink:0;">
-            <span style="font-size:10px;color:#fff;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">@${user.name}</span>
-          </div>`;
+        if (thumb) {
+          wrapper.innerHTML = `
+            <img src="${thumb}" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;">
+            <div style="position:absolute;inset:0;background:linear-gradient(transparent 55%,rgba(0,0,0,0.85));"></div>
+            <div style="position:absolute;top:8px;left:8px;background:linear-gradient(45deg,#ff6a00,#ff2d55);border-radius:6px;padding:2px 7px;font-size:10px;font-weight:700;color:#fff;">🎬 REEL</div>
+            ${(p.likes||0) > 0 ? `<div style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.6);border-radius:20px;padding:2px 7px;font-size:10px;color:#fff;">❤️ ${p.likes||0}</div>` : ''}
+            <div style="position:absolute;bottom:6px;left:6px;right:6px;display:flex;align-items:center;gap:5px;flex-wrap:wrap;">
+              <img src="${user.photo}" style="width:22px;height:22px;border-radius:50%;object-fit:cover;border:1.5px solid #ff2d55;flex-shrink:0;">
+              <span style="font-size:10px;color:#fff;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">@${user.name}</span>
+              ${getBadgeHTML((p.uid && USER_CACHE[p.uid]?.badges) || {})}
+            </div>`;
+        } else {
+          // No stored thumbnail — show placeholder and generate one async
+          const placeholderHtml = `
+            <div style="width:100%;height:100%;background:#1a1a1a;display:flex;align-items:center;justify-content:center;position:absolute;inset:0;">
+              <span style="font-size:28px;opacity:.4;">🎬</span>
+            </div>
+            <div style="position:absolute;inset:0;background:linear-gradient(transparent 55%,rgba(0,0,0,0.85));"></div>
+            <div style="position:absolute;top:8px;left:8px;background:linear-gradient(45deg,#ff6a00,#ff2d55);border-radius:6px;padding:2px 7px;font-size:10px;font-weight:700;color:#fff;">🎬 REEL</div>
+            ${(p.likes||0) > 0 ? `<div style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.6);border-radius:20px;padding:2px 7px;font-size:10px;color:#fff;">❤️ ${p.likes||0}</div>` : ''}
+            <div id="tthumb_user_${p.id}" style="position:absolute;bottom:6px;left:6px;right:6px;display:flex;align-items:center;gap:5px;flex-wrap:wrap;">
+              <img src="${user.photo}" style="width:22px;height:22px;border-radius:50%;object-fit:cover;border:1.5px solid #ff2d55;flex-shrink:0;">
+              <span style="font-size:10px;color:#fff;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">@${user.name}</span>
+              ${getBadgeHTML((p.uid && USER_CACHE[p.uid]?.badges) || {})}
+            </div>`;
+          wrapper.innerHTML = placeholderHtml;
+          // Generate thumbnail async and inject it
+          const wrapRef = wrapper;
+          _genThumb(p.video).then(dataUrl => {
+            if (!dataUrl || !wrapRef.isConnected) return;
+            const imgEl = document.createElement('img');
+            imgEl.src = dataUrl;
+            imgEl.style.cssText = 'width:100%;height:100%;object-fit:cover;position:absolute;inset:0;z-index:0;';
+            wrapRef.insertBefore(imgEl, wrapRef.firstChild);
+          });
+        }
       } else {
         wrapper.innerHTML = `
           <img src="${p.photo}" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;">
           <div style="position:absolute;inset:0;background:linear-gradient(transparent 60%,rgba(0,0,0,0.8));"></div>
           ${(p.likes||0) > 0 ? `<div style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.6);border-radius:20px;padding:2px 7px;font-size:10px;color:#fff;">❤️ ${p.likes||0}</div>` : ''}
-          <div style="position:absolute;bottom:6px;left:6px;right:6px;display:flex;align-items:center;gap:5px;">
+          <div style="position:absolute;bottom:6px;left:6px;right:6px;display:flex;align-items:center;gap:5px;flex-wrap:wrap;">
             <img src="${user.photo}" style="width:22px;height:22px;border-radius:50%;object-fit:cover;border:1.5px solid #ff2d55;flex-shrink:0;">
             <span style="font-size:10px;color:#fff;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">@${user.name}</span>
+            ${getBadgeHTML((p.uid && USER_CACHE[p.uid]?.badges) || {})}
           </div>`;
       }
       frag.appendChild(wrapper);
@@ -2232,37 +2420,67 @@ window.login = async () => {
 };
 /* EMAIL LOGIN */
 window.emailLoginFn = async () => {
+  const email = document.getElementById('emailLogin').value.trim();
+  const pass  = document.getElementById('passLogin').value.trim();
+  if (!email || !pass) return alert("Please enter email and password");
+  const btn = document.querySelector('#loginScreen button[onclick="emailLoginFn()"]');
+  if (btn) { btn.disabled = true; btn.textContent = "Logging in…"; }
   try {
-    await signInWithEmailAndPassword(
-      auth,
-      emailLogin.value.trim(),
-      passLogin.value.trim()
-    );
+    await signInWithEmailAndPassword(auth, email, pass);
   } catch (e) {
-    alert("Wrong Email or Password");
-  }};
+    let msg = "Login failed. Please try again.";
+    if (e.code === 'auth/user-not-found')      msg = "No account found with this email. Please create an account first.";
+    else if (e.code === 'auth/wrong-password')  msg = "Wrong password. Please try again.";
+    else if (e.code === 'auth/invalid-email')   msg = "Invalid email address.";
+    else if (e.code === 'auth/too-many-requests') msg = "Too many attempts. Account temporarily locked. Reset your password or try later.";
+    else if (e.code === 'auth/invalid-credential') msg = "Wrong email or password. Check your credentials and try again.";
+    alert(msg);
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = "Login"; }
+  }
+};
 /* SIGNUP */
 window.signupFn = async () => {
+  const email = document.getElementById('emailLogin').value.trim();
+  const pass  = document.getElementById('passLogin').value.trim();
+  if (!email || !pass) return alert("Please enter email and password");
+  if (pass.length < 6) return alert("Password must be at least 6 characters");
   try {
-    await createUserWithEmailAndPassword(
-      auth,
-      emailLogin.value.trim(),
-      passLogin.value.trim()
-    );
-    alert("Account Created ✅");
+    await createUserWithEmailAndPassword(auth, email, pass);
+    alert("Account Created ✅ You are now logged in!");
   } catch (e) {
-    alert(e.message);
-  }};
+    let msg = e.message;
+    if (e.code === 'auth/email-already-in-use') msg = "This email already has an account. Try logging in instead.";
+    else if (e.code === 'auth/invalid-email')   msg = "Invalid email address.";
+    alert(msg);
+  }
+};
+
+/* FORGOT PASSWORD */
+window.forgotPasswordFn = async () => {
+  const email = document.getElementById('emailLogin').value.trim();
+  if (!email) return alert("Enter your email address first, then tap Forgot Password.");
+  try {
+    await sendPasswordResetEmail(auth, email);
+    alert("✅ Password reset email sent to " + email + ". Check your inbox (and spam folder).");
+  } catch(e) {
+    let msg = "Failed to send reset email.";
+    if (e.code === 'auth/user-not-found') msg = "No account found with this email.";
+    else if (e.code === 'auth/invalid-email') msg = "Invalid email address.";
+    alert(msg);
+  }
+};
 import { getDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 /* splash hide only once */
 setTimeout(() => {
   if (typeof splash !== "undefined") {
     splash.style.opacity = "0";
+    splash.style.transform = "scale(1.04)";
     setTimeout(() => {
       splash.style.display = "none";
-    }, 600);
+    }, 450);
   }
-}, 1800);
+}, 1200);
 onAuthStateChanged(auth, async u => {
   /* NOT LOGIN */
   if (!u) {
@@ -2312,6 +2530,14 @@ onAuthStateChanged(auth, async u => {
     const viewsEl = document.getElementById("profileViewsCount");
     if (bioEl)   bioEl.innerText   = finalBio;
     if (viewsEl) viewsEl.innerText = views.length;
+
+    // Show own badges on profile page load
+    const ownBadgeRow = document.getElementById("profileBadgesRow");
+    if (ownBadgeRow) {
+      const bgs = data.badges || {};
+      BADGES_CACHE[u.uid] = bgs;
+      ownBadgeRow.innerHTML = getBadgeHTML(bgs);
+    }
     }
   loadMine();
   loadStories();
@@ -2591,6 +2817,9 @@ function addReelToDOM(id, p) {
     (p.uid && USER_CACHE[p.uid]?.photo) ||
     "https://i.imgur.com/6VBx3io.png";
 
+  // Badges from cache
+  const reelBadgeHTML = getBadgeHTML((p.uid && USER_CACHE[p.uid]?.badges) || {});
+
   const isOwner = auth.currentUser && (
     auth.currentUser.uid === p.uid ||
     auth.currentUser.email === p.user
@@ -2609,11 +2838,13 @@ function addReelToDOM(id, p) {
     </video>
 
     <div class="overlay">
-      <div style="display:flex;align-items:center;gap:9px;margin-bottom:5px;">
+      <div style="display:flex;align-items:center;gap:9px;margin-bottom:5px;flex-wrap:wrap;">
         <img src="${uploaderPhoto}" data-uid="${p.uid||''}"
-          style="width:34px;height:34px;border-radius:50%;object-fit:cover;border:2px solid #ff2d55;cursor:pointer;"
+          style="width:34px;height:34px;border-radius:50%;object-fit:cover;border:2px solid #ff2d55;cursor:pointer;flex-shrink:0;"
           onclick="openUserProfile('${p.uid||''}')">
-        <b data-uid="${p.uid||''}" style="cursor:pointer;" onclick="openUserProfile('${p.uid||''}')">@${displayName}</b>
+        <span style="display:inline-flex;align-items:center;gap:4px;flex-wrap:wrap;">
+          <b data-uid="${p.uid||''}" style="cursor:pointer;" onclick="openUserProfile('${p.uid||''}')">@${displayName}</b>${reelBadgeHTML}
+        </span>
       </div>
       <div style="font-size:13px;color:#eee;margin-bottom:6px;">${p.caption || ""}</div>
 
@@ -3231,7 +3462,8 @@ window.searchUsers = async () => {
   if (!q) return;
   
   searchUnsub = onSnapshot(collection(db, "users"), async usersSnap => {
-    
+    if (!auth.currentUser) return; // 🔥 guard
+
     const followSnap = await getDocs(collection(db, "follows"));
     
     
@@ -3247,7 +3479,7 @@ window.searchUsers = async () => {
       const email = u.email || "";
       
       if (
-        auth.currentUser.uid !== uid &&
+        auth.currentUser && auth.currentUser.uid !== uid &&
         !shown.has(uid) &&
         (
           email.toLowerCase().includes(q) ||
@@ -3261,6 +3493,7 @@ window.searchUsers = async () => {
 const photo = u.photo || "https://i.imgur.com/6VBx3io.png";
 const online = ONLINE_USERS.has(uid);
 const displayN = name || email.split("@")[0];
+const srchBadgeHTML = getBadgeHTML(u.badges || {});
 searchRes.innerHTML += `
 <div class="card" style="display:flex;align-items:center;gap:12px;margin-bottom:6px;">
   <div style="position:relative;cursor:pointer;" onclick="openUserProfile('${uid}')">
@@ -3269,7 +3502,7 @@ searchRes.innerHTML += `
       background:${online?"#00e676":"#555"};border:2px solid #111;"></div>
   </div>
   <div style="flex:1;cursor:pointer;" onclick="openUserProfile('${uid}')">
-    <b>${displayN}</b>
+    <div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px;"><b>${displayN}</b>${srchBadgeHTML}</div>
     <div style="font-size:11px;color:#aaa;">${online?"● Online":"● Offline"}</div>
   </div>
   <button class="btn" style="min-width:80px;padding:8px 12px;" onclick="followUser('${uid}')">
@@ -3314,6 +3547,7 @@ document.addEventListener("visibilitychange", () => {
 /* ========= SHOW ONLY REAL ONLINE USERS ========= */
 
 onSnapshot(collection(db, "status"), (snap) => {
+  if (!auth.currentUser) return; // 🔥 FIX: guard against null currentUser
 
   let onlineCount = 0;
 
@@ -3385,7 +3619,28 @@ function buildChatVideoPlayer(src, msgId) {
 </div>`;
 }
 
-/* toggle play/pause */
+/* ── FIX 1: helper – pause EVERY chat video except the one being played ── */
+function _cvidPauseAll(exceptPid) {
+  document.querySelectorAll('.cvid-wrap video').forEach(ov => {
+    const opid = ov.id.replace('_v', '');
+    if (opid === exceptPid) return;
+    if (!ov.paused) ov.pause();
+    // always reset UI regardless of whether it was playing
+    const obb = document.getElementById(opid+'_bigbtn');
+    const opb = document.getElementById(opid+'_playbtn');
+    const obp = document.getElementById(opid+'_bigplay');
+    if (obb) obb.textContent = '▶';
+    if (opb) opb.textContent = '▶';
+    if (obp) obp.style.opacity = '1';
+    cvidShowBar(opid);
+    if (_cvidHideTimers && _cvidHideTimers[opid]) {
+      clearTimeout(_cvidHideTimers[opid]);
+      delete _cvidHideTimers[opid];
+    }
+  });
+}
+
+/* toggle play/pause — FIX 1: always stop ALL others before playing */
 window.cvidToggle = (pid) => {
   const v  = document.getElementById(pid+'_v');
   const bb = document.getElementById(pid+'_bigbtn');
@@ -3394,23 +3649,10 @@ window.cvidToggle = (pid) => {
   if (!v) return;
 
   if (v.paused) {
-    // pause others
-    document.querySelectorAll('.cvid-wrap video').forEach(ov => {
-      if (ov !== v && !ov.paused) {
-        ov.pause();
-        const opid = ov.id.replace('_v','');
-        const obb = document.getElementById(opid+'_bigbtn');
-        const opb = document.getElementById(opid+'_playbtn');
-        const obp = document.getElementById(opid+'_bigplay');
-        if (obb) obb.textContent = '▶';
-        if (opb) opb.textContent = '▶';
-        if (obp) obp.style.opacity = '1';
-        cvidShowBar(opid);
-      }
-    });
+    _cvidPauseAll(pid);  // stop everyone else first
     v.play().catch(() => {});
-    if (bb) bb.textContent = '⏸';
-    if (pb) pb.textContent = '⏸';
+    if (bb) bb.textContent = '❚❚';
+    if (pb) pb.textContent = '❚❚';
     if (bp) bp.style.opacity = '0';
     cvidAutoHideBar(pid);
   } else {
@@ -3431,13 +3673,23 @@ window.cvidSeek = (pid) => {
   cvidUpdateSeekStyle(seek, seek.value);
 };
 
-/* fullscreen — custom overlay with back button (FIX #4) */
+/* fullscreen — FIX 2: pause inline video first to prevent double-sound */
 window.cvidFullscreen = (pid) => {
-  const wrap = document.getElementById(pid + "_wrap");
-  const v    = document.getElementById(pid + "_v");
-  if (!wrap || !v) return;
+  const v = document.getElementById(pid + "_v");
+  if (!v) return;
 
-  // Build overlay if not exists
+  // ── CRITICAL: pause the inline player before fullscreen (prevents dual audio) ──
+  const wasPlaying = !v.paused;
+  v.pause();
+  const bb = document.getElementById(pid+'_bigbtn');
+  const pb = document.getElementById(pid+'_playbtn');
+  const bp = document.getElementById(pid+'_bigplay');
+  if (bb) bb.textContent = '▶';
+  if (pb) pb.textContent = '▶';
+  if (bp) bp.style.opacity = '1';
+  cvidShowBar(pid);
+
+  // Build overlay once
   let overlay = document.getElementById("_vidFsOverlay");
   if (!overlay) {
     overlay = document.createElement("div");
@@ -3452,20 +3704,26 @@ window.cvidFullscreen = (pid) => {
         backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:2;">
         <i class="fa-solid fa-arrow-left"></i>
       </button>
-      <video id="_vidFsVideo" autoplay playsinline controls
+      <video id="_vidFsVideo" playsinline controls
         style="width:100%;height:100%;object-fit:contain;background:#000;"></video>`;
     document.body.appendChild(overlay);
   }
 
   const fsVid = document.getElementById("_vidFsVideo");
+  // Clear previous src first to avoid stale state
+  fsVid.pause();
+  fsVid.removeAttribute('src');
+  fsVid.load();
+
   fsVid.src         = v.src || v.currentSrc;
   fsVid.currentTime = v.currentTime;
   fsVid.muted       = false;
+  fsVid.volume      = 1;
+  overlay._sourcePid    = pid;
+  overlay._wasPlaying   = wasPlaying;
   overlay.style.display = "flex";
-  fsVid.play().catch(() => {});
-
-  // Sync position back when overlay closes
-  overlay._sourcePid = pid;
+  // Small delay prevents race with load()
+  setTimeout(() => fsVid.play().catch(() => {}), 60);
 };
 
 window.cvidExitFullscreen = () => {
@@ -3473,13 +3731,33 @@ window.cvidExitFullscreen = () => {
   if (!overlay) return;
   const fsVid = document.getElementById("_vidFsVideo");
   const pid   = overlay._sourcePid;
+
+  // Sync time back to inline player
   if (pid) {
     const v = document.getElementById(pid + "_v");
-    if (v) { v.currentTime = fsVid.currentTime; }
+    if (v) {
+      v.currentTime = fsVid.currentTime;
+      // Only resume inline if it was playing before fullscreen
+      if (overlay._wasPlaying) {
+        v.play().catch(() => {});
+        const bb = document.getElementById(pid+'_bigbtn');
+        const pb = document.getElementById(pid+'_playbtn');
+        const bp = document.getElementById(pid+'_bigplay');
+        if (bb) bb.textContent = '❚❚';
+        if (pb) pb.textContent = '❚❚';
+        if (bp) bp.style.opacity = '0';
+        cvidAutoHideBar(pid);
+      }
+    }
   }
+
+  // Fully stop fullscreen video to kill audio
   fsVid.pause();
-  fsVid.src = "";
+  fsVid.removeAttribute('src');
+  fsVid.load();
   overlay.style.display = "none";
+  overlay._sourcePid  = null;
+  overlay._wasPlaying = false;
 };
 
 function cvidUpdateSeekStyle(seek, val) {
@@ -3878,7 +4156,7 @@ function loadGroupList() {
     <b>${g.name}</b><br><small style="color:#aaa;">Password protected</small>
   </div>
   ${g.createdBy === auth.currentUser.uid
-    ? `<button onclick="deleteGroup('${d.id}')" style="background:#333;border:none;color:#ff4444;padding:6px 10px;border-radius:8px;font-size:13px;">🗑</button>`
+    ? `<button onclick="deleteGroup('${d.id}')" style="background:#333;border:none;color:#ff4444;padding:6px 10px;border-radius:8px;font-size:15px;">⛌</button>`
     : ""}
 </div>`;
     });
@@ -4157,8 +4435,11 @@ onSnapshot(collection(db, "users"), (snap) => {
     if (d.uid) {
       USER_CACHE[d.uid] = {
         name: d.name || (d.email ? d.email.split("@")[0] : "User"),
-        photo: d.photo || "https://i.imgur.com/6VBx3io.png"
+        photo: d.photo || "https://i.imgur.com/6VBx3io.png",
+        badges: d.badges || {}
       };
+      // keep BADGES_CACHE in sync
+      BADGES_CACHE[d.uid] = d.badges || {};
     }
   });
 
@@ -4221,6 +4502,7 @@ window.handleDelete = (type) => {
 };
 
 window.deleteForMe = async (id) => {
+  if (!auth.currentUser) return;
   const path = _activeCollPath || (activeRoom?.collPath) || "chat";
   await updateDoc(doc(db, path, id), {
     deletedFor: arrayUnion(auth.currentUser.uid)
@@ -4243,6 +4525,7 @@ msg.addEventListener("input", () => {
   clearTimeout(typingTimer);
   
   typingTimer = setTimeout(async () => {
+    if (!auth.currentUser) return; // 🔥 guard
     await setDoc(doc(db, "typing", auth.currentUser.uid), {
       name: auth.currentUser.email,
       typing: msg.value.trim().length > 0
@@ -5193,6 +5476,14 @@ window.backToMyProfile = async () => {
     profileBig.src = finalPhoto;
     userBox.textContent = finalName;
     topDp.src = finalPhoto;
+
+    // Show own badges
+    const myBadgeRow = document.getElementById("profileBadgesRow");
+    if (myBadgeRow && snap.exists()) {
+      const bgs = snap.data().badges || {};
+      BADGES_CACHE[myUid] = bgs;
+      myBadgeRow.innerHTML = getBadgeHTML(bgs);
+    }
     
     updateProfileUI(myUid);
     
@@ -5237,6 +5528,13 @@ window.openUserProfile = async (uid) => {
   if (nameEl) nameEl.innerText = u.name || u.email?.split("@")[0] || "User";
   if (bigEl) { bigEl.style.opacity = '1'; bigEl.src = u.photo || "https://i.imgur.com/6VBx3io.png"; }
   document.getElementById("profileBio").innerText = u.bio || "";
+
+  // Show badges on profile
+  const badgeRowEl = document.getElementById("profileBadgesRow");
+  if (badgeRowEl) {
+    BADGES_CACHE[uid] = u.badges || {};
+    badgeRowEl.innerHTML = getBadgeHTML(u.badges || {});
+  }
 
   // online dot
   const dot = document.getElementById("profileOnlineDot");
@@ -5458,6 +5756,7 @@ async function openFollowListPopupWithUIDs(uids, title) {
     const frs = followerMap[uid] || 0;
     const fng = followingMap[uid] || 0;
     const posts = postSnaps[i].size;
+    const listBadgeHTML = getBadgeHTML(u.badges || {});
 
     html += `
 <div class="card" onclick="openMiniProfile('${uid}')"
@@ -5468,7 +5767,7 @@ async function openFollowListPopupWithUIDs(uids, title) {
       background:${online?"#00e676":"#555"};border:2px solid #111;"></div>
   </div>
   <div style="flex:1;">
-    <b>${name}</b>
+    <div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px;"><b>${name}</b>${listBadgeHTML}</div>
     <div style="font-size:11px;color:#aaa;margin-top:2px;">${posts} posts · ${frs} followers · ${fng} following</div>
   </div>
   <div style="font-size:11px;color:${online?"#00e676":"#555"};">${online?"● Online":"● Offline"}</div>
@@ -5510,6 +5809,14 @@ window.openMiniProfile = async (uid) => {
   document.getElementById("miniPostCount").innerText = postSnap.size;
   document.getElementById("miniFollowerCount").innerText = followersSnap.size;
   document.getElementById("miniFollowingCount").innerText = followingSnap.size;
+
+  // Show badges in mini profile
+  const miniBadgeRow = document.getElementById("miniProfileBadgesRow");
+  if (miniBadgeRow) {
+    const bgs = u.badges || {};
+    BADGES_CACHE[uid] = bgs;
+    miniBadgeRow.innerHTML = getBadgeHTML(bgs);
+  }
 
   const iFollow = myFollowSnap.size > 0;
   document.getElementById("miniFollowBtn").innerText = iFollow ? "Unfollow" : "Follow";
@@ -5832,6 +6139,8 @@ function renderPostsFeed(s) {
     // 🔥 FIX 2: Always resolve name/photo from USER_CACHE first (fixes email showing)
     const uploaderName = (p.uid && USER_CACHE[p.uid]?.name) || p.name?.trim() || (p.user ? p.user.split("@")[0] : "User");
     const uploaderPhoto = (p.uid && USER_CACHE[p.uid]?.photo) || "https://i.imgur.com/6VBx3io.png";
+    const uploaderBadges = (p.uid && USER_CACHE[p.uid]?.badges) || {};
+    const badgeHTML = getBadgeHTML(uploaderBadges);
     const isLiked = LIKED_POSTS.has(id);
 
     html += `
@@ -5839,7 +6148,9 @@ function renderPostsFeed(s) {
   <div class="ig-post-header">
     <img src="${uploaderPhoto}" data-post-avatar="${id}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;border:2px solid #ff2d55;cursor:pointer;"
       onclick="openUserProfile('${p.uid||''}')">
-    <b data-post-name="${id}" style="flex:1;cursor:pointer;font-size:14px;" onclick="openUserProfile('${p.uid||''}')">${uploaderName}</b>
+    <div style="flex:1;cursor:pointer;display:flex;align-items:center;flex-wrap:wrap;gap:4px;" onclick="openUserProfile('${p.uid||''}')">
+      <b data-post-name="${id}" style="font-size:14px;">${uploaderName}</b>${badgeHTML}
+    </div>
     ${isOwner ? `<button onclick="delPost('${id}')" style="background:none;border:none;color:#aaa;font-size:22px;cursor:pointer;padding:4px 8px;">⋯</button>` : ""}
   </div>
   <img class="ig-post-img" src="${p.photo}" onclick="openViewer('${p.photo}','image')">
@@ -5850,7 +6161,7 @@ function renderPostsFeed(s) {
     <button id="bookmarkBtn-${id}" class="bookmark-btn ${SAVED_POSTS.has(id)?'saved':''}" onclick="toggleSave('${id}',this)" title="Save post">${SAVED_POSTS.has(id)?'🔖':'🔖'}</button>
   </div>
   <div class="ig-post-likes"><span id="postLikeCount-${id}">${p.likes || 0}</span> likes</div>
-  ${p.caption ? `<div class="ig-post-caption"><b style="color:#fff;">${uploaderName}</b> ${p.caption}</div>` : ""}
+  ${p.caption ? `<div class="ig-post-caption"><b style="color:#fff;">${uploaderName}</b>${badgeHTML} ${p.caption}</div>` : ""}
 </div>`;
   });
 
@@ -6906,6 +7217,54 @@ document.addEventListener("keydown", e => {
   if (document.activeElement === document.getElementById("liveViewMsgInput"))   sendLiveMsg("viewer");
 });
 
+/* ══════════════════════════════════════════════════
+   FIX 6: CALL PERFORMANCE — stop everything on call
+══════════════════════════════════════════════════ */
+function _freezeAppForCall() {
+  // 1. Pause ALL videos (reels, feed, chat, trending)
+  document.querySelectorAll('video').forEach(v => {
+    if (!v.id?.includes('localVideoEl') && !v.id?.includes('remoteVideoEl')) {
+      try { v.pause(); } catch(e) {}
+    }
+  });
+
+  // 2. Disconnect the IntersectionObserver so reels don't auto-resume
+  if (typeof reelObserver !== 'undefined' && reelObserver) {
+    try { reelObserver.disconnect(); } catch(e) {}
+  }
+
+  // 3. Freeze all CSS animations & transitions (saves CPU/GPU)
+  const styleTag = document.getElementById('_callFreezeStyle');
+  if (!styleTag) {
+    const s = document.createElement('style');
+    s.id = '_callFreezeStyle';
+    s.textContent = `
+      .reel video, .cvid-wrap video,
+      #postsGrid video, #trendingGrid video {
+        will-change: auto !important;
+      }
+      * { animation-play-state: paused !important; }
+      .usr-badge, .badge { animation: none !important; filter: none !important; }
+    `;
+    document.head.appendChild(s);
+  }
+
+  // 4. Stop watchdog interval
+  if (typeof reelWatchdog !== 'undefined') clearInterval(reelWatchdog);
+}
+
+function _unfreezeAppAfterCall() {
+  // 1. Remove freeze style
+  const styleTag = document.getElementById('_callFreezeStyle');
+  if (styleTag) styleTag.remove();
+
+  // 2. Re-init reel autoplay observer after a short delay
+  setTimeout(() => {
+    if (typeof initAutoPlay === 'function') initAutoPlay();
+    if (typeof startReelWatchdog === 'function') startReelWatchdog();
+  }, 400);
+}
+
 /* ═══════════════════════════════════════════════════════════════
    CALL SYSTEM — WebRTC peer-to-peer audio/video
    Signaling via Firebase RTDB  (calls/{callId})
@@ -7014,6 +7373,9 @@ window.startCall = async (type) => {
   const callId = [myUid, otherUid].sort().join("_call_");
   _currentCallId = callId;
 
+  // FIX 6: stop all background activity to prevent lag/heat
+  _freezeAppForCall();
+
   // 1. Get local media first
   try {
     _localStream = await _getMedia(type);
@@ -7098,6 +7460,9 @@ function _showIncomingCall(callerName, callerPhoto, callId, type) {
   _callRole = "callee";
   _callType = type;
 
+  // FIX 6: pre-freeze so ring notification doesn't lag
+  _freezeAppForCall();
+
   document.getElementById("callerName").textContent    = callerName;
   document.getElementById("callerPhoto").src           = callerPhoto;
   document.getElementById("callTypeLabel").textContent = type === "video" ? "Incoming video call…" : "Incoming voice call…";
@@ -7109,6 +7474,9 @@ function _showIncomingCall(callerName, callerPhoto, callId, type) {
 window.acceptCall = async () => {
   if (!_currentCallId) return;
   document.getElementById("incomingCallOverlay").style.display = "none";
+
+  // FIX 6: freeze background on accept too
+  _freezeAppForCall();
 
   const callerName  = document.getElementById("callerName").textContent;
   const callerPhoto = document.getElementById("callerPhoto").src;
@@ -7171,6 +7539,8 @@ window.rejectCall = async () => {
   }
   document.getElementById("incomingCallOverlay").style.display = "none";
   _currentCallId = null; _callRole = null; _callType = null;
+  // FIX 6: resume app after reject
+  _unfreezeAppAfterCall();
 };
 
 /* ── End call ── */
@@ -7214,6 +7584,9 @@ function _cleanupCall() {
   document.getElementById("muteBtn").innerHTML = '<i class="fa-solid fa-microphone"></i>';
 
   _currentCallId = null; _callRole = null; _callType = null; _callMuted = false;
+
+  // FIX 6: resume app animations and video autoplay after call
+  _unfreezeAppAfterCall();
 }
 
 /* ─────────────────────────────────────────
@@ -7283,6 +7656,25 @@ function _listenForCalls() {
 setTimeout(() => { if (auth.currentUser) _listenForCalls(); }, 3000);
 onAuthStateChanged(auth, (u) => { if (u) setTimeout(_listenForCalls, 2500); });
 
+/* ═══ ADMIN KICK LISTENER ═══
+   If admin writes to kicked/{uid} → force sign-out immediately */
+onAuthStateChanged(auth, (u) => {
+  if (!u) return;
+  const kickRef = ref(rtdb, `kicked/${u.uid}`);
+  onValue(kickRef, async (snap) => {
+    if (!snap.exists()) return;
+    const data = snap.val();
+    if (!data || !data.at) return;
+    // Only act on kicks within the last 60 seconds (avoid stale kicks on login)
+    if (Date.now() - data.at > 60000) return;
+    showToast('⛔ You have been signed out by an admin.', 'error');
+    setTimeout(async () => {
+      await signOut(auth);
+      location.reload();
+    }, 1800);
+  });
+});
+
 </script></body>
 
 <!-- ══ LIVE HOST SCREEN ══ -->
@@ -7347,7 +7739,7 @@ onAuthStateChanged(auth, (u) => { if (u) setTimeout(_listenForCalls, 2500); });
     <!-- LEFT: avatar + name + LIVE pill -->
     <div style="display:flex;align-items:center;gap:10px;background:rgba(0,0,0,0.55);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-radius:40px;padding:6px 14px 6px 6px;pointer-events:all;max-width:70%;">
       <img id="liveViewHostPic" src="https://i.imgur.com/6VBx3io.png"
-        style="width:38px;height:38px;border-radius:50%;object-fit:cover;border:2px solid #ff2d55;flex-shrink:0;">
+        style="width:38px;height:38px;border-radius:50%;object-fit:cover;border:2px solid #A856FB;flex-shrink:0;">
       <div style="display:flex;flex-direction:column;gap:2px;min-width:0;">
         <span id="liveViewHostName" style="color:#fff;font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Live</span>
         <div style="display:inline-flex;align-items:center;gap:4px;background:#ff2d55;border-radius:6px;padding:1px 7px;width:fit-content;">
@@ -7489,14 +7881,16 @@ style="max-width:100%;max-height:100%;display:none;"></video>
 <img id="bigImg"
 style="max-width:100%;max-height:100%;display:none;"></div>
 <!-- ADD after <body> tag -->
-<div id="splash" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#000;z-index:999999;display:flex;justify-content:center;align-items:center;flex-direction:column;color:#fff;font-family:Arial;transition:.6s;">
-  
-<div style="font-size:55px;">
-<img src="/images/logo.jpg"style="height:60px; width:60px;border-radius:50%;object-fit:cover";>
+<div id="splash" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#000;z-index:999999;display:flex;justify-content:center;align-items:center;flex-direction:column;color:#fff;font-family:Arial;transition:opacity .45s cubic-bezier(0.22,1,0.36,1),transform .45s cubic-bezier(0.22,1,0.36,1);">
+  <div style="font-size:55px;animation:splashPop .5s cubic-bezier(0.34,1.56,0.64,1) both;">
+  <img src="/images/logo.jpg"style="height:60px; width:60px;border-radius:50%;object-fit:cover;border:2.5px solid rgba(168,86,251,.6);box-shadow:0 0 24px rgba(168,86,251,.4)";>
+  </div>
+  <h1 style="margin-top:2px;background:linear-gradient(135deg,#fff,#A856FB);-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:splashPop .55s .08s cubic-bezier(0.34,1.56,0.64,1) both;opacity:0;">Rizzzta</h1>
+  <i style="margin-top:4px;font-size:10px;color:#fff;animation:splashPop .55s .15s cubic-bezier(0.34,1.56,0.64,1) both;opacity:0;">Made By Pratik</i>
 </div>
-<h1 style="margin-top:-5px;">Rizz</h1>
-<i style="margin-top:5px;font-size:10px;color:orange;">Made By Pratik</i>
-</div>
+<style>
+@keyframes splashPop{from{opacity:0;transform:scale(.7) translateY(12px);}to{opacity:1;transform:scale(1) translateY(0);}}
+</style>
 <div id="loginScreen" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#000;z-index:99999;display:none;justify-content:center;align-items:center;flex-direction:column;padding:25px;gap:12px;">
 
 <h1 style="color:#fff">Login</h1>
@@ -7507,6 +7901,7 @@ style="width:100%;padding:14px;border:none;border-radius:12px;background:#111;co
 
 <button onclick="emailLoginFn()" style="width:100%;max-width:340px;padding:14px;border:none;border-radius:12px;background:#ff2d55;color:#fff;font-size:16px;">Login</button>
 <button onclick="signupFn()" style="width:100%;max-width:340px;padding:14px;border:none;border-radius:12px;background:#222;color:#fff;font-size:16px;">Create Account</button>
+<button onclick="forgotPasswordFn()" style="width:100%;max-width:340px;padding:8px;border:none;background:none;color:#aaa;font-size:13px;text-decoration:underline;cursor:pointer;">Forgot Password?</button>
 
 <button onclick="login()" style="width:100%;max-width:340px;padding:14px;
 border:none;border-radius:12px;background:#4285F4;color:#fff;font-size:16px;">Continue with Google</button>
