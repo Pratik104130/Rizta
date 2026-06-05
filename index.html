@@ -2548,6 +2548,8 @@ onAuthStateChanged(auth, async u => {
   _chatListenersStarted = true;
   loadGroupList();
   loadDmList();
+  // 🔥 FIX: Start listening for incoming calls after login
+  _listenForCalls();
   
 });
 onAuthStateChanged(auth, (u) => {
@@ -2616,10 +2618,14 @@ async function compressImage(file) {
       const canvas = document.createElement('canvas');
       canvas.width = W; canvas.height = H;
       canvas.getContext('2d').drawImage(img, 0, 0, W, H);
+      // ── FIX 1: Output WebP (~700 KB) instead of JPEG (~5 MB) ──
+      const supportsWebP = canvas.toDataURL('image/webp').startsWith('data:image/webp');
+      const mimeType  = supportsWebP ? 'image/webp' : 'image/jpeg';
+      const quality   = supportsWebP ? 0.82 : 0.78;
       canvas.toBlob(blob => {
         URL.revokeObjectURL(url);
         resolve(blob && blob.size < file.size ? blob : file);
-      }, 'image/jpeg', 0.82);
+      }, mimeType, quality);
     };
     img.onerror = () => { URL.revokeObjectURL(url); resolve(file); };
     img.src = url;
@@ -4833,11 +4839,15 @@ function cleanupOldVideos(currentVideo) {
         Math.abs([...reel.parentNode.children].indexOf(reel) -
                  [...currentReel.parentNode.children].indexOf(currentReel));
 
-      // keep only nearby videos
+      // ── FIX 2: Pause + fully unload offscreen videos (> 2 slots away)
+      //    This kills the memory leak that caused lag + black screens ──
       if (distance > 2) {
-        v.pause();
-        v.removeAttribute("src");
-        v.load();
+        if (!v.paused) v.pause();
+        if (v.src) {
+          v.dataset.src = v.dataset.src || v.src; // preserve for lazy-reload
+          v.removeAttribute("src");
+          v.load(); // forces browser to release the media resource
+        }
       }
     }
   });
@@ -4866,7 +4876,8 @@ window.initAutoPlay = () => {
         cleanupOldVideos(v);
         syncReelAudio();
       } else {
-        v.pause();
+        // ── FIX 2: Pause immediately when leaving viewport ──
+        if (!v.paused) v.pause();
       }
     });
   }, {
@@ -7269,7 +7280,17 @@ function _unfreezeAppAfterCall() {
    CALL SYSTEM — WebRTC peer-to-peer audio/video
    Signaling via Firebase RTDB  (calls/{callId})
    ═══════════════════════════════════════════════════════════════ */
-const CALL_ICE = { iceServers:[{urls:"stun:stun.l.google.com:19302"},{urls:"stun:stun1.l.google.com:19302"}] };
+const CALL_ICE = {
+  iceServers: [
+    { urls: "stun:stun.l.google.com:19302" },
+    { urls: "stun:stun1.l.google.com:19302" },
+    { urls: "stun:stun2.l.google.com:19302" },
+    // Free TURN relay — helps calls work through strict NAT/firewalls
+    { urls: "turn:openrelay.metered.ca:80",   username: "openrelayproject", credential: "openrelayproject" },
+    { urls: "turn:openrelay.metered.ca:443",  username: "openrelayproject", credential: "openrelayproject" },
+    { urls: "turns:openrelay.metered.ca:443", username: "openrelayproject", credential: "openrelayproject" }
+  ]
+};
 
 let _currentCallId = null;
 let _callRole      = null;   // "caller" | "callee"
@@ -7653,8 +7674,49 @@ function _listenForCalls() {
   });
 }
 
-setTimeout(() => { if (auth.currentUser) _listenForCalls(); }, 3000);
-onAuthStateChanged(auth, (u) => { if (u) setTimeout(_listenForCalls, 2500); });
+/* ═══ FIX 3: Pause animations on off-screen elements ═══
+   Observes .storyRing, .usr-badge, .wave span, #profileBig, .skel
+   and adds/removes .anim-paused so the GPU isn't burning on hidden nodes */
+(function initAnimationVisibility() {
+  // Selectors whose animations we want to pause when off-screen
+  const ANIM_SELECTORS = [
+    '.storyRing',
+    '.usr-badge',
+    '.wave',
+    '#profileBig',
+    '.skel',
+    '.skel-reel',
+    '.live-pulse-dot',
+    '.live-ring'
+  ].join(',');
+
+  const animObs = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.remove('anim-paused');
+      } else {
+        entry.target.classList.add('anim-paused');
+      }
+    });
+  }, { rootMargin: '120px' }); // small buffer so animation starts just before visible
+
+  function observeAnimated() {
+    document.querySelectorAll(ANIM_SELECTORS).forEach(el => {
+      // Only observe once per element (guard with dataset flag)
+      if (!el._animObserved) {
+        el._animObserved = true;
+        animObs.observe(el);
+      }
+    });
+  }
+
+  // Run once on load, then re-run when new elements are added (new reels, stories, badges)
+  const domObs = new MutationObserver(() => observeAnimated());
+  domObs.observe(document.body, { childList: true, subtree: true });
+  observeAnimated();
+})();
+
+
 
 /* ═══ ADMIN KICK LISTENER ═══
    If admin writes to kicked/{uid} → force sign-out immediately */
@@ -7675,7 +7737,7 @@ onAuthStateChanged(auth, (u) => {
   });
 });
 
-</script></body>
+</script>
 
 <!-- ══ LIVE HOST SCREEN ══ -->
 <div id="liveHostScreen" style="display:none;position:fixed;inset:0;background:#000;z-index:999999;flex-direction:column;">
@@ -7886,9 +7948,18 @@ style="max-width:100%;max-height:100%;display:none;"></div>
   <img src="/images/logo.jpg"style="height:60px; width:60px;border-radius:50%;object-fit:cover;border:2.5px solid rgba(168,86,251,.6);box-shadow:0 0 24px rgba(168,86,251,.4)";>
   </div>
   <h1 style="margin-top:2px;background:linear-gradient(135deg,#fff,#A856FB);-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:splashPop .55s .08s cubic-bezier(0.34,1.56,0.64,1) both;opacity:0;">Rizzzta</h1>
-  <i style="margin-top:4px;font-size:10px;color:#fff;animation:splashPop .55s .15s cubic-bezier(0.34,1.56,0.64,1) both;opacity:0;">Made By Pratik</i>
+  <i style="margin-top:4px;font-size:10px;color:#A856FB;animation:splashPop .55s .15s cubic-bezier(0.34,1.56,0.64,1) both;opacity:0;">Made By Pratik</i>
 </div>
 <style>
+/* ── FIX 3: Pause animations on elements not visible in the viewport ──
+   .anim-paused is added by JS IntersectionObserver to off-screen nodes.
+   We target only the known animation classes to avoid blanketing everything. */
+.anim-paused {
+  animation-play-state: paused !important;
+}
+.anim-paused * {
+  animation-play-state: paused !important;
+}
 @keyframes splashPop{from{opacity:0;transform:scale(.7) translateY(12px);}to{opacity:1;transform:scale(1) translateY(0);}}
 </style>
 <div id="loginScreen" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#000;z-index:99999;display:none;justify-content:center;align-items:center;flex-direction:column;padding:25px;gap:12px;">
