@@ -386,18 +386,17 @@ to{opacity:1;transform:scale(1);}
 
 
 .chatContainer {
-  /* top: ~110px (header+chat header), bottom: nav(60)+input(~70) = 130px */
-  height: calc(100vh - 240px);
+  /* Fill all remaining vertical space between chat header and input bar */
+  flex: 1;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  padding: 10px 10px 16px;
+  padding: 10px 10px 120px;
   display: flex;
   flex-direction: column;
   gap: 10px;
   scroll-behavior: smooth;
-  /* push content well above the fixed input bar */
-  padding-bottom: 100px;
   overscroll-behavior: contain;
+  min-height: 0; /* critical for flex children to scroll */
 }
 
 .chatInputArea {
@@ -3873,6 +3872,20 @@ async function openRoom(collPath, title) {
   chatUnsubscribe = onSnapshot(q, (snap) => {
     let html = "";
     let newMsgCount = 0;
+    let lastDateLabel = ""; // track last rendered date label
+
+    // Helper: returns "Today", "Yesterday", or formatted date
+    function getDateLabel(ts) {
+      if (!ts) return "";
+      const d = ts.toDate ? ts.toDate() : new Date((ts.seconds || 0) * 1000);
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const msgDay = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+      const diff = today - msgDay;
+      if (diff === 0) return "Today";
+      if (diff === 86400000) return "Yesterday";
+      return d.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
+    }
 
     for (const m of snap.docs) {
       const d = m.data();
@@ -3881,6 +3894,18 @@ async function openRoom(collPath, title) {
 
       if (localClearedAt && msgTime < localClearedAt) continue;
       if (d.deletedFor?.includes(auth.currentUser.uid)) continue;
+
+      // ── Date separator ──
+      const dateLabel = getDateLabel(d.time);
+      if (dateLabel && dateLabel !== lastDateLabel) {
+        lastDateLabel = dateLabel;
+        html += `
+<div style="display:flex;align-items:center;gap:8px;margin:10px 0;">
+  <div style="flex:1;height:1px;background:rgba(255,255,255,0.1);"></div>
+  <span style="font-size:11px;color:#888;background:#1a1a1a;padding:3px 12px;border-radius:20px;white-space:nowrap;border:1px solid rgba(255,255,255,0.07);">── ${dateLabel} ──</span>
+  <div style="flex:1;height:1px;background:rgba(255,255,255,0.1);"></div>
+</div>`;
+      }
 
       if (!mine && !d.seen) {
         newMsgCount++;
@@ -3942,7 +3967,7 @@ async function openRoom(collPath, title) {
     <button onclick="openDeleteOptions('${m.id}','${collPath}')"
       style="position:absolute;top:-9px;right:-9px;background:#333;border:1px solid #555;color:#fff;
              width:22px;height:22px;border-radius:50%;font-size:11px;cursor:pointer;
-             display:flex;align-items:center;justify-content:center;z-index:5;line-height:1;">✕</button>
+             display:${mine ? 'flex' : 'none'};align-items:center;justify-content:center;z-index:5;line-height:1;">✕</button>
   </div>
   <div style="margin-top:4px;">${tickHTML}</div>
 </div>`;
@@ -7906,8 +7931,7 @@ onAuthStateChanged(auth, (u) => {
 <div id="refreshLoader" class="refreshLoader hidden">
   <div class="spinner"></div>
 </div>
-<!--
-<span id="notiBadge">0</span>
+<span id="notiBadge" style="display:none;">0</span>
 <div id="commentBackdrop"
 onclick="closeCommentBox()"
 style="
@@ -7920,7 +7944,6 @@ background:rgba(0,0,0,.45);
 opacity:0;
 transition:.25s;">
 </div>
--->
 <div id="commentBox"
 style="
 display:none;
