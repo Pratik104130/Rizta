@@ -2,8 +2,9 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Rizzz v4</title>
+
 <style>
-html, body {
+  html, body {
   overscroll-behavior: none;
   -webkit-tap-highlight-color: transparent;
 }
@@ -136,8 +137,7 @@ opacity:.7;
 background: linear-gradient(
   135deg,
   rgba(20,20,20,1),
-  rgba(115,0,255,1),
-  rgba(168,85,247,1),
+  rgba(255, 144, 235, 1),
   rgba(10,10,10,1)
 ) !important;
 
@@ -214,16 +214,16 @@ will-change: box-shadow, transform;
   backface-visibility:hidden;
   contain:paint;
 }
-
 .fadeOut {
   opacity: 0;
   transition: 0.5s;
-}.btn {
+}
+.btn {
   border: none;
   padding: 9px 14px;
   border-radius: 14px;
-  background: linear-gradient(45deg, #000, #A856FB);
-  box-shadow:0 0 2px #fff, 0 0 3px #000;
+  background: linear-gradient(90deg,#242424,#000);
+  box-shadow:0 0 2px #D5D5D5, 0 0 3px #000;
   color: #fff;
   margin-top: 6px;
   font-weight: 600;
@@ -430,7 +430,7 @@ to{opacity:1;transform:scale(1);}
   padding: 10px 14px;
   border: none;
   border-radius: 10px;
-  background: #A856FB;
+  background: #444444;
   color: #fff;
 }
 
@@ -497,7 +497,7 @@ to{opacity:1;transform:scale(1);}
   
   border-radius: 18px;
   background: #1c1c1c;
-  color: #A856FB;
+  color: #ADADAD;
   
   cursor: pointer;
   transition: .3s;
@@ -849,7 +849,7 @@ to{opacity:1;transform:none;}
 }
 
 .cancel {
-  background: #A856FB;
+  background: #FF6262;
 }
 
 
@@ -858,7 +858,7 @@ to{opacity:1;transform:none;}
 #profileBig { animation: profileGlow2 3s infinite ease-in-out; }
 @keyframes profileGlow2 {
   0%,100% { box-shadow: 0 0 10px rgba(255,45,85,.4); }
-  50%      { box-shadow: 0 0 28px rgba(168, 86, 251, 1) }
+  50%      { box-shadow: 0 0 28px #FF6262 }
 }
 .postMini {
   width: 100%;
@@ -1059,14 +1059,14 @@ to{opacity:1;transform:none;}
   width: 13px;
   height: 13px;
   border-radius: 50%;
-  background: #A856FB;
+  background: #fff;
   cursor: pointer;
   margin-top: -5px;
   box-shadow: 0 0 5px rgba(255,45,85,.7);
 }
 .cvid-seek::-moz-range-thumb {
   width: 13px; height: 13px; border-radius: 50%;
-  background: #A856FB; cursor: pointer; border: none;
+  background: #fff; cursor: pointer; border: none;
 }
 .cvid-seek::-webkit-slider-runnable-track { height: 3px; border-radius: 3px; }
 .cvid-row {
@@ -1116,7 +1116,7 @@ to{opacity:1;transform:none;}
 
 
 .dm-unread-badge {
-  background: #A856FB;
+  background: #FF6262;
   color: #fff;
   font-size: 10px;
   font-weight: 700;
@@ -1177,25 +1177,6 @@ to{opacity:1;transform:none;}
   will-change: opacity, transform;
 }
 
-#notiBadge {
-  position: fixed;
-  bottom: 42px;
-  left: 50%;
-  transform: translateX(36px);
-  background: #A856FB;
-  color: #fff;
-  font-size: 10px;
-  font-weight: 700;
-  min-width: 16px;
-  height: 16px;
-  border-radius: 99px;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  padding: 0 4px;
-  z-index: 200;
-  pointer-events: none;
-}
 
 /* ═══ LIVE FEATURE STYLES ═══ */
 .live-badge {
@@ -1219,7 +1200,7 @@ to{opacity:1;transform:none;}
   50%      { box-shadow: 0 0 0 6px rgba(255,45,85,0); }
 }
 .live-ring {
-  background: linear-gradient(45deg,#ff2d55,#ff6a00,#ff2d55) !important;#42445A
+  background: linear-gradient(45deg,#ff2d55,#ff6a00,#ff2d55) !important;
   animation: liveRingSpin 2s linear infinite;
 }
 @keyframes liveRingSpin {
@@ -1461,8 +1442,7 @@ to{opacity:1;transform:none;}
   60% { transform: scale(1.2); }
 }
 header b {
-  color: #A856FB;
-  background: linear-gradient(45deg, #fff, #A856FB);
+  background: linear-gradient(45deg, #fff, red,#474747);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -1516,12 +1496,14 @@ header b {
 /* mini profile badge row */
 #miniProfileBadgesRow{display:flex;gap:5px;justify-content:center;flex-wrap:wrap;margin:5px 0;}
 #miniProfileBadgesRow .usr-badge{font-size:11px;padding:3px 9px;}
-</style></head><body>
+</style>
+
+</head><body>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <header>
 
   
-<b>Rizzzta</b>
+<b>Broooz</b>
 <span id="userBox">Guest</span>
 
 <div style="display:flex;align-items:center;gap:8px;">
@@ -1656,7 +1638,7 @@ style="position:fixed;top:75px;right:12px;z-index:9999;background:rgba(0,0,0,.65
     <!-- 🔥 REAL PROGRESS BAR -->
     <div id="uploadProgressWrap" style="display:none;margin-top:8px;">
       <div style="background:#222;border-radius:8px;overflow:hidden;height:8px;">
-        <div id="uploadProgressBar" style="height:100%;width:0%;background:linear-gradient(90deg,#fff, #A856FB);border-radius:8px;transition:width 0.2s ease;"></div>
+        <div id="uploadProgressBar" style="height:100%;width:0%;background:linear-gradient(90deg,#fff, red);border-radius:8px;transition:width 0.2s ease;"></div>
       </div>
       <div id="uploadProgressText" style="font-size:11px;color:#aaa;margin-top:4px;text-align:center;">0%</div>
     </div>
@@ -1743,6 +1725,11 @@ style="position:fixed;top:75px;right:12px;z-index:9999;background:rgba(0,0,0,.65
 
     <!-- DM list -->
     <div id="dmList" style="margin-top:6px;"></div>
+    <!-- Suggested Users -->
+    <div id="suggestedUsersSection" style="margin-top:14px;display:none;">
+      <b style="font-size:13px;color:#aaa;display:block;margin-bottom:8px;">👥 People You May Know</b>
+      <div id="suggestedUsersList"></div>
+    </div>
   </div>
 
   <!-- Active chat view (shared for DM, global, group) -->
@@ -1934,6 +1921,7 @@ style="position:fixed;top:75px;right:12px;z-index:9999;background:rgba(0,0,0,.65
       style="width:84px;height:84px;border-radius:50%;object-fit:cover;border:3px solid #A856FB;box-shadow:0 0 18px rgba(255,45,85,.4);">
     <h3 id="miniProfileName" style="margin:10px 0 3px;"></h3>
     <div id="miniProfileBadgesRow"></div>
+    <div id="miniProfileStatus" style="font-size:12px;margin:3px 0 5px;min-height:16px;"></div>
     <p id="miniProfileBio" style="color:#aaa;font-size:13px;margin:0 0 10px;min-height:16px;"></p>
     <div style="display:flex;justify-content:space-around;margin-top:8px;">
       <div style="text-align:center;"><b id="miniPostCount">0</b><br><span style="font-size:11px;color:#aaa;">Posts</span></div>
@@ -3896,7 +3884,7 @@ async function openRoom(collPath, title) {
 
       if (!mine && !d.seen) {
         newMsgCount++;
-        updateDoc(doc(db, collPath, m.id), { seen: true });
+        updateDoc(doc(db, collPath, m.id), { seen: true, seenAt: serverTimestamp() });
       }
 
       const showName =
@@ -3905,9 +3893,41 @@ async function openRoom(collPath, title) {
         d.u?.split("@")[0] ||
         "User";
 
-      let status = "";
+      // Activity status for other person's messages
+      let activityLabel = "";
       if (!mine) {
-        status = ONLINE_USERS.has(d.uid) ? "● Online" : "● Offline";
+        if (ONLINE_USERS.has(d.uid)) {
+          activityLabel = `<span style="color:#00e676;font-size:10px;">🟢 Online</span>`;
+        } else {
+          const last = STATUS_TIME[d.uid];
+          if (last) {
+            const diff = Date.now() - last;
+            const mins = Math.floor(diff/60000), hours = Math.floor(diff/3600000), days = Math.floor(diff/86400000);
+            const label = mins<2?"Active just now":mins<60?`Active ${mins}m ago`:hours<24?`Active ${hours}h ago`:`Active ${days}d ago`;
+            activityLabel = `<span style="color:#888;font-size:10px;">🔘 ${label}</span>`;
+          } else {
+            activityLabel = `<span style="color:#555;font-size:10px;">⚫ Offline</span>`;
+          }
+        }
+      }
+
+      // Read receipt tick for my messages
+      let tickHTML = "";
+      if (mine) {
+        if (d.seen) {
+          let seenTimeStr = "";
+          if (d.seenAt) {
+            const sd = d.seenAt.toDate ? d.seenAt.toDate() : new Date(d.seenAt.seconds*1000);
+            let h = sd.getHours(), mn = sd.getMinutes();
+            const ap = h>=12?"PM":"AM"; h=h%12||12;
+            seenTimeStr = ` ${h}:${mn<10?"0"+mn:mn} ${ap}`;
+          }
+          tickHTML = `<span style="color:#4ade80;font-size:11px;">✓✓ Seen${seenTimeStr}</span>`;
+        } else {
+          tickHTML = `<span style="color:#777;font-size:11px;">✓ Sent</span>`;
+        }
+      } else {
+        tickHTML = activityLabel;
       }
 
       html += `
@@ -3924,7 +3944,7 @@ async function openRoom(collPath, title) {
              width:22px;height:22px;border-radius:50%;font-size:11px;cursor:pointer;
              display:flex;align-items:center;justify-content:center;z-index:5;line-height:1;">✕</button>
   </div>
-  <div style="font-size:11px;color:#aaa;margin-top:4px;">${mine ? (d.seen?"✓✓ Seen":"✓ Sent") : status}</div>
+  <div style="margin-top:4px;">${tickHTML}</div>
 </div>`;
     }
 
@@ -3987,6 +4007,28 @@ window.openDm = async (otherUid) => {
     uids: [auth.currentUser.uid, otherUid],
     updatedAt: serverTimestamp()
   }, { merge: true }).catch(() => {});
+
+  // Show activity status in chat header
+  const _showDmHeaderStatus = () => {
+    const typingBox = document.getElementById("typingBox");
+    if (!typingBox || !activeRoom || activeRoom.otherUid !== otherUid) return;
+    if (ONLINE_USERS.has(otherUid)) {
+      typingBox.innerHTML = `<span style="color:#00e676;">🟢 Online</span>`;
+    } else {
+      const last = STATUS_TIME[otherUid];
+      if (last) {
+        const diff = Date.now() - last;
+        const mins = Math.floor(diff/60000), hours = Math.floor(diff/3600000), days = Math.floor(diff/86400000);
+        const label = mins<2?"Active just now":mins<60?`Active ${mins}m ago`:hours<24?`Active ${hours}h ago`:`Active ${days}d ago`;
+        typingBox.innerHTML = `<span style="color:#888;">🔘 ${label}</span>`;
+      } else {
+        typingBox.innerHTML = `<span style="color:#555;">⚫ Offline</span>`;
+      }
+    }
+  };
+  setTimeout(_showDmHeaderStatus, 350);
+  if (window._dmStatusInterval) clearInterval(window._dmStatusInterval);
+  window._dmStatusInterval = setInterval(_showDmHeaderStatus, 15000);
 };
 
 /* ---- sendMsg (works for any room) ---- */
@@ -4305,6 +4347,7 @@ window.go = (id) => {
       loadGroupList();
       loadDmList();
     }
+    setTimeout(loadSuggestedUsers, 800);
     if (!activeRoom) {
       document.getElementById("chatHub").style.display  = "block";
       document.getElementById("chatView").style.display = "none";
@@ -4315,6 +4358,11 @@ window.go = (id) => {
 document.addEventListener("visibilitychange", () => {
   if (document.hidden) {
     stopAllReels();
+  } else {
+    // Re-attach call listener when app comes back to foreground
+    if (auth.currentUser) {
+      setTimeout(_listenForCalls, 500);
+    }
   }
 });
 
@@ -5815,6 +5863,24 @@ window.openMiniProfile = async (uid) => {
 
   document.getElementById("miniProfileTitle").innerText = name;
   document.getElementById("miniProfileName").innerText = name;
+
+  // Activity status on mini profile
+  const _statusEl = document.getElementById("miniProfileStatus");
+  if (_statusEl) {
+    if (ONLINE_USERS.has(uid)) {
+      _statusEl.innerHTML = `<span style="color:#00e676;">🟢 Online</span>`;
+    } else {
+      const last = STATUS_TIME[uid];
+      if (last) {
+        const diff = Date.now() - last;
+        const mins = Math.floor(diff/60000), hours = Math.floor(diff/3600000), days = Math.floor(diff/86400000);
+        const label = mins<2?"Active just now":mins<60?`Active ${mins}m ago`:hours<24?`Active ${hours}h ago`:`Active ${days}d ago`;
+        _statusEl.innerHTML = `<span style="color:#888;">🔘 ${label}</span>`;
+      } else {
+        _statusEl.innerHTML = `<span style="color:#555;">⚫ Offline</span>`;
+      }
+    }
+  }
   document.getElementById("miniProfilePhoto").src = photo;
   document.getElementById("miniProfileBio").innerText = bio;
   document.getElementById("miniPostCount").innerText = postSnap.size;
@@ -7254,7 +7320,9 @@ function _freezeAppForCall() {
       #postsGrid video, #trendingGrid video {
         will-change: auto !important;
       }
-      * { animation-play-state: paused !important; }
+      *:not(#incomingCallOverlay):not(#incomingCallOverlay *):not(#activeCallScreen):not(#activeCallScreen *) {
+        animation-play-state: paused !important;
+      }
       .usr-badge, .badge { animation: none !important; filter: none !important; }
     `;
     document.head.appendChild(s);
@@ -7394,10 +7462,7 @@ window.startCall = async (type) => {
   const callId = [myUid, otherUid].sort().join("_call_");
   _currentCallId = callId;
 
-  // FIX 6: stop all background activity to prevent lag/heat
-  _freezeAppForCall();
-
-  // 1. Get local media first
+  // 1. Get local media first (before freeze so mic prompt works)
   try {
     _localStream = await _getMedia(type);
   } catch(e) {
@@ -7414,7 +7479,7 @@ window.startCall = async (type) => {
   const offer = await pc.createOffer();
   await pc.setLocalDescription(offer);
 
-  // 4. Write call signal to RTDB (includes offer)
+  // 4. Write call signal to RTDB (includes offer) — BEFORE freeze so RTDB write goes through
   await set(_callRef(`calls/${callId}`), {
     callId, callerUid: myUid, calleeUid: otherUid, type,
     status: "ringing",
@@ -7423,6 +7488,9 @@ window.startCall = async (type) => {
     offer: { type: offer.type, sdp: offer.sdp },
     startedAt: Date.now()
   });
+
+  // Freeze AFTER writing to RTDB so the signal gets through
+  _freezeAppForCall();
 
   // 5. Show calling screen  (timer hidden until accepted — FIX #1)
   _showActiveCallScreen(
@@ -7481,8 +7549,7 @@ function _showIncomingCall(callerName, callerPhoto, callId, type) {
   _callRole = "callee";
   _callType = type;
 
-  // FIX 6: pre-freeze so ring notification doesn't lag
-  _freezeAppForCall();
+  // Do NOT freeze here — it kills the overlay animation before it shows
 
   document.getElementById("callerName").textContent    = callerName;
   document.getElementById("callerPhoto").src           = callerPhoto;
@@ -7839,7 +7906,7 @@ onAuthStateChanged(auth, (u) => {
 <div id="refreshLoader" class="refreshLoader hidden">
   <div class="spinner"></div>
 </div>
-
+<!--
 <span id="notiBadge">0</span>
 <div id="commentBackdrop"
 onclick="closeCommentBox()"
@@ -7853,7 +7920,7 @@ background:rgba(0,0,0,.45);
 opacity:0;
 transition:.25s;">
 </div>
-
+-->
 <div id="commentBox"
 style="
 display:none;
@@ -7947,7 +8014,7 @@ style="max-width:100%;max-height:100%;display:none;"></div>
   <div style="font-size:55px;animation:splashPop .5s cubic-bezier(0.34,1.56,0.64,1) both;">
   <img src="/images/logo.jpg"style="height:60px; width:60px;border-radius:50%;object-fit:cover;border:2.5px solid rgba(168,86,251,.6);box-shadow:0 0 24px rgba(168,86,251,.4)";>
   </div>
-  <h1 style="margin-top:2px;background:linear-gradient(135deg,#fff,#A856FB);-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:splashPop .55s .08s cubic-bezier(0.34,1.56,0.64,1) both;opacity:0;">Rizzzta</h1>
+  <h1 style="margin-top:2px;background:linear-gradient(135deg,#fff,#A856FB);-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:splashPop .55s .08s cubic-bezier(0.34,1.56,0.64,1) both;opacity:0;">Brooz</h1>
   <i style="margin-top:4px;font-size:10px;color:#A856FB;animation:splashPop .55s .15s cubic-bezier(0.34,1.56,0.64,1) both;opacity:0;">Made By Pratik</i>
 </div>
 <style>
@@ -8107,6 +8174,67 @@ style="position:absolute;bottom:70px;right:15px;z-index:5;background:#111;color:
   <!-- Story media -->
   <img id="storyImg" style="width:100%;height:100%;object-fit:cover;display:none;">
   <video id="storyVideo" style="width:100%;height:100%;object-fit:cover;display:none;" autoplay playsinline></video>
+
+
+<script>
+/* ═══ SUGGESTED USERS ═══ */
+async function loadSuggestedUsers() {
+  if (!auth.currentUser) return;
+  const myUid = auth.currentUser.uid;
+  const section = document.getElementById("suggestedUsersSection");
+  const list    = document.getElementById("suggestedUsersList");
+  if (!section || !list) return;
+  try {
+    const mySnap = await getDocs(query(collection(db,"follows"),where("from","==",myUid)));
+    const iFollow = new Set();
+    mySnap.forEach(d => iFollow.add(d.data().to));
+    if (iFollow.size === 0) { section.style.display="none"; return; }
+    const score = {};
+    for (const uid of iFollow) {
+      const snap = await getDocs(query(collection(db,"follows"),where("from","==",uid)));
+      snap.forEach(d => {
+        const c = d.data().to;
+        if (c===myUid||iFollow.has(c)) return;
+        score[c]=(score[c]||0)+1;
+      });
+    }
+    const top = Object.entries(score).sort((a,b)=>b[1]-a[1]).slice(0,5);
+    if (!top.length) { section.style.display="none"; return; }
+    let html="";
+    for (const [uid,mutuals] of top) {
+      const uSnap = await getDoc(doc(db,"users",uid));
+      if (!uSnap.exists()) continue;
+      const u = uSnap.data();
+      const name  = u.name||u.email?.split("@")[0]||"User";
+      const photo = u.photo||"https://i.imgur.com/6VBx3io.png";
+      const online = ONLINE_USERS.has(uid);
+      html += `<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #1a1a1a;">
+  <div style="position:relative;flex-shrink:0;cursor:pointer;" onclick="openMiniProfile('${uid}')">
+    <img src="${photo}" style="width:44px;height:44px;border-radius:50%;object-fit:cover;border:2px solid #222;">
+    <div style="position:absolute;bottom:1px;right:1px;width:10px;height:10px;border-radius:50%;background:${online?"#00e676":"#555"};border:2px solid #111;"></div>
+  </div>
+  <div style="flex:1;min-width:0;cursor:pointer;" onclick="openMiniProfile('${uid}')">
+    <b style="font-size:13px;">${name}</b><br>
+    <small style="color:#777;font-size:11px;">${online?"🟢 Online":"🔘 Offline"} · ${mutuals} mutual follow${mutuals>1?"s":""}</small>
+  </div>
+  <button onclick="suggestedFollow('${uid}',this)" style="background:#ff2d55;border:none;color:#fff;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;flex-shrink:0;">Follow</button>
+</div>`;
+    }
+    list.innerHTML = html;
+    section.style.display = "block";
+  } catch(e) { section.style.display="none"; }
+}
+
+window.suggestedFollow = async (uid, btn) => {
+  if (!auth.currentUser) return;
+  btn.disabled=true; btn.textContent="...";
+  try {
+    await addDoc(collection(db,"follows"),{from:auth.currentUser.uid,to:uid,createdAt:serverTimestamp()});
+    btn.textContent="✓ Following"; btn.style.background="#333";
+    setTimeout(()=>{ const row=btn.closest("div[style*='border-bottom']"); if(row){row.style.opacity="0";row.style.transition="opacity .3s";setTimeout(()=>row.remove(),300);} },900);
+  } catch(e) { btn.disabled=false; btn.textContent="Follow"; showToast("Follow failed","error"); }
+};
+</script>
 
 </body>
 </html>
