@@ -735,7 +735,7 @@ to{opacity:1;transform:none;}
 
 /* 🔥 PERF FIX: Posts section scrollable */
 #postsSection {
-  height: calc(100% - 44px);
+  height: calc(100% - 50px);
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   width: 100%;
@@ -1956,7 +1956,7 @@ import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/fireba
 
 import {getAuth,signInWithPopup,GoogleAuthProvider,onAuthStateChanged,signOut,signInWithEmailAndPassword,createUserWithEmailAndPassword,setPersistence,browserLocalPersistence,sendPasswordResetEmail} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 
-import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, updateDoc, deleteDoc, setDoc ,getDocs,arrayUnion,increment,where}from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, updateDoc, deleteDoc, setDoc ,getDocs,arrayUnion,increment,where,limit,limitToLast}from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import { getDatabase, ref, set, onValue, push, remove, onDisconnect, get } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
 const firebaseConfig = {apiKey: "AIzaSyA_sBTAt90Y-RrLo6Hfs_7-Y1VM_ASix34",authDomain: "brosmarket-9b3b0.firebaseapp.com",projectId: "brosmarket-9b3b0",databaseURL: "https://brosmarket-9b3b0-default-rtdb.firebaseio.com/"
 };
@@ -2736,7 +2736,9 @@ window.uploadVideo = async () => {
 };
 let reelObserver;
 
-const pq = query(collection(db, "posts"), orderBy("time", "desc"));
+// 🔥 FIX: was fetching + rendering EVERY post ever made (no limit), which is why
+// reels took forever to load. Cap the live feed to the most recent 30 posts.
+const pq = query(collection(db, "posts"), orderBy("time", "desc"), limit(30));
 
 let REELS_MAP = new Map();
 let REELS_LIST = [];
@@ -3867,9 +3869,17 @@ async function openRoom(collPath, title) {
   view.style.flexDirection = "column";
   document.getElementById("chatViewTitle").innerText = title;
 
-  const q = query(collection(db, collPath), orderBy("time", "asc"));
+  // 🔥 FIX: was loading the ENTIRE message history with no cap, so the whole
+  // list got rebuilt from scratch on every single update as a chat grew —
+  // that's what made scrolling break/stutter after ~10 messages. Cap to the
+  // most recent 100 messages.
+  const q = query(collection(db, collPath), orderBy("time", "asc"), limitToLast(100));
 
   chatUnsubscribe = onSnapshot(q, (snap) => {
+    // 🔥 FIX: remember whether the user was already near the bottom BEFORE
+    // we touch the DOM, so we only auto-scroll for people who were already
+    // following the conversation — not yank someone back down mid-read.
+    const wasNearBottom = (msgs.scrollHeight - msgs.scrollTop - msgs.clientHeight) < 120;
     let html = "";
     let newMsgCount = 0;
     let lastDateLabel = ""; // track last rendered date label
@@ -3979,12 +3989,22 @@ async function openRoom(collPath, title) {
       showToast(`💬 ${newMsgCount} new message${newMsgCount>1?"s":""}`, "default");
     }
 
-    // 🔥 FIX: Scroll to bottom reliably after DOM paint
-    requestAnimationFrame(() => {
-      msgs.scrollTop = msgs.scrollHeight;
-      // Double RAF to ensure content is fully rendered
-      requestAnimationFrame(() => { msgs.scrollTop = msgs.scrollHeight; });
-    });
+    // 🔥 FIX: Only auto-scroll if the user was already near the bottom (or it's
+    // their own outgoing message). Otherwise leave their scroll position alone
+    // so scrolling up to read older messages actually stays put, and show the
+    // existing "new message" toast/button instead of yanking them down.
+    const lastMsg = snap.docs[snap.docs.length - 1];
+    const lastIsMine = lastMsg && lastMsg.data().uid === auth.currentUser.uid;
+
+    if (wasNearBottom || lastIsMine) {
+      requestAnimationFrame(() => {
+        msgs.scrollTop = msgs.scrollHeight;
+        // Double RAF to ensure content is fully rendered
+        requestAnimationFrame(() => { msgs.scrollTop = msgs.scrollHeight; });
+      });
+    } else if (scrollBtn) {
+      scrollBtn.style.display = "block";
+    }
   });
 }
 
@@ -8094,10 +8114,10 @@ style="max-width:100%;max-height:100%;display:none;"></div>
 <!-- ADD after <body> tag -->
 <div id="splash" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#000;z-index:999999;display:flex;justify-content:center;align-items:center;flex-direction:column;color:#fff;font-family:Arial;transition:opacity .45s cubic-bezier(0.22,1,0.36,1),transform .45s cubic-bezier(0.22,1,0.36,1);">
   <div style="font-size:55px;animation:splashPop .5s cubic-bezier(0.34,1.56,0.64,1) both;">
-  <img src="/images/logo.jpg"style="height:60px; width:60px;border-radius:50%;object-fit:cover;border:2.5px solid rgba(168,86,251,.6);box-shadow:0 0 24px rgba(168,86,251,.4)";>
+  <img src="/images/logo.jpg"style="height:60px; width:60px;border-radius:50%;object-fit:cover;border:2px solid red ;box-shadow:0 0 24px rgba(168,86,251,.4)";>
   </div>
-  <h1 style="margin-top:2px;background:linear-gradient(135deg,#fff,#A856FB);-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:splashPop .55s .08s cubic-bezier(0.34,1.56,0.64,1) both;opacity:0;">Brooz</h1>
-  <i style="margin-top:4px;font-size:10px;color:#A856FB;animation:splashPop .55s .15s cubic-bezier(0.34,1.56,0.64,1) both;opacity:0;">Made By Pratik</i>
+  <h1 style="margin-top:2px;background:linear-gradient(135deg,#fff,hotpink);-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:splashPop .55s .08s cubic-bezier(0.34,1.56,0.64,1) both;opacity:0;">Brooz</h1>
+  <i style="margin-top:4px;font-size:10px;color:pink;animation:splashPop .55s .15s cubic-bezier(0.34,1.56,0.64,1) both;opacity:0;">Made By Pratik</i>
 </div>
 <style>
 /* ── FIX 3: Pause animations on elements not visible in the viewport ──
