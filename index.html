@@ -4009,15 +4009,26 @@ function loadNotifications() {
       } else if (n.type === "comment") {
         icon = `<i class="fa-solid fa-comment" style="color:#f59e0b;font-size:13px;"></i>`;
         msg = `<b>${n.fromName || "Someone"}</b> commented on your post`;
+      } else if (n.type === "admin_warning") {
+        icon = `<i class="fa-solid fa-triangle-exclamation" style="color:#ff2d55;font-size:13px;"></i>`;
+        msg = `<b style="color:#ff2d55;">Admin Warning:</b> ${n.message || "Please review our community guidelines."}`;
+      } else if (n.type === "admin_announcement") {
+        icon = `<i class="fa-solid fa-bullhorn" style="color:#A856FB;font-size:13px;"></i>`;
+        msg = `<b style="color:#A856FB;">Announcement:</b> ${n.message || ""}`;
       }
 
       if (!msg) return; // skip unknown types
 
+      const isAdminMsg = n.type === "admin_warning" || n.type === "admin_announcement";
+      const avatarHtml = isAdminMsg
+        ? `<div style="width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#A856FB,#ff2d55);display:flex;align-items:center;justify-content:center;font-size:18px;">👑</div>`
+        : `<img loading="lazy" src="${fromPhoto}" style="width:46px;height:46px;border-radius:50%;object-fit:cover;border:2px solid #222;">`;
+
       html += `
 <div data-onclick="markNotiRead('${d.id}')" style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid #1a1a1a;cursor:pointer;background:${n.read ? 'transparent' : 'rgba(255,45,85,0.06)'};">
   <div style="position:relative;">
-    <img loading="lazy" src="${fromPhoto}" style="width:46px;height:46px;border-radius:50%;object-fit:cover;border:2px solid #222;">
-    <div style="position:absolute;bottom:-2px;right:-2px;font-size:16px;line-height:1;">${icon}</div>
+    ${avatarHtml}
+    ${!isAdminMsg ? `<div style="position:absolute;bottom:-2px;right:-2px;font-size:16px;line-height:1;">${icon}</div>` : ""}
   </div>
   <div style="flex:1;">
     <div style="font-size:14px;color:#fff;">${msg}</div>
@@ -7341,6 +7352,27 @@ async function initSavedState() {
   } catch(e) {}
 }
 
+window.reportPost = async (postId) => {
+  if (!auth.currentUser) return;
+  const reason = prompt("Why are you reporting this post? (spam, nudity, harassment, etc.)");
+  if (reason === null) return;
+  try {
+    await addDoc(collection(db, "reports"), {
+      postId,
+      reason: reason.trim() || "No reason given",
+      reportedBy: auth.currentUser.uid,
+      reporterEmail: auth.currentUser.email,
+      time: serverTimestamp(),
+      status: "open"
+    });
+    await updateDoc(doc(db, "posts", postId), { reportCount: increment(1) }).catch(() => {});
+    alert("Thanks — this post has been reported to our team.");
+  } catch (e) {
+    console.error("Report error:", e);
+    alert("Couldn't submit report, please try again.");
+  }
+};
+
 function renderPostsFeed(s) {
   if (!postsGrid) return;
   if (!s) return;
@@ -7371,7 +7403,7 @@ function renderPostsFeed(s) {
     <div style="flex:1;cursor:pointer;display:flex;align-items:center;flex-wrap:wrap;gap:4px;" data-onclick="openUserProfile('${p.uid||''}')">
       <b data-post-name="${id}" style="font-size:14px;">${uploaderName}</b>${badgeHTML}
     </div>
-    ${isOwner ? `<button data-onclick="delPost('${id}')" style="background:none;border:none;color:#aaa;font-size:22px;cursor:pointer;padding:4px 8px;">⋯</button>` : ""}
+    ${isOwner ? `<button data-onclick="delPost('${id}')" style="background:none;border:none;color:#aaa;font-size:22px;cursor:pointer;padding:4px 8px;">⋯</button>` : `<button data-onclick="reportPost('${id}')" title="Report post" style="background:none;border:none;color:#aaa;font-size:16px;cursor:pointer;padding:4px 8px;"><i class="fa-solid fa-flag"></i></button>`}
   </div>
   <img loading="lazy" class="ig-post-img" src="${p.photo}" data-onclick="openViewer('${p.photo}','image')">
   <div class="ig-post-actions">
