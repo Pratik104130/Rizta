@@ -1508,13 +1508,13 @@ header b {
 <div style="display:flex;align-items:center;gap:8px;">
   <!-- Heart/Notifications button in header -->
   <div style="position:relative;display:flex;align-items:center;justify-content:center;">
-    <span onclick="go('notify')" id="headerNotifyBtn" title="Notifications"
+    <span data-onclick="go('notify')" id="headerNotifyBtn" title="Notifications"
       style="width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:20px;color:#fff;transition:transform 0.2s ease;">
       <i class="fa-regular fa-heart" id="headerHeartIcon"></i>
     </span>
     <span id="headerNotiBadge" style="display:none;position:absolute;top:0;right:0;background:#ff2d55;color:#fff;font-size:9px;font-weight:700;min-width:14px;height:14px;border-radius:99px;align-items:center;justify-content:center;padding:0 3px;pointer-events:none;"></span>
   </div>
-  <img
+  <img loading="lazy"
     id="topDp"
     src="https://i.imgur.com/6VBx3io.png"
     style="width:34px;height:34px;border-radius:50%;object-fit:cover">
@@ -1525,7 +1525,7 @@ header b {
 
 <!-- 🔥 FIX: Tabs at TOP, always visible -->
 <div style="display:flex;border-bottom:1px solid #222;background:#000;position:sticky;top:0;z-index:10;">
-<button onclick="switchHomeTab('reels')"
+<button data-onclick="switchHomeTab('reels')"
 id="tab-reels"
 style="
 flex:1;
@@ -1538,7 +1538,7 @@ display:flex;align-items:center;justify-content:center;gap:6px;font-size:14px;fo
 <i class="fa-solid fa-film"></i> Reels
 </button>
 
-  <button onclick="switchHomeTab('posts')"
+  <button data-onclick="switchHomeTab('posts')"
     id="tab-posts"
     style="
     flex:1;
@@ -1559,7 +1559,7 @@ display:flex;align-items:center;justify-content:center;gap:6px;font-size:14px;fo
 
   <!-- Global reels refresh button -->
 <button id="refreshFeedBtn"
-onclick="refreshCurrentReel()"
+data-onclick="refreshCurrentReel()"
 style="position:fixed;top:75px;right:12px;z-index:9999;background:rgba(0,0,0,.65);color:#fff;border:none;width:42px;height:42px;border-radius:50%;font-size:20px;display:flex;align-items:center;justify-content:center;padding:0;line-height:1;backdrop-filter: blur(8px);box-shadow:0 8px 20px rgba(0,0,0,.35);
 ">
 ⟳</button>
@@ -1576,7 +1576,7 @@ style="position:fixed;top:75px;right:12px;z-index:9999;background:rgba(0,0,0,.65
   <section id='notify' class='page'>
   <div style="padding:14px 12px 6px;border-bottom:1px solid #222;display:flex;align-items:center;justify-content:space-between;">
     <b style="font-size:17px;">Notifications</b>
-    <button onclick="markAllNotiRead()" style="background:none;border:none;color:#aaa;font-size:12px;cursor:pointer;">Mark all read</button>
+    <button data-onclick="markAllNotiRead()" style="background:none;border:none;color:#aaa;font-size:12px;cursor:pointer;">Mark all read</button>
   </div>
   <div id='notiList' style="overflow-y:auto;height:calc(100% - 50px);padding:8px 0;"></div>
 </section>
@@ -1591,10 +1591,10 @@ style="position:fixed;top:75px;right:12px;z-index:9999;background:rgba(0,0,0,.65
     </div>
     <!-- Filter tabs -->
     <div style="display:flex;gap:0;overflow-x:auto;padding:10px 10px 0;scrollbar-width:none;">
-      <button id="trendTab-top" onclick="switchTrendTab('top')" style="flex-shrink:0;padding:7px 16px;border:none;border-bottom:2px solid #A856FB;background:none;color:#fff;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">🔥 Top</button>
-      <button id="trendTab-mix" onclick="switchTrendTab('mix')" style="flex-shrink:0;padding:7px 16px;border:none;border-bottom:2px solid transparent;background:none;color:#aaa;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">🎲 Mix</button>
-      <button id="trendTab-watched" onclick="switchTrendTab('watched')" style="flex-shrink:0;padding:7px 16px;border:none;border-bottom:2px solid transparent;background:none;color:#aaa;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">👁 Most Watched</button>
-      <button id="trendTab-liked" onclick="switchTrendTab('liked')" style="flex-shrink:0;padding:7px 16px;border:none;border-bottom:2px solid transparent;background:none;color:#aaa;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">❤️ Most Liked</button>
+      <button id="trendTab-top" data-onclick="switchTrendTab('top')" style="flex-shrink:0;padding:7px 16px;border:none;border-bottom:2px solid #A856FB;background:none;color:#fff;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">🔥 Top</button>
+      <button id="trendTab-mix" data-onclick="switchTrendTab('mix')" style="flex-shrink:0;padding:7px 16px;border:none;border-bottom:2px solid transparent;background:none;color:#aaa;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">🎲 Mix</button>
+      <button id="trendTab-watched" data-onclick="switchTrendTab('watched')" style="flex-shrink:0;padding:7px 16px;border:none;border-bottom:2px solid transparent;background:none;color:#aaa;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">👁 Most Watched</button>
+      <button id="trendTab-liked" data-onclick="switchTrendTab('liked')" style="flex-shrink:0;padding:7px 16px;border:none;border-bottom:2px solid transparent;background:none;color:#aaa;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">❤️ Most Liked</button>
     </div>
   </div>
 
@@ -1621,13 +1621,24 @@ style="position:fixed;top:75px;right:12px;z-index:9999;background:rgba(0,0,0,.65
     
     <!-- 🔥 PREVIEW AREA -->
     <div id="previewBox" style="display:none;margin-top:10px;">
-      <img id="previewImg" style="width:100%;border-radius:10px;display:none;">
+      <img loading="lazy" id="previewImg" style="width:100%;border-radius:10px;display:none;">
       <video id="previewVideo" style="width:100%;border-radius:10px;display:none;" controls muted playsinline></video>
-      <button id="cancelPostPreview" onclick="cancelPostSelection()" style="width:100%;margin-top:8px;padding:10px;border:none;border-radius:10px;background:#333;color:#fff;font-size:14px;cursor:pointer;">✕ Cancel</button>
+      <button id="cancelPostPreview" data-onclick="cancelPostSelection()" style="width:100%;margin-top:8px;padding:10px;border:none;border-radius:10px;background:#333;color:#fff;font-size:14px;cursor:pointer;">✕ Cancel</button>
     </div>
-    
+
+    <!-- 🎵 AUDIO PICKER TRIGGER (reels only) -->
+    <button data-onclick="openAudioPicker()"
+      style="width:100%;margin-top:10px;padding:10px;border:1px solid #333;border-radius:10px;background:#151515;color:#fff;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
+      <i class="fa-solid fa-music"></i> Add Audio
+    </button>
+    <div id="selectedAudioChip" style="display:none;align-items:center;gap:8px;margin-top:8px;background:#151515;border-radius:10px;padding:8px 10px;">
+      <i class="fa-solid fa-music" style="color:#ff2d55;"></i>
+      <span id="selectedAudioChipText" style="flex:1;font-size:12.5px;color:#eee;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></span>
+      <button data-onclick="removeSelectedAudio()" style="background:none;border:none;color:#888;font-size:15px;cursor:pointer;">✕</button>
+    </div>
+
     <!-- UPLOAD BUTTON -->
-    <button id="uploadBtn" class='btn' onclick='uploadVideo()'>
+    <button id="uploadBtn" class='btn' data-onclick="uploadVideo()">
       Upload Post
     </button>
     
@@ -1657,13 +1668,24 @@ style="position:fixed;top:75px;right:12px;z-index:9999;background:rgba(0,0,0,.65
 
 <!-- 🔥 PREVIEW -->
 <div id="storyPreviewBox" style="display:none;margin-top:10px;">
-  <img id="storyPreviewImg" style="width:100%;border-radius:10px;display:none;">
+  <img loading="lazy" id="storyPreviewImg" style="width:100%;border-radius:10px;display:none;">
   <video id="storyPreviewVideo" style="width:100%;border-radius:10px;display:none;" controls muted playsinline></video>
-  <button id="cancelStoryPreview" onclick="cancelStorySelection()" style="width:100%;margin-top:8px;padding:10px;border:none;border-radius:10px;background:#333;color:#fff;font-size:14px;cursor:pointer;">✕ Cancel</button>
+  <button id="cancelStoryPreview" data-onclick="cancelStorySelection()" style="width:100%;margin-top:8px;padding:10px;border:none;border-radius:10px;background:#333;color:#fff;font-size:14px;cursor:pointer;">✕ Cancel</button>
+</div>
+
+<!-- 🗳️ POLL / QUIZ STICKER -->
+<button data-onclick="openStickerBuilder()"
+  style="width:100%;margin-top:10px;padding:10px;border:1px solid #333;border-radius:10px;background:#151515;color:#fff;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
+  <i class="fa-solid fa-square-poll-vertical"></i> Add Poll / Quiz
+</button>
+<div id="stickerChip" style="display:none;align-items:center;gap:8px;margin-top:8px;background:#151515;border-radius:10px;padding:8px 10px;">
+  <i class="fa-solid fa-square-poll-vertical" style="color:#A856FB;"></i>
+  <span id="stickerChipText" style="flex:1;font-size:12.5px;color:#eee;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></span>
+  <button data-onclick="removeStorySticker()" style="background:none;border:none;color:#888;font-size:15px;cursor:pointer;">✕</button>
 </div>
 
 <!-- BUTTON -->
-<button id="storyUploadBtn" class='btn' onclick='uploadStory()'>
+<button id="storyUploadBtn" class='btn' data-onclick="uploadStory()">
   Upload Story
 </button>
 
@@ -1683,7 +1705,7 @@ style="position:fixed;top:75px;right:12px;z-index:9999;background:rgba(0,0,0,.65
     <!-- GO LIVE SECTION -->
     <h4>🟣 Go Live</h4>
     <p style="font-size:12px;color:#aaa;margin:4px 0 10px;">Stream live to your followers in real time</p>
-    <button class="live-upload-btn" onclick="startLive()">
+    <button class="live-upload-btn" data-onclick="startLive()">
       <div class="live-pulse-dot"></div>
       Go Live Now
     </button>
@@ -1696,12 +1718,12 @@ style="position:fixed;top:75px;right:12px;z-index:9999;background:rgba(0,0,0,.65
   <!-- Hub screen -->
   <div id="chatHub" style="padding:10px;">
     <div style="display:flex;gap:8px;margin-bottom:10px;">
-      <input id="dmSearch" class="inp" placeholder="Search users for DM…" oninput="searchDmUsers()" style="flex:1;">
+      <input id="dmSearch" class="inp" placeholder="Search users for DM…" oninput="debouncedSearchDmUsers()" style="flex:1;">
     </div>
     <div id="dmSearchRes"></div>
 
     <!-- Global Chat -->
-    <div class="card" onclick="openGroupRoom('global','',true)" style="cursor:pointer;display:flex;align-items:center;gap:12px;">
+    <div class="card" data-onclick="openGroupRoom('global','',true)" style="cursor:pointer;display:flex;align-items:center;gap:12px;">
       <div style="font-size:24px;color:#3b82f6;"><i class="fa-solid fa-earth-americas"></i></div>
       <div><b>Global Chat</b><br><small style="color:#aaa;">Everyone can join</small></div>
     </div>
@@ -1714,16 +1736,16 @@ style="position:fixed;top:75px;right:12px;z-index:9999;background:rgba(0,0,0,.65
         <input id="grpPassInp" class="inp" placeholder="Password" type="password" style="flex:1;">
       </div>
       <div style="display:flex;gap:6px;margin-top:6px;">
-        <button class="btn" style="flex:1;" onclick="createGroup()"><i class="fa-solid fa-plus" style="margin-right:5px;"></i>Create</button>
-        <button class="btn" style="flex:1;background:#222;" onclick="joinGroup()"><i class="fa-solid fa-key" style="margin-right:5px;"></i>Join</button>
+        <button class="btn" style="flex:1;" data-onclick="createGroup()"><i class="fa-solid fa-plus" style="margin-right:5px;"></i>Create</button>
+        <button class="btn" style="flex:1;background:#222;" data-onclick="joinGroup()"><i class="fa-solid fa-key" style="margin-right:5px;"></i>Join</button>
       </div>
     </div>
 
     <!-- Group list -->
-    <div id="groupList" style="margin-top:6px;"></div>
+    <div id="groupList" style="margin-top:6px;max-height:220px;overflow-y:auto;"></div>
 
     <!-- DM list -->
-    <div id="dmList" style="margin-top:6px;"></div>
+    <div id="dmList" style="margin-top:6px;max-height:calc(100vh - 260px);overflow-y:auto;"></div>
     <!-- Suggested Users -->
     <div id="suggestedUsersSection" style="margin-top:14px;display:none;">
       <b style="font-size:13px;color:#aaa;display:block;margin-bottom:8px;">👥 People You May Know</b>
@@ -1734,31 +1756,34 @@ style="position:fixed;top:75px;right:12px;z-index:9999;background:rgba(0,0,0,.65
   <!-- Active chat view (shared for DM, global, group) -->
   <div id="chatView" style="display:none;position:absolute;top:0;left:0;width:100%;height:100%;flex-direction:column;background:#000;">
     <div id="chatViewHeader" style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#111;border-bottom:1px solid #222;position:sticky;top:0;z-index:10;flex-shrink:0;">
-      <button onclick="backToHub()" style="background:none;border:none;color:#fff;font-size:20px;display:flex;align-items:center;justify-content:center;width:32px;height:32px;"><i class="fa-solid fa-arrow-left"></i></button>
+      <button data-onclick="backToHub()" style="background:none;border:none;color:#fff;font-size:20px;display:flex;align-items:center;justify-content:center;width:32px;height:32px;"><i class="fa-solid fa-arrow-left"></i></button>
       <div style="flex:1;min-width:0;">
         <b id="chatViewTitle" style="font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">Chat</b>
         <small id="typingBox" style="color:#aaa;font-size:11px;"></small>
       </div>
       <!-- Call buttons (only shown in DM) -->
       <div id="callBtns" style="display:none;align-items:center;gap:6px;">
-        <button onclick="startCall('voice')" title="Voice Call"
+        <button data-onclick="startCall('voice')" title="Voice Call"
           style="background:rgba(255,255,255,.08);border:none;color:#4ade80;width:36px;height:36px;border-radius:50%;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s;">
           <i class="fa-solid fa-phone"></i>
         </button>
-        <button onclick="startCall('video')" title="Video Call"
+        <button data-onclick="startCall('video')" title="Video Call"
           style="background:rgba(255,255,255,.08);border:none;color:#60a5fa;width:36px;height:36px;border-radius:50%;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s;">
           <i class="fa-solid fa-video"></i>
         </button>
       </div>
-      <button onclick="clearChatLocal()" style="background:#222;color:#fff;border:none;padding:6px 10px;border-radius:8px;font-size:11px;display:flex;align-items:center;gap:4px;">
+      <button data-onclick="clearChatLocal()" style="background:#222;color:#fff;border:none;padding:6px 10px;border-radius:8px;font-size:11px;display:flex;align-items:center;gap:4px;">
         <i class="fa-solid fa-trash-can" style="font-size:11px;"></i> Clear
       </button>
     </div>
 
     <div id='msgs' class="chatContainer"></div>
 
-    <button id="scrollBtn" onclick="scrollToBottom()"
+    <button id="scrollBtn" data-onclick="scrollToBottom()"
       style="position:fixed;bottom:140px;right:15px;z-index:9999;background: #ff2d55;border:none;color:#fff;width:42px;height:42px;border-radius:50%;font-size:18px;display:none;box-shadow:0 5px 15px rgba(0,0,0,.3);">↓</button>
+
+    <!-- 🆕 UPGRADE: typing indicator -->
+    <div id="typingIndicator" style="display:none;padding:4px 14px;font-size:12px;color:#aaa;font-style:italic;"></div>
 
     <div class="chatInputArea">
       <div id="recordUI" style="display:none;align-items:center;gap:10px;padding:4px 0;">
@@ -1767,21 +1792,21 @@ style="position:fixed;top:75px;right:12px;z-index:9999;background:rgba(0,0,0,.65
       </div>
       <!-- Chat media preview (shows selected image/video before send) -->
       <div id="chatMediaPreview">
-        <img id="chatPreviewImg" style="display:none;">
+        <img loading="lazy" id="chatPreviewImg" style="display:none;">
         <video id="chatPreviewVid" style="display:none;" muted playsinline controls></video>
-        <button class="cancel-media" onclick="cancelChatMedia()">✕</button>
+        <button class="cancel-media" data-onclick="cancelChatMedia()">✕</button>
       </div>
       <div style="display:flex;gap:6px;align-items:center;width:100%;">
         <!-- Media attach button -->
         <input id="chatMediaInput" type="file" accept="image/*,video/*" hidden onchange="previewChatMedia(event)">
-        <button class="chat-media-btn" onclick="document.getElementById('chatMediaInput').click()" title="Send image/video">
+        <button class="chat-media-btn" data-onclick="document.getElementById('chatMediaInput').click()" title="Send image/video">
           <i class="fa-solid fa-image"></i>
         </button>
         <input id='msg' class='inp' placeholder='Type a message…' maxlength="500" style="flex:1;">
         <button id="recordBtn" class="btn" title="Voice message" style="width:38px;height:38px;padding:0;display:flex;align-items:center;justify-content:center;flex-shrink:0;border-radius:10px;font-size:16px;">
           <i class="fa-solid fa-microphone"></i>
         </button>
-        <button class='btn sendBtn' onclick='sendMsg()' title="Send" style="width:38px;height:38px;padding:0;display:flex;align-items:center;justify-content:center;flex-shrink:0;border-radius:10px;font-size:16px;">
+        <button class='btn sendBtn' data-onclick="sendMsg()" title="Send" style="width:38px;height:38px;padding:0;display:flex;align-items:center;justify-content:center;flex-shrink:0;border-radius:10px;font-size:16px;">
           <i class="fa-solid fa-paper-plane"></i>
         </button>
       </div>
@@ -1790,9 +1815,9 @@ style="position:fixed;top:75px;right:12px;z-index:9999;background:rgba(0,0,0,.65
 
   <!-- Delete menu -->
   <div id="deleteMenu" style="position:fixed;bottom:0;left:0;width:100%;background:#111;border-top-left-radius:16px;border-top-right-radius:16px;padding:15px;display:none;z-index:9999;">
-    <button onclick="handleDelete('me')" class="delBtn">Delete for Me</button>
-    <button onclick="handleDelete('everyone')" class="delBtn">Delete for Everyone</button>
-    <button onclick="closeDeleteMenu()" class="delBtn cancel">Cancel</button>
+    <button data-onclick="handleDelete('me')" class="delBtn">Delete for Me</button>
+    <button data-onclick="handleDelete('everyone')" class="delBtn">Delete for Everyone</button>
+    <button data-onclick="closeDeleteMenu()" class="delBtn cancel">Cancel</button>
   </div>
 </section>
 
@@ -1802,11 +1827,12 @@ style="position:fixed;top:75px;right:12px;z-index:9999;background:rgba(0,0,0,.65
   <!-- ── Settings menu ── -->
   <div class="profileHeader">
     <div class="profileTopRight">
-      <button class="settingsBtn" onclick="toggleProfileMenu()">⋮</button>
+      <button class="settingsBtn" data-onclick="toggleProfileMenu()">⋮</button>
       <div id="profileMenu" class="profileMenu hidden">
-        <div onclick="openSettings()"><i class="fa-solid fa-gear" style="margin-right:8px;color:#aaa;"></i>Settings</div>
-        <div onclick="editProfile()"><i class="fa-solid fa-pen" style="margin-right:8px;color:#aaa;"></i>Edit Profile</div>
-        <div onclick="logout()" style="color:#ff4444;"><i class="fa-solid fa-right-from-bracket" style="margin-right:8px;"></i>Logout</div>
+        <div data-onclick="openSettings()"><i class="fa-solid fa-gear" style="margin-right:8px;color:#aaa;"></i>Settings</div>
+        <div data-onclick="editProfile()"><i class="fa-solid fa-pen" style="margin-right:8px;color:#aaa;"></i>Edit Profile</div>
+        <div data-onclick="enablePushNotifications()"><i class="fa-solid fa-bell" style="margin-right:8px;color:#aaa;"></i>Enable Notifications</div>
+        <div data-onclick="logout()" style="color:#ff4444;"><i class="fa-solid fa-right-from-bracket" style="margin-right:8px;"></i>Logout</div>
       </div>
     </div>
   </div>
@@ -1814,7 +1840,7 @@ style="position:fixed;top:75px;right:12px;z-index:9999;background:rgba(0,0,0,.65
   <!-- ── Back button ── -->
   <button id="backMyProfileBtn" class="btn"
     style="display:none;margin:8px 12px 0;width:calc(100% - 24px);"
-    onclick="backToMyProfile()">← Back to My Profile</button>
+    data-onclick="backToMyProfile()">← Back to My Profile</button>
 
   <!-- ── Hero banner ── -->
   <div style="position:relative;background:linear-gradient(160deg,#1a0010,#0d0d0d);padding:28px 16px 16px;text-align:center;">
@@ -1839,15 +1865,15 @@ style="position:fixed;top:75px;right:12px;z-index:9999;background:rgba(0,0,0,.65
 
     <!-- Stats row -->
     <div style="display:flex;justify-content:space-around;margin-top:6px;">
-      <div onclick="openUserPosts('posts')" style="cursor:pointer;text-align:center;">
+      <div data-onclick="openUserPosts('posts')" style="cursor:pointer;text-align:center;">
         <b id="postCount" style="font-size:18px;">0</b><br>
         <span style="font-size:11px;color:#aaa;">Posts</span>
       </div>
-      <div onclick="openFollowersList()" style="cursor:pointer;text-align:center;">
+      <div data-onclick="openFollowersList()" style="cursor:pointer;text-align:center;">
         <b id="followerCount" style="font-size:18px;">0</b><br>
         <span style="font-size:11px;color:#aaa;">Followers</span>
       </div>
-      <div onclick="openFollowingList()" style="cursor:pointer;text-align:center;">
+      <div data-onclick="openFollowingList()" style="cursor:pointer;text-align:center;">
         <b id="followingCount" style="font-size:18px;">0</b><br>
         <span style="font-size:11px;color:#aaa;">Following</span>
       </div>
@@ -1855,15 +1881,15 @@ style="position:fixed;top:75px;right:12px;z-index:9999;background:rgba(0,0,0,.65
 
     <!-- Follow / DM buttons (shown on other people's profiles) -->
     <div id="profileActions" style="display:none;gap:8px;margin-top:12px;justify-content:center;display:none;">
-      <button id="followBtn" class="btn" onclick="followCurrentProfile()" style="min-width:110px;">Follow</button>
-      <button class="btn" onclick="dmCurrentProfile()" style="background:#222;min-width:110px;">💬 Message</button>
+      <button id="followBtn" class="btn" data-onclick="followCurrentProfile()" style="min-width:110px;">Follow</button>
+      <button class="btn" data-onclick="dmCurrentProfile()" style="background:#222;min-width:110px;">💬 Message</button>
     </div>
 
   </div>
 
   <!-- ── Search + Edit ── -->
   <div style="padding:10px 12px 0;">
-    <input id="searchUser" class="inp" placeholder="🔍 Search users…" oninput="searchUsers()">
+    <input id="searchUser" class="inp" placeholder="🔍 Search users…" oninput="debouncedSearchUsers()">
     <div id="searchRes" style="margin-top:6px;"></div>
   </div>
 
@@ -1875,16 +1901,16 @@ style="position:fixed;top:75px;right:12px;z-index:9999;background:rgba(0,0,0,.65
       <textarea id="newBio" class="inp" placeholder="Bio / about me…" rows="2"
         style="resize:none;font-family:inherit;font-size:14px;"></textarea>
       <input id="dpFile" type="file" class="inp" accept="image/*">
-      <button class="btn" onclick="saveProfile()"><i class="fa-solid fa-floppy-disk" style="margin-right:6px;"></i>Save Profile</button>
-      <button class="btn" onclick="document.getElementById('ownerControls').style.display='none'" style="background:#1a1a1a;border:1px solid #333;"><i class="fa-solid fa-xmark" style="margin-right:6px;"></i>Cancel</button>
-      <button class="btn" onclick="logout()" style="background:#222;"><i class="fa-solid fa-right-from-bracket" style="margin-right:6px;"></i>Logout</button>
+      <button class="btn" data-onclick="saveProfile()"><i class="fa-solid fa-floppy-disk" style="margin-right:6px;"></i>Save Profile</button>
+      <button class="btn" data-onclick="document.getElementById('ownerControls').style.display='none'" style="background:#1a1a1a;border:1px solid #333;"><i class="fa-solid fa-xmark" style="margin-right:6px;"></i>Cancel</button>
+      <button class="btn" data-onclick="logout()" style="background:#222;"><i class="fa-solid fa-right-from-bracket" style="margin-right:6px;"></i>Logout</button>
     </div>
   </div>
 
   <!-- ── Profile Tabs: Posts | Saved ── -->
   <div class="profile-tabs">
-    <button class="profile-tab-btn active" id="profileTabPosts" onclick="switchProfileTab('posts')"><i class="fa-solid fa-grip" style="margin-right:5px;"></i>Posts</button>
-    <button class="profile-tab-btn" id="profileTabSaved" onclick="switchProfileTab('saved')"><i class="fa-regular fa-bookmark" style="margin-right:5px;"></i>Saved</button>
+    <button class="profile-tab-btn active" id="profileTabPosts" data-onclick="switchProfileTab('posts')"><i class="fa-solid fa-grip" style="margin-right:5px;"></i>Posts</button>
+    <button class="profile-tab-btn" id="profileTabSaved" data-onclick="switchProfileTab('saved')"><i class="fa-regular fa-bookmark" style="margin-right:5px;"></i>Saved</button>
   </div>
 
   <!-- ── Posts grid ── -->
@@ -1899,7 +1925,7 @@ style="position:fixed;top:75px;right:12px;z-index:9999;background:rgba(0,0,0,.65
 <div id="followListPopup" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#000;z-index:99999;overflow:hidden;flex-direction:column;">
 
   <div style="display:flex;align-items:center;padding:14px 12px;border-bottom:1px solid #222;">
-    <button onclick="closeFollowListPopup()" style="background:none;border:none;color:#fff;font-size:22px;margin-right:10px;">←</button>
+    <button data-onclick="closeFollowListPopup()" style="background:none;border:none;color:#fff;font-size:22px;margin-right:10px;">←</button>
     <b id="followListTitle" style="font-size:16px;">Followers</b>
   </div>
 
@@ -1910,13 +1936,13 @@ style="position:fixed;top:75px;right:12px;z-index:9999;background:rgba(0,0,0,.65
 <div id="miniProfilePopup" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#000;z-index:999999;overflow-y:auto;">
 
   <div style="display:flex;align-items:center;padding:14px 12px;border-bottom:1px solid #222;position:sticky;top:0;background:#000;z-index:2;">
-    <button onclick="closeMiniProfile()" style="background:none;border:none;color:#fff;font-size:22px;margin-right:10px;">←</button>
+    <button data-onclick="closeMiniProfile()" style="background:none;border:none;color:#fff;font-size:22px;margin-right:10px;">←</button>
     <b id="miniProfileTitle">Profile</b>
   </div>
 
   <!-- hero -->
   <div style="text-align:center;padding:24px 16px 16px;background:linear-gradient(160deg,#1a0010,#0d0d0d);">
-    <img id="miniProfilePhoto" src="https://i.imgur.com/6VBx3io.png"
+    <img loading="lazy" id="miniProfilePhoto" src="https://i.imgur.com/6VBx3io.png"
       style="width:84px;height:84px;border-radius:50%;object-fit:cover;border:3px solid #A856FB;box-shadow:0 0 18px rgba(255,45,85,.4);">
     <h3 id="miniProfileName" style="margin:10px 0 3px;"></h3>
     <div id="miniProfileBadgesRow"></div>
@@ -1928,8 +1954,8 @@ style="position:fixed;top:75px;right:12px;z-index:9999;background:rgba(0,0,0,.65
       <div style="text-align:center;"><b id="miniFollowingCount">0</b><br><span style="font-size:11px;color:#aaa;">Following</span></div>
     </div>
     <div style="display:flex;gap:8px;justify-content:center;margin-top:12px;">
-      <button id="miniFollowBtn" class="btn" onclick="followMiniProfile()" style="min-width:110px;">Follow</button>
-      <button class="btn" onclick="dmMiniProfile()" style="background:#222;min-width:110px;">💬 Message</button>
+      <button id="miniFollowBtn" class="btn" data-onclick="followMiniProfile()" style="min-width:110px;">Follow</button>
+      <button class="btn" data-onclick="dmMiniProfile()" style="background:#222;min-width:110px;">💬 Message</button>
     </div>
   </div>
 
@@ -1938,12 +1964,12 @@ style="position:fixed;top:75px;right:12px;z-index:9999;background:rgba(0,0,0,.65
 </div>
 <!-- NAV BAR with Font Awesome icons -->
 <nav class='nav'>
-  <span onclick="go('home')" id="navHome" title="Home"><i class="fa-solid fa-house"></i></span>
-  <span onclick="go('trending')" id="navTrending" title="Trending Reels"><i class="fa-solid fa-fire"></i></span>
-  <span onclick="go('upload')" id="navUpload" title="Upload"><i class="fa-solid fa-plus-circle"></i></span>
-  <span onclick="go('chat')" id="navChat" title="Chat"><i class="fa-regular fa-message"></i></span>
-  <span onclick="go('notify')" id="navNotify" title="Notifications" style="display:none;"><i class="fa-regular fa-heart"></i></span>
-  <span onclick="goProfile()" id="navProfile" title="Profile"><i class="fa-regular fa-user"></i></span>
+  <span data-onclick="go('home')" id="navHome" title="Home"><i class="fa-solid fa-house"></i></span>
+  <span data-onclick="go('trending')" id="navTrending" title="Trending Reels"><i class="fa-solid fa-fire"></i></span>
+  <span data-onclick="go('upload')" id="navUpload" title="Upload"><i class="fa-solid fa-plus-circle"></i></span>
+  <span data-onclick="go('chat')" id="navChat" title="Chat"><i class="fa-regular fa-message"></i></span>
+  <span data-onclick="go('notify')" id="navNotify" title="Notifications" style="display:none;"><i class="fa-regular fa-heart"></i></span>
+  <span data-onclick="goProfile()" id="navProfile" title="Profile"><i class="fa-regular fa-user"></i></span>
 </nav>
 <script type='module'>
 window.onload = () => {
@@ -1956,15 +1982,18 @@ import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/fireba
 
 import {getAuth,signInWithPopup,GoogleAuthProvider,onAuthStateChanged,signOut,signInWithEmailAndPassword,createUserWithEmailAndPassword,setPersistence,browserLocalPersistence,sendPasswordResetEmail} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 
-import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, updateDoc, deleteDoc, setDoc ,getDocs,arrayUnion,increment,where,limit,limitToLast}from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, updateDoc, deleteDoc, setDoc ,getDocs,arrayUnion,arrayRemove,increment,where,limit,limitToLast,startAfter,runTransaction}from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import { getDatabase, ref, set, onValue, push, remove, onDisconnect, get } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
-const firebaseConfig = {apiKey: "AIzaSyA_sBTAt90Y-RrLo6Hfs_7-Y1VM_ASix34",authDomain: "brosmarket-9b3b0.firebaseapp.com",projectId: "brosmarket-9b3b0",databaseURL: "https://brosmarket-9b3b0-default-rtdb.firebaseio.com/"
+// 🆕 UPGRADE: push notifications
+import { getMessaging, getToken, onMessage, isSupported as fcmIsSupported } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js';
+const firebaseConfig = {apiKey: "AIzaSyA_sBTAt90Y-RrLo6Hfs_7-Y1VM_ASix34",authDomain: "brosmarket-9b3b0.firebaseapp.com",projectId: "brosmarket-9b3b0",databaseURL: "https://brosmarket-9b3b0-default-rtdb.firebaseio.com/",
+  storageBucket: "brosmarket-9b3b0.appspot.com",
 };
 let soundOn = false;
 
 /* ══ BADGE SYSTEM ══ */
 const BADGE_DEFS = [
-  {id:'king',      icon:'👑', label:'King',           cls:'ubadge-king'},
+  {id:'king',      icon:'👑', label:'OWNER',           cls:'ubadge-king'},
   {id:'verified',  icon:'✅', label:'Verified',        cls:'ubadge-verified'},
   {id:'elite',     icon:'💎', label:'Elite Member',    cls:'ubadge-elite'},
   {id:'og',        icon:'🔥', label:'OG',              cls:'ubadge-og'},
@@ -1997,6 +2026,286 @@ async function loadBadgesForUid(uid, cb) {
 
 const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app);
 const rtdb = getDatabase(app);
+
+/* ══════════════ PERF: generic debounce helper ══════════════ */
+function debounce(fn, wait = 300) {
+  let t;
+  return function (...args) {
+    clearTimeout(t);
+    t = setTimeout(() => fn.apply(this, args), wait);
+  };
+}
+
+/* ══════════════ PERF/CLEANLINESS: delegated event listeners ══════════════
+   Inline onclick/ondblclick/onmousedown/onmouseup HTML attributes have been
+   replaced throughout the markup (including dynamically-built template
+   strings) with data-onclick / data-ondblclick / data-onmousedown /
+   data-onmouseup attributes carrying the exact same expression. Rather than
+   the browser creating a fresh intrinsic handler for every element (and
+   re-parsing it on every innerHTML re-render), a single delegated
+   addEventListener per event type on `document` handles all of them —
+   walking from the event target up through its ancestors (mirroring how
+   native bubbling would have fired multiple inline handlers along the same
+   path), and running each element's stored expression with `this` bound to
+   that element, exactly as an inline handler would see it. */
+function _wireDelegatedInlineHandlers(eventType) {
+  const attr = "data-on" + eventType;
+  document.addEventListener(eventType, function (e) {
+    // Honor event.stopPropagation()/stopImmediatePropagation() called from
+    // within a handler's code, so it still halts the walk up the ancestor
+    // chain exactly as it would have stopped native bubbling.
+    let stopped = false;
+    const origStop = e.stopPropagation.bind(e);
+    e.stopPropagation = function () { stopped = true; origStop(); };
+    const origStopImm = e.stopImmediatePropagation.bind(e);
+    e.stopImmediatePropagation = function () { stopped = true; origStopImm(); };
+
+    let el = e.target;
+    while (el && el.nodeType === 1 && !stopped) {
+      const code = el.getAttribute && el.getAttribute(attr);
+      if (code) {
+        try {
+          new Function("event", code).call(el, e);
+        } catch (err) {
+          console.error(`[${attr}] handler error:`, err);
+        }
+      }
+      el = el.parentElement;
+    }
+  });
+}
+["click", "dblclick", "mousedown", "mouseup"].forEach(_wireDelegatedInlineHandlers);
+
+/* ══════════════ PERF: lightweight virtual scrolling for long lists ══════════════
+   Renders only the rows currently in (or near) the viewport instead of dumping
+   hundreds of DOM nodes into innerHTML at once. Rows are assumed to share a
+   fixed height, which holds for our chat/group list cards. */
+function createVirtualList(container, rowHeight, buffer = 6) {
+  container.style.position = "relative";
+  container.style.overflowY = "auto";
+
+  const spacer = document.createElement("div");
+  spacer.style.position = "relative";
+  spacer.style.width = "100%";
+
+  const viewport = document.createElement("div");
+  viewport.style.position = "absolute";
+  viewport.style.left = "0";
+  viewport.style.right = "0";
+  viewport.style.top = "0";
+
+  spacer.appendChild(viewport);
+  container.innerHTML = "";
+  container.appendChild(spacer);
+
+  let items = [];
+  let renderRow = () => "";
+  let emptyHTML = "";
+
+  function render() {
+    if (!items.length) {
+      spacer.style.height = "auto";
+      viewport.style.transform = "translateY(0)";
+      viewport.innerHTML = emptyHTML;
+      return;
+    }
+    spacer.style.height = (items.length * rowHeight) + "px";
+    const scrollTop = container.scrollTop;
+    const viewHeight = container.clientHeight || 500;
+    const startIdx = Math.max(0, Math.floor(scrollTop / rowHeight) - buffer);
+    const endIdx = Math.min(items.length, Math.ceil((scrollTop + viewHeight) / rowHeight) + buffer);
+    viewport.style.transform = `translateY(${startIdx * rowHeight}px)`;
+    let html = "";
+    for (let i = startIdx; i < endIdx; i++) html += renderRow(items[i], i);
+    viewport.innerHTML = html;
+  }
+
+  container.addEventListener("scroll", render, { passive: true });
+
+  return {
+    setItems(newItems, rowRenderFn, emptyMsg) {
+      items = newItems;
+      if (rowRenderFn) renderRow = rowRenderFn;
+      if (emptyMsg !== undefined) emptyHTML = emptyMsg;
+      render();
+    },
+    refresh: render
+  };
+}
+
+/* ══════════════ ERROR HANDLING: connectivity + resilient network calls ══════════════ */
+
+// ---- Offline banner ----
+(function initOfflineBanner() {
+  const bar = document.createElement("div");
+  bar.id = "offlineBar";
+  bar.textContent = "⚠️ No internet connection — trying to reconnect…";
+  bar.style.cssText = "position:fixed;top:0;left:0;width:100%;z-index:9999;background:#dc2626;color:#fff;text-align:center;font-size:13px;padding:8px 10px;transform:translateY(-100%);transition:transform .25s ease;box-shadow:0 2px 8px rgba(0,0,0,.4);";
+  document.addEventListener("DOMContentLoaded", () => document.body.appendChild(bar));
+
+  function setOffline(off) {
+    window.APP_OFFLINE = off;
+    bar.style.transform = off ? "translateY(0)" : "translateY(-100%)";
+    if (!off) window.dispatchEvent(new Event("app-online"));
+  }
+  window.addEventListener("online", () => setOffline(false));
+  window.addEventListener("offline", () => setOffline(true));
+  window.APP_OFFLINE = !navigator.onLine;
+  document.addEventListener("DOMContentLoaded", () => setOffline(!navigator.onLine));
+})();
+
+function isOnline() {
+  return navigator.onLine !== false;
+}
+
+// ---- Generic timeout wrapper for any Promise (used for Firebase calls) ----
+function withTimeout(promise, ms = 12000, label = "Request") {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => {
+      reject(new Error(`${label} timed out`));
+    }, ms);
+    promise.then(
+      v => { clearTimeout(timer); resolve(v); },
+      e => { clearTimeout(timer); reject(e); }
+    );
+  });
+}
+
+// ---- fetch() with an AbortController-based timeout ----
+async function fetchWithTimeout(url, options = {}, ms = 20000) {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), ms);
+  try {
+    return await fetch(url, { ...options, signal: ctrl.signal });
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+/**
+ * Uploads a file to Cloudinary with a request timeout and automatic retries
+ * (exponential backoff). Shows toasts for offline / retry / final failure states,
+ * and offers a tap-to-retry toast after all attempts are exhausted.
+ */
+async function uploadToCloudinary(file, resourceType = "image", opts = {}) {
+  const { maxRetries = 2, timeoutMs = 30000, onAttempt } = opts;
+  const uploadUrl = resourceType === "video"
+    ? "https://api.cloudinary.com/v1_1/dlsfr0ies/video/upload"
+    : "https://api.cloudinary.com/v1_1/dlsfr0ies/image/upload";
+
+  if (!isOnline()) {
+    showToast("No internet connection — check your network and try again", "error");
+    throw new Error("offline");
+  }
+
+  let lastErr;
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    if (attempt > 0) {
+      showToast(`Upload failed, retrying… (${attempt}/${maxRetries})`, "default");
+      await sleep(800 * attempt); // simple backoff
+    }
+    if (typeof onAttempt === "function") onAttempt(attempt);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      fd.append("upload_preset", "Fiveer");
+      const res = await fetchWithTimeout(uploadUrl, { method: "POST", body: fd }, timeoutMs);
+      if (!res.ok) throw new Error(`Cloudinary responded ${res.status}`);
+      const data = await res.json();
+      if (!data.secure_url) throw new Error("Upload failed — no URL returned");
+      return data;
+    } catch (err) {
+      lastErr = err;
+      if (err.name === "AbortError") lastErr = new Error("Cloudinary timed out");
+      if (!isOnline()) { showToast("No internet connection", "error"); break; }
+    }
+  }
+
+  // All attempts failed — offer a manual retry via toast tap
+  showToast("Upload failed ❌ — tap to retry", "error", () => {
+    uploadToCloudinary(file, resourceType, opts).then(opts.onRetrySuccess).catch(() => {});
+  });
+  throw lastErr || new Error("Upload failed");
+}
+
+/**
+ * Same as uploadToCloudinary but reports upload progress (0-100) via onProgress,
+ * for flows that show a progress bar. Still gets a timeout + retries.
+ */
+async function uploadToCloudinaryWithProgress(file, resourceType = "image", onProgress, opts = {}) {
+  const { maxRetries = 2, timeoutMs = 45000 } = opts;
+  const uploadUrl = resourceType === "video"
+    ? "https://api.cloudinary.com/v1_1/dlsfr0ies/video/upload"
+    : "https://api.cloudinary.com/v1_1/dlsfr0ies/image/upload";
+
+  if (!isOnline()) {
+    showToast("No internet connection — check your network and try again", "error");
+    throw new Error("offline");
+  }
+
+  function attemptOnce() {
+    return new Promise((resolve, reject) => {
+      const fd = new FormData();
+      fd.append("file", file);
+      fd.append("upload_preset", "Fiveer");
+      const xhr = new XMLHttpRequest();
+      const timer = setTimeout(() => { xhr.abort(); reject(new Error("Cloudinary timed out")); }, timeoutMs);
+      xhr.open("POST", uploadUrl);
+      xhr.upload.onprogress = e => {
+        if (e.lengthComputable && onProgress) onProgress(Math.round((e.loaded / e.total) * 100));
+      };
+      xhr.onload = () => {
+        clearTimeout(timer);
+        try {
+          const data = JSON.parse(xhr.responseText);
+          if (!data.secure_url) return reject(new Error("Upload failed — no URL returned"));
+          resolve(data);
+        } catch (e) { reject(new Error("Upload failed — bad response")); }
+      };
+      xhr.onerror = () => { clearTimeout(timer); reject(new Error("Upload failed — network error")); };
+      xhr.send(fd);
+    });
+  }
+
+  let lastErr;
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    if (attempt > 0) {
+      showToast(`Upload failed, retrying… (${attempt}/${maxRetries})`, "default");
+      await sleep(800 * attempt);
+    }
+    try {
+      return await attemptOnce();
+    } catch (err) {
+      lastErr = err;
+      if (!isOnline()) { showToast("No internet connection", "error"); break; }
+    }
+  }
+  showToast("Upload failed ❌ — tap to retry", "error", () => {
+    uploadToCloudinaryWithProgress(file, resourceType, onProgress, opts).then(opts.onRetrySuccess).catch(() => {});
+  });
+  throw lastErr || new Error("Upload failed");
+}
+
+/**
+ * Wraps a Firestore/RTDB write with a timeout so a stalled connection
+ * (e.g. Firebase unreachable) surfaces a clear error instead of hanging forever.
+ */
+async function withFirebaseTimeout(promise, label = "Action", ms = 12000) {
+  if (!isOnline()) {
+    showToast("No internet connection", "error");
+    throw new Error("offline");
+  }
+  try {
+    return await withTimeout(promise, ms, label);
+  } catch (err) {
+    if (String(err.message).includes("timed out")) {
+      showToast(`${label} timed out — check your connection`, "error");
+    }
+    throw err;
+  }
+}
 
 //chat delete 
 let localClearedAt = Number(localStorage.getItem("chatClearedAt")) || null;
@@ -2302,12 +2611,12 @@ async function loadTrendingReels(tab) {
         const thumb = p.thumbnail || '';
         if (thumb) {
           wrapper.innerHTML = `
-            <img src="${thumb}" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;">
+            <img loading="lazy" src="${thumb}" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;">
             <div style="position:absolute;inset:0;background:linear-gradient(transparent 55%,rgba(0,0,0,0.85));"></div>
             <div style="position:absolute;top:8px;left:8px;background:linear-gradient(45deg,#ff6a00,#ff2d55);border-radius:6px;padding:2px 7px;font-size:10px;font-weight:700;color:#fff;">🎬 REEL</div>
             ${(p.likes||0) > 0 ? `<div style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.6);border-radius:20px;padding:2px 7px;font-size:10px;color:#fff;">❤️ ${p.likes||0}</div>` : ''}
             <div style="position:absolute;bottom:6px;left:6px;right:6px;display:flex;align-items:center;gap:5px;flex-wrap:wrap;">
-              <img src="${user.photo}" style="width:22px;height:22px;border-radius:50%;object-fit:cover;border:1.5px solid #ff2d55;flex-shrink:0;">
+              <img loading="lazy" src="${user.photo}" style="width:22px;height:22px;border-radius:50%;object-fit:cover;border:1.5px solid #ff2d55;flex-shrink:0;">
               <span style="font-size:10px;color:#fff;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">@${user.name}</span>
               ${getBadgeHTML((p.uid && USER_CACHE[p.uid]?.badges) || {})}
             </div>`;
@@ -2321,7 +2630,7 @@ async function loadTrendingReels(tab) {
             <div style="position:absolute;top:8px;left:8px;background:linear-gradient(45deg,#ff6a00,#ff2d55);border-radius:6px;padding:2px 7px;font-size:10px;font-weight:700;color:#fff;">🎬 REEL</div>
             ${(p.likes||0) > 0 ? `<div style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.6);border-radius:20px;padding:2px 7px;font-size:10px;color:#fff;">❤️ ${p.likes||0}</div>` : ''}
             <div id="tthumb_user_${p.id}" style="position:absolute;bottom:6px;left:6px;right:6px;display:flex;align-items:center;gap:5px;flex-wrap:wrap;">
-              <img src="${user.photo}" style="width:22px;height:22px;border-radius:50%;object-fit:cover;border:1.5px solid #ff2d55;flex-shrink:0;">
+              <img loading="lazy" src="${user.photo}" style="width:22px;height:22px;border-radius:50%;object-fit:cover;border:1.5px solid #ff2d55;flex-shrink:0;">
               <span style="font-size:10px;color:#fff;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">@${user.name}</span>
               ${getBadgeHTML((p.uid && USER_CACHE[p.uid]?.badges) || {})}
             </div>`;
@@ -2338,11 +2647,11 @@ async function loadTrendingReels(tab) {
         }
       } else {
         wrapper.innerHTML = `
-          <img src="${p.photo}" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;">
+          <img loading="lazy" src="${p.photo}" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;">
           <div style="position:absolute;inset:0;background:linear-gradient(transparent 60%,rgba(0,0,0,0.8));"></div>
           ${(p.likes||0) > 0 ? `<div style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.6);border-radius:20px;padding:2px 7px;font-size:10px;color:#fff;">❤️ ${p.likes||0}</div>` : ''}
           <div style="position:absolute;bottom:6px;left:6px;right:6px;display:flex;align-items:center;gap:5px;flex-wrap:wrap;">
-            <img src="${user.photo}" style="width:22px;height:22px;border-radius:50%;object-fit:cover;border:1.5px solid #ff2d55;flex-shrink:0;">
+            <img loading="lazy" src="${user.photo}" style="width:22px;height:22px;border-radius:50%;object-fit:cover;border:1.5px solid #ff2d55;flex-shrink:0;">
             <span style="font-size:10px;color:#fff;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">@${user.name}</span>
             ${getBadgeHTML((p.uid && USER_CACHE[p.uid]?.badges) || {})}
           </div>`;
@@ -2385,7 +2694,7 @@ window.goProfile = async () => {
 };
 /* GOOGLE LOGIN */
 window.login = async () => {
-  const btn = document.querySelector('#loginScreen button[onclick="login()"]');
+  const btn = document.querySelector('#loginScreen button[data-onclick="login()"]');
   if (btn) { btn.disabled = true; btn.textContent = "Connecting…"; }
   try {
     const provider = new GoogleAuthProvider();
@@ -2410,7 +2719,7 @@ window.emailLoginFn = async () => {
   const email = document.getElementById('emailLogin').value.trim();
   const pass  = document.getElementById('passLogin').value.trim();
   if (!email || !pass) return alert("Please enter email and password");
-  const btn = document.querySelector('#loginScreen button[onclick="emailLoginFn()"]');
+  const btn = document.querySelector('#loginScreen button[data-onclick="emailLoginFn()"]');
   if (btn) { btn.disabled = true; btn.textContent = "Logging in…"; }
   try {
     await signInWithEmailAndPassword(auth, email, pass);
@@ -2619,6 +2928,267 @@ async function compressImage(file) {
   });
 }
 
+/* ══════════════════════════════════════════════════════════
+   AUDIO LIBRARY — trending/saved tracks for reels
+   ══════════════════════════════════════════════════════════ */
+
+const SAMPLE_TRACKS = [
+  { title: "Pal-Pal Afsus",   artist: "SoundHelix", audioUrl: "/pal-pal.mp3", coverUrl: "/sell.jpg" },
+  { title: "Neon Nights",      artist: "SoundHelix", audioUrl: "/pal-pal.mp3", coverUrl: "https://i.imgur.com/6VBx3io.png" },
+  { title: "Golden Hour",      artist: "SoundHelix", audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3", coverUrl: "https://i.imgur.com/6VBx3io.png" },
+  { title: "Slow Motion",      artist: "SoundHelix", audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3", coverUrl: "https://i.imgur.com/6VBx3io.png" },
+  { title: "City Lights",      artist: "SoundHelix", audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3", coverUrl: "https://i.imgur.com/6VBx3io.png" },
+  { title: "Sunday Vibes",     artist: "SoundHelix", audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3", coverUrl: "https://i.imgur.com/6VBx3io.png" },
+];
+
+async function seedAudioTracksIfNeeded() {
+  try {
+    const existing = await getDocs(query(collection(db, "audioTracks"), limit(1)));
+    if (!existing.empty) return;
+    for (const t of SAMPLE_TRACKS) {
+      await addDoc(collection(db, "audioTracks"), { ...t, usageCount: 0, trending: true, createdAt: serverTimestamp() });
+    }
+  } catch (e) { console.error("seedAudioTracksIfNeeded failed", e); }
+}
+
+async function loadSavedAudioIds() {
+  _savedAudioIds = new Set();
+  if (!auth.currentUser) return;
+  try {
+    const snap = await getDocs(collection(db, "users", auth.currentUser.uid, "savedAudio"));
+    snap.forEach(d => _savedAudioIds.add(d.id));
+  } catch (e) { /* ignore */ }
+}
+
+window.openAudioPicker = async () => {
+  const modal = document.getElementById("audioPickerModal");
+  modal.style.display = "flex";
+  await loadSavedAudioIds();
+  await seedAudioTracksIfNeeded();
+  window.switchAudioTab(_audioTab || "trending");
+};
+
+window.closeAudioPicker = () => {
+  stopAudioPreview();
+  document.getElementById("audioPickerModal").style.display = "none";
+};
+
+window.switchAudioTab = async (tab) => {
+  _audioTab = tab;
+  document.getElementById("audioTabTrending").classList.toggle("audioTabActive", tab === "trending");
+  document.getElementById("audioTabSaved").classList.toggle("audioTabActive", tab === "saved");
+  const list = document.getElementById("audioListContainer");
+  list.innerHTML = `<div style="text-align:center;color:#666;padding:20px;font-size:13px;">Loading…</div>`;
+
+  try {
+    let tracks = [];
+    if (tab === "trending") {
+      const snap = await getDocs(query(collection(db, "audioTracks"), orderBy("usageCount", "desc"), limit(30)));
+      snap.forEach(d => tracks.push({ id: d.id, ...d.data() }));
+    } else {
+      const snap = await getDocs(collection(db, "users", auth.currentUser.uid, "savedAudio"));
+      snap.forEach(d => tracks.push({ id: d.id, ...d.data() }));
+    }
+    renderAudioList(tracks, tab);
+  } catch (e) {
+    console.error(e);
+    list.innerHTML = `<div style="text-align:center;color:#666;padding:20px;font-size:13px;">Couldn't load audio.</div>`;
+  }
+};
+
+window.filterAudioList = (val) => {
+  const q = val.trim().toLowerCase();
+  document.querySelectorAll("#audioListContainer .audioRow").forEach(row => {
+    const hay = (row.dataset.title + " " + row.dataset.artist).toLowerCase();
+    row.style.display = hay.includes(q) ? "flex" : "none";
+  });
+};
+
+function renderAudioList(tracks, tab) {
+  const list = document.getElementById("audioListContainer");
+  if (!tracks.length) {
+    list.innerHTML = `<div style="text-align:center;color:#666;padding:30px 10px;font-size:13px;">${tab === "saved" ? "No saved audio yet. Tap 🔖 on a track to save it." : "No audio tracks yet."}</div>`;
+    return;
+  }
+  list.innerHTML = tracks.map(t => {
+    const saved = _savedAudioIds.has(t.id);
+    const trackJson = encodeURIComponent(JSON.stringify({ id: t.id, title: t.title, artist: t.artist, audioUrl: t.audioUrl, coverUrl: t.coverUrl || "" }));
+    return `
+    <div class="audioRow" data-title="${t.title}" data-artist="${t.artist}"
+      style="display:flex;align-items:center;gap:10px;padding:9px 4px;border-bottom:1px solid #1c1c1c;">
+      <button data-onclick="previewAudioTrack('${t.id}','${(t.audioUrl||'').replace(/'/g,"\\'")}', this)"
+        style="width:40px;height:40px;flex-shrink:0;border-radius:50%;border:none;background:#222 url('${t.coverUrl || ''}') center/cover;color:#fff;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+        <i class="fa-solid fa-play" data-role="playicon"></i>
+      </button>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:13px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${t.title}</div>
+        <div style="font-size:11px;color:#888;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${t.artist || "Unknown"} ${t.usageCount ? "· " + t.usageCount + " reels" : ""}</div>
+      </div>
+      <button data-onclick="toggleSaveAudio(JSON.parse(decodeURIComponent('${trackJson}')), this)"
+        style="background:none;border:none;color:${saved ? "#ff2d55" : "#888"};font-size:16px;cursor:pointer;padding:6px;">
+        <i class="fa-${saved ? "solid" : "regular"} fa-bookmark"></i>
+      </button>
+      <button data-onclick="selectAudioTrack(JSON.parse(decodeURIComponent('${trackJson}')))"
+        style="background:#fff;color:#000;border:none;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:700;cursor:pointer;">
+        Use
+      </button>
+    </div>`;
+  }).join("");
+}
+
+function stopAudioPreview() {
+  const p = document.getElementById("audioPreviewPlayer");
+  if (p) { p.pause(); p.currentTime = 0; }
+  if (_currentPreviewAudioId) {
+    const prevBtn = document.querySelector(`#audioListContainer button[data-onclick*="'${_currentPreviewAudioId}'"]`);
+    const icon = prevBtn?.querySelector('[data-role="playicon"]');
+    if (icon) icon.className = "fa-solid fa-play";
+  }
+  _currentPreviewAudioId = null;
+}
+
+window.previewAudioTrack = (id, url, btnEl) => {
+  const p = document.getElementById("audioPreviewPlayer");
+  const icon = btnEl.querySelector('[data-role="playicon"]');
+  if (_currentPreviewAudioId === id && !p.paused) {
+    p.pause();
+    icon.className = "fa-solid fa-play";
+    _currentPreviewAudioId = null;
+    return;
+  }
+  stopAudioPreview();
+  p.src = url;
+  p.play().catch(() => {});
+  icon.className = "fa-solid fa-pause";
+  _currentPreviewAudioId = id;
+  p.onended = () => { icon.className = "fa-solid fa-play"; _currentPreviewAudioId = null; };
+};
+
+window.toggleSaveAudio = async (track, btnEl) => {
+  if (!auth.currentUser) return;
+  const ref = doc(db, "users", auth.currentUser.uid, "savedAudio", track.id);
+  const icon = btnEl.querySelector("i");
+  try {
+    if (_savedAudioIds.has(track.id)) {
+      await deleteDoc(ref);
+      _savedAudioIds.delete(track.id);
+      icon.className = "fa-regular fa-bookmark";
+      btnEl.style.color = "#888";
+      showToast("Removed from saved audio");
+      if (_audioTab === "saved") window.switchAudioTab("saved");
+    } else {
+      await setDoc(ref, { title: track.title, artist: track.artist, audioUrl: track.audioUrl, coverUrl: track.coverUrl || "", savedAt: serverTimestamp() });
+      _savedAudioIds.add(track.id);
+      icon.className = "fa-solid fa-bookmark";
+      btnEl.style.color = "#ff2d55";
+      showToast("🔖 Saved audio");
+    }
+  } catch (e) { console.error(e); }
+};
+
+window.selectAudioTrack = (track) => {
+  selectedAudioTrack = track;
+  stopAudioPreview();
+  document.getElementById("audioPickerModal").style.display = "none";
+  const chip = document.getElementById("selectedAudioChip");
+  chip.style.display = "flex";
+  document.getElementById("selectedAudioChipText").innerText = `🎵 ${track.title} · ${track.artist || "Unknown"}`;
+};
+
+window.removeSelectedAudio = () => {
+  selectedAudioTrack = null;
+  document.getElementById("selectedAudioChip").style.display = "none";
+};
+
+/* ── Browse reels by audio (overlay) ── */
+window.openAudioPage = async (trackId) => {
+  const overlay = document.getElementById("audioPageOverlay");
+  overlay.style.display = "flex";
+  document.getElementById("audioPageGrid").innerHTML = `<div style="grid-column:1/-1;text-align:center;color:#666;padding:30px;font-size:13px;">Loading…</div>`;
+  _audioPageTrackUrl = null;
+
+  try {
+    const trackSnap = await getDoc(doc(db, "audioTracks", trackId));
+    const t = trackSnap.exists() ? trackSnap.data() : null;
+    if (t) {
+      _audioPageTrackUrl = t.audioUrl || null;
+      document.getElementById("audioPageCover").style.backgroundImage = `url('${t.coverUrl || ""}')`;
+      document.getElementById("audioPageTitle").innerText = t.title;
+      document.getElementById("audioPageArtist").innerText = t.artist || "Unknown artist";
+      document.getElementById("audioPageCount").innerText = `🎵 ${t.usageCount || 0} reels`;
+      const saved = _savedAudioIds.has(trackId) || (await getDoc(doc(db, "users", auth.currentUser.uid, "savedAudio", trackId))).exists();
+      const saveBtn = document.getElementById("audioPageSaveBtn");
+      saveBtn.dataset.saved = saved ? "1" : "0";
+      saveBtn.innerHTML = saved ? `<i class="fa-solid fa-bookmark"></i> Saved` : `<i class="fa-regular fa-bookmark"></i> Save`;
+      saveBtn.dataset.track = encodeURIComponent(JSON.stringify({ id: trackId, title: t.title, artist: t.artist, audioUrl: t.audioUrl, coverUrl: t.coverUrl || "" }));
+      document.getElementById("audioPageUseBtn").dataset.track = saveBtn.dataset.track;
+    }
+
+    const postsSnap = await getDocs(query(collection(db, "posts"), where("audio.id", "==", trackId), limit(60)));
+    const grid = document.getElementById("audioPageGrid");
+    if (postsSnap.empty) {
+      grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;color:#666;padding:30px;font-size:13px;">No reels use this audio yet — be the first!</div>`;
+    } else {
+      grid.innerHTML = postsSnap.docs.map(d => {
+        const p = d.data();
+        return `<video src="${p.video}" poster="${cloudinaryVideoThumb(p.video)}" muted loop playsinline preload="none"
+          style="width:100%;aspect-ratio:9/16;object-fit:cover;border-radius:6px;background:#111;"
+          data-onclick="toggleAudioPageThumb(this)"></video>`;
+      }).join("");
+    }
+  } catch (e) {
+    console.error(e);
+    document.getElementById("audioPageGrid").innerHTML = `<div style="grid-column:1/-1;text-align:center;color:#666;padding:30px;font-size:13px;">Couldn't load reels for this audio.</div>`;
+  }
+};
+
+/* Tapping a thumbnail on the audio page plays it silently and plays this
+   track's audio alongside it (all these reels share the same song) —
+   only one thumbnail plays sound at a time. */
+window.toggleAudioPageThumb = (v) => {
+  const grid = document.getElementById("audioPageGrid");
+  const player = document.getElementById("audioPageThumbPlayer");
+  const wasActive = v.dataset.playing === "1";
+
+  grid.querySelectorAll("video").forEach(x => { x.pause(); x.dataset.playing = "0"; });
+  player.pause();
+
+  if (!wasActive) {
+    v.play().catch(() => {});
+    v.dataset.playing = "1";
+    if (_audioPageTrackUrl) {
+      if (player.src !== _audioPageTrackUrl) player.src = _audioPageTrackUrl;
+      player.currentTime = 0;
+      player.play().catch(() => {});
+    }
+  }
+};
+
+window.closeAudioPage = () => {
+  document.getElementById("audioPageOverlay").style.display = "none";
+  document.querySelectorAll("#audioPageGrid video").forEach(v => { v.pause(); v.dataset.playing = "0"; });
+  const player = document.getElementById("audioPageThumbPlayer");
+  if (player) player.pause();
+};
+
+window.toggleSaveAudioFromPage = async () => {
+  const btn = document.getElementById("audioPageSaveBtn");
+  const track = JSON.parse(decodeURIComponent(btn.dataset.track));
+  await window.toggleSaveAudio(track, { querySelector: () => ({ className: "" }), style: {} });
+  const saved = _savedAudioIds.has(track.id);
+  btn.dataset.saved = saved ? "1" : "0";
+  btn.innerHTML = saved ? `<i class="fa-solid fa-bookmark"></i> Saved` : `<i class="fa-regular fa-bookmark"></i> Save`;
+};
+
+window.useAudioFromPage = () => {
+  const btn = document.getElementById("audioPageUseBtn");
+  const track = JSON.parse(decodeURIComponent(btn.dataset.track));
+  window.selectAudioTrack(track);
+  window.closeAudioPage();
+  go("upload");
+  showToast("🎵 Audio added — now pick your video");
+};
+
 /* ─── UPLOAD POST (direct — no compression) ─── */
 window.uploadVideo = async () => {
   const f = file.files[0];
@@ -2669,33 +3239,22 @@ window.uploadVideo = async () => {
       status.innerText = "Uploading video…";
     }
 
-    // ── UPLOAD directly ──
-    const fd = new FormData();
-    fd.append("file", uploadFile);
-    fd.append("upload_preset", "Fiveer");
-    const uploadUrl = isImg
-      ? "https://api.cloudinary.com/v1_1/dlsfr0ies/image/upload"
-      : "https://api.cloudinary.com/v1_1/dlsfr0ies/video/upload";
-
-    const data = await new Promise((resolve, reject) => {
-      const xhr = new XMLHttpRequest();
-      xhr.open("POST", uploadUrl);
-      xhr.upload.onprogress = e => {
-        if (e.lengthComputable) {
-          const pct = Math.round((e.loaded / e.total) * 100);
-          progressBar.style.width = pct + "%";
-          progressText.innerText  = `Uploading ${pct}%`;
-        }
-      };
-      xhr.onload  = () => { try { resolve(JSON.parse(xhr.responseText)); } catch(e) { reject(e); } };
-      xhr.onerror = () => reject(new Error("Upload failed"));
-      xhr.send(fd);
+    // ── UPLOAD directly (with timeout + automatic retry) ──
+    const data = await uploadToCloudinaryWithProgress(uploadFile, isImg ? "image" : "video", pct => {
+      progressBar.style.width = pct + "%";
+      progressText.innerText  = `Uploading ${pct}%`;
     });
 
-    if (!data.secure_url) throw new Error("No URL returned");
-
     status.innerText = "Saving post…";
-    await addDoc(collection(db, "posts"), {
+    const audioForPost = (!isImg && selectedAudioTrack) ? {
+      id: selectedAudioTrack.id,
+      title: selectedAudioTrack.title,
+      artist: selectedAudioTrack.artist || "",
+      audioUrl: selectedAudioTrack.audioUrl,
+      coverUrl: selectedAudioTrack.coverUrl || ""
+    } : null;
+
+    await withFirebaseTimeout(addDoc(collection(db, "posts"), {
       user:      auth.currentUser.email,
       uid:       auth.currentUser.uid,
       caption:   caption.value,
@@ -2704,8 +3263,14 @@ window.uploadVideo = async () => {
       thumbnail,
       type:      isImg ? "post" : "reel",
       likes:     0,
-      time:      serverTimestamp()
-    });
+      time:      serverTimestamp(),
+      ...(audioForPost ? { audio: audioForPost } : {})
+    }), "Saving post");
+
+    // Bump the track's usage count (best-effort, don't block the upload flow on it)
+    if (audioForPost) {
+      updateDoc(doc(db, "audioTracks", audioForPost.id), { usageCount: increment(1) }).catch(() => {});
+    }
 
     status.innerText = "Uploaded ✅";
     progressBar.style.width = "100%";
@@ -2717,6 +3282,7 @@ window.uploadVideo = async () => {
     caption.value = "";
     previewBox.style.display = "none";
     document.getElementById("cancelPostPreview")?.remove?.();
+    window.removeSelectedAudio();
 
     setTimeout(() => {
       status.classList.add("fadeOut");
@@ -2731,7 +3297,7 @@ window.uploadVideo = async () => {
     progressWrap.style.display = "none";
     btn.innerText = "Upload Post";
     btn.disabled  = false;
-    alert("Upload failed: " + err.message);
+    if (err.message !== "offline") showToast("Upload failed: " + err.message, "error");
   }
 };
 let reelObserver;
@@ -2743,9 +3309,18 @@ const pq = query(collection(db, "posts"), orderBy("time", "desc"), limit(30));
 let REELS_MAP = new Map();
 let REELS_LIST = [];
 
+// 🆕 UPGRADE: pagination cursor + guard for "load more" infinite scroll
+let lastReelDoc = null;
+let loadingMoreReels = false;
+let noMoreReels = false;
+
 onSnapshot(pq, (s) => {
   
   const shouldSkipRender = skipNextPostsRefresh;
+
+  // Keep a cursor to the oldest post currently loaded, so "load more" can
+  // continue right after it instead of re-fetching from the top.
+  if (s.docs.length) lastReelDoc = s.docs[s.docs.length - 1];
   
   s.docChanges().forEach(change => {
     
@@ -2790,6 +3365,51 @@ onSnapshot(pq, (s) => {
   initAutoPlay();
 });
 
+// 🆕 UPGRADE: "load more" reels — fetches the next batch of OLDER posts
+// (one-time read, not realtime) once the user scrolls near the end of the
+// currently-loaded reels.
+window.loadMoreReels = async () => {
+  if (loadingMoreReels || noMoreReels || !lastReelDoc) return;
+  loadingMoreReels = true;
+  try {
+    const moreQ = query(
+      collection(db, "posts"),
+      orderBy("time", "desc"),
+      startAfter(lastReelDoc),
+      limit(20)
+    );
+    const snap = await getDocs(moreQ);
+    if (snap.empty) { noMoreReels = true; return; }
+
+    snap.docs.forEach(docSnap => {
+      const id = docSnap.id;
+      if (REELS_MAP.has(id)) return; // already loaded, skip
+      const p = docSnap.data();
+      REELS_MAP.set(id, p);
+      REELS_LIST.push({ id, ...p, time: p.time?.seconds || 0 });
+      addReelToDOM(id, p);
+    });
+
+    REELS_LIST.sort((a, b) => b.time - a.time);
+    lastReelDoc = snap.docs[snap.docs.length - 1];
+    initAutoPlay();
+  } catch (e) {
+    console.error("loadMoreReels failed", e);
+  } finally {
+    loadingMoreReels = false;
+  }
+};
+
+// Trigger loadMoreReels when the user scrolls near the bottom of the reels feed
+(function setupReelsInfiniteScroll() {
+  const wrap = document.getElementById("reels");
+  if (!wrap) return;
+  wrap.addEventListener("scroll", () => {
+    const nearEnd = wrap.scrollHeight - wrap.scrollTop - wrap.clientHeight < wrap.clientHeight * 2;
+    if (nearEnd) loadMoreReels();
+  });
+})();
+
 function addReelToDOM(id, p) {
   // 🔥 FIX: Reels section only shows video posts, not image posts
   if (!p.video) return;
@@ -2820,6 +3440,11 @@ function addReelToDOM(id, p) {
     auth.currentUser.email === p.user
   );
 
+  // 🎵 Hidden audio element paired to this reel (only if uploaded with a chosen track)
+  const audioTrackHTML = p.audio
+    ? `<audio class="reelAudioTrack" data-audio-id="${p.audio.id}" src="${p.audio.audioUrl}" loop preload="none" muted></audio>`
+    : "";
+
   div.innerHTML = `
     <div class="heart"
       style="display:none;position:absolute;top:40%;left:45%;font-size:60px;z-index:9;">❤️</div>
@@ -2827,28 +3452,35 @@ function addReelToDOM(id, p) {
     <video
       class="reelVideo"
       data-src="${p.video}"
+      poster="${cloudinaryVideoThumb(p.video)}"
       muted playsinline loop preload="none"
-      onclick="toggleSound(this)"
-      ondblclick="dblLike('${id}',${p.likes||0},this)">
+      data-onclick="toggleSound(this)"
+      data-ondblclick="dblLike('${id}',${p.likes||0},this)">
     </video>
+    ${audioTrackHTML}
 
     <div class="overlay">
       <div style="display:flex;align-items:center;gap:9px;margin-bottom:5px;flex-wrap:wrap;">
-        <img src="${uploaderPhoto}" data-uid="${p.uid||''}"
+        <img loading="lazy" src="${uploaderPhoto}" data-uid="${p.uid||''}"
           style="width:34px;height:34px;border-radius:50%;object-fit:cover;border:2px solid #ff2d55;cursor:pointer;flex-shrink:0;"
-          onclick="openUserProfile('${p.uid||''}')">
+          data-onclick="openUserProfile('${p.uid||''}')">
         <span style="display:inline-flex;align-items:center;gap:4px;flex-wrap:wrap;">
-          <b data-uid="${p.uid||''}" style="cursor:pointer;" onclick="openUserProfile('${p.uid||''}')">@${displayName}</b>${reelBadgeHTML}
+          <b data-uid="${p.uid||''}" style="cursor:pointer;" data-onclick="openUserProfile('${p.uid||''}')">@${displayName}</b>${reelBadgeHTML}
         </span>
       </div>
       <div style="font-size:13px;color:#eee;margin-bottom:6px;">${p.caption || ""}</div>
+      ${p.audio ? `<div class="audioBadge" data-onclick="openAudioPage('${p.audio.id}')"
+        style="display:flex;align-items:center;gap:6px;margin-bottom:8px;cursor:pointer;max-width:220px;">
+        <div class="audioDisc" style="width:16px;height:16px;border-radius:50%;background:#111 url('${p.audio.coverUrl||''}') center/cover;border:1px solid #555;flex-shrink:0;"></div>
+        <div style="font-size:11.5px;color:#eee;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">🎵 ${p.audio.title} · ${p.audio.artist||''}</div>
+      </div>` : ""}
 
       <div class="actionBar">
-        <button class="btn" onclick="likePost('${id}')">
+        <button class="btn" data-onclick="likePost('${id}')">
           ❤️ <span id="like-${id}">${p.likes || 0}</span>
         </button>
-        <button class="btn" onclick="commentPost('${id}')">💬</button>
-        ${isOwner ? `<button class="btn" onclick="delPost('${id}')">✖</button>` : ""}
+        <button class="btn" data-onclick="commentPost('${id}')">💬</button>
+        ${isOwner ? `<button class="btn" data-onclick="delPost('${id}')">✖</button>` : ""}
       </div>
     </div>
   `;
@@ -3060,7 +3692,7 @@ border-bottom:1px solid #222;
 align-items:flex-start;
 transition:0.25s;">
 
-  <img id="img-${x.id}"
+  <img loading="lazy" id="img-${x.id}"
   src="https://i.imgur.com/6VBx3io.png"
   style="
   width:32px;
@@ -3082,7 +3714,7 @@ transition:0.25s;">
       d.u === auth.currentUser.email
       ? `
       <button
-      onclick="deleteComment('${currentCommentPost}','${x.id}')"
+      data-onclick="deleteComment('${currentCommentPost}','${x.id}')"
       style="
       position:absolute;
       right:0;
@@ -3273,6 +3905,16 @@ let userMap = {};
 let searchUnsub = null;
 let activeReelVideo = null;
 let reelsSound = false;
+
+/* ── AUDIO LIBRARY state ── */
+let selectedAudioTrack = null;   // track chosen for the reel currently being uploaded
+let _audioTab = 'trending';      // active tab in the audio picker
+let _savedAudioIds = new Set();  // cache of the user's saved track ids
+let _currentPreviewAudioId = null;
+let _audioPageTrackUrl = null;   // audio URL for the track being browsed on the audio detail page
+
+/* ── STORY STICKER (poll/quiz) state ── */
+let pendingStorySticker = null;  // sticker built in the upload flow, attached on next uploadStory()
 /* FOLLOW / UNFOLLOW */
 window.followUser = async (targetUid) => {
   const myUid = auth.currentUser.uid;
@@ -3372,9 +4014,9 @@ function loadNotifications() {
       if (!msg) return; // skip unknown types
 
       html += `
-<div onclick="markNotiRead('${d.id}')" style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid #1a1a1a;cursor:pointer;background:${n.read ? 'transparent' : 'rgba(255,45,85,0.06)'};">
+<div data-onclick="markNotiRead('${d.id}')" style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid #1a1a1a;cursor:pointer;background:${n.read ? 'transparent' : 'rgba(255,45,85,0.06)'};">
   <div style="position:relative;">
-    <img src="${fromPhoto}" style="width:46px;height:46px;border-radius:50%;object-fit:cover;border:2px solid #222;">
+    <img loading="lazy" src="${fromPhoto}" style="width:46px;height:46px;border-radius:50%;object-fit:cover;border:2px solid #222;">
     <div style="position:absolute;bottom:-2px;right:-2px;font-size:16px;line-height:1;">${icon}</div>
   </div>
   <div style="flex:1;">
@@ -3491,21 +4133,22 @@ const displayN = name || email.split("@")[0];
 const srchBadgeHTML = getBadgeHTML(u.badges || {});
 searchRes.innerHTML += `
 <div class="card" style="display:flex;align-items:center;gap:12px;margin-bottom:6px;">
-  <div style="position:relative;cursor:pointer;" onclick="openUserProfile('${uid}')">
-    <img src="${photo}" style="width:46px;height:46px;border-radius:50%;object-fit:cover;border:2px solid #ff2d55;">
+  <div style="position:relative;cursor:pointer;" data-onclick="openUserProfile('${uid}')">
+    <img loading="lazy" src="${photo}" style="width:46px;height:46px;border-radius:50%;object-fit:cover;border:2px solid #ff2d55;">
     <div style="position:absolute;bottom:1px;right:1px;width:10px;height:10px;border-radius:50%;
       background:${online?"#00e676":"#555"};border:2px solid #111;"></div>
   </div>
-  <div style="flex:1;cursor:pointer;" onclick="openUserProfile('${uid}')">
+  <div style="flex:1;cursor:pointer;" data-onclick="openUserProfile('${uid}')">
     <div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px;"><b>${displayN}</b>${srchBadgeHTML}</div>
     <div style="font-size:11px;color:#aaa;">${online?"● Online":"● Offline"}</div>
   </div>
-  <button class="btn" style="min-width:80px;padding:8px 12px;" onclick="followUser('${uid}')">
+  <button class="btn" style="min-width:80px;padding:8px 12px;" data-onclick="followUser('${uid}')">
     ${following ? "Unfollow" : "Follow"}
   </button>
 </div>`;
       }
     });});};
+window.debouncedSearchUsers = debounce(() => window.searchUsers(), 300);
 window.storyUpload=()=>alert('Story UI enabled');
 
 /* ========= USER ONLINE ========= */
@@ -3586,18 +4229,101 @@ let chatUnsubscribe = null;
 /* ═══ CUSTOM CHAT VIDEO PLAYER ═══ */
 let _cvidPlaying = {}; // track which player is playing
 
+/* 🆕 UPGRADE: instant video thumbnails.
+   All videos are hosted on Cloudinary, which can generate a JPG frame
+   of any uploaded video on the fly just by changing the URL — no extra
+   upload step or server work needed. We use this as a poster image so
+   reels/chat videos show something instantly instead of a blank box. */
+function cloudinaryVideoThumb(url) {
+  if (!url || !url.includes('/video/upload/')) return '';
+  return url
+    .replace('/video/upload/', '/video/upload/so_0/')
+    .replace(/\.(mp4|mov|webm|mkv|avi)(\?.*)?$/i, '.jpg$2');
+}
+
+/* ═══ 🆕 UPGRADE: MESSAGE REACTIONS ═══ */
+const REACTION_EMOJIS = ["❤️","😂","👍","😮","😢","🔥"];
+
+function buildReactionsHTML(reactions, msgId, collPath) {
+  if (!reactions) return "";
+  const uid = auth.currentUser?.uid;
+  const safePath = collPath.replace(/'/g, "\\'");
+  return Object.entries(reactions)
+    .filter(([, uids]) => Array.isArray(uids) && uids.length)
+    .map(([emoji, uids]) => {
+      const mine = uid && uids.includes(uid);
+      return `<span data-onclick="toggleReaction('${msgId}','${safePath}','${emoji}')"
+        style="cursor:pointer;background:${mine ? 'rgba(255,45,85,.25)' : 'rgba(255,255,255,.08)'};
+        border:1px solid ${mine ? '#ff2d55' : 'rgba(255,255,255,.15)'};border-radius:12px;
+        padding:2px 8px;font-size:12px;display:inline-flex;align-items:center;gap:3px;">${emoji} ${uids.length}</span>`;
+    }).join("");
+}
+
+let _reactionTarget = null;
+
+function ensureReactionPicker() {
+  if (document.getElementById("reactionPicker")) return;
+  const div = document.createElement("div");
+  div.id = "reactionPicker";
+  div.style.cssText = "display:none;position:fixed;background:#1a1a1a;border:1px solid #333;" +
+    "border-radius:22px;padding:6px 10px;gap:8px;z-index:99999;box-shadow:0 4px 20px rgba(0,0,0,.5);";
+  div.innerHTML = REACTION_EMOJIS.map(e =>
+    `<span data-onclick="pickReaction('${e}')" style="font-size:22px;cursor:pointer;padding:2px 3px;">${e}</span>`
+  ).join("");
+  document.body.appendChild(div);
+  document.addEventListener("click", (ev) => {
+    if (!div.contains(ev.target) && !ev.target.classList.contains("react-btn")) {
+      div.style.display = "none";
+    }
+  });
+}
+
+window.toggleReactionPicker = (msgId, collPath, btnEl) => {
+  ensureReactionPicker();
+  const picker = document.getElementById("reactionPicker");
+  const isSame = _reactionTarget && _reactionTarget.msgId === msgId && picker.style.display === "flex";
+  _reactionTarget = { msgId, collPath };
+  if (isSame) { picker.style.display = "none"; return; }
+  const rect = btnEl.getBoundingClientRect();
+  picker.style.display = "flex";
+  picker.style.left = Math.max(8, Math.min(window.innerWidth - 220, rect.left - 80)) + "px";
+  picker.style.top = Math.max(8, rect.top - 46) + "px";
+};
+
+window.pickReaction = (emoji) => {
+  if (!_reactionTarget) return;
+  toggleReaction(_reactionTarget.msgId, _reactionTarget.collPath, emoji);
+  document.getElementById("reactionPicker").style.display = "none";
+};
+
+window.toggleReaction = async (msgId, collPath, emoji) => {
+  const uid = auth.currentUser?.uid;
+  if (!uid) return;
+  try {
+    const ref = doc(db, collPath, msgId);
+    const snap = await getDoc(ref);
+    if (!snap.exists()) return;
+    const current = (snap.data().reactions && snap.data().reactions[emoji]) || [];
+    const hasReacted = current.includes(uid);
+    await updateDoc(ref, {
+      [`reactions.${emoji}`]: hasReacted ? arrayRemove(uid) : arrayUnion(uid)
+    });
+  } catch (e) { console.error("reaction failed", e); }
+};
+
 function buildChatVideoPlayer(src, msgId) {
   const pid = 'cvid_' + msgId.replace(/[^a-z0-9]/gi, '_');
   const escapedSrc = src.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+  const poster = cloudinaryVideoThumb(src);
   return `
 <div class="cvid-wrap" id="${pid}_wrap">
-  <video id="${pid}_v" src="${src}" playsinline preload="metadata"
+  <video id="${pid}_v" src="${src}" ${poster ? `poster="${poster}"` : ''} playsinline preload="metadata"
     style="width:100%;height:100%;object-fit:cover;display:block;border-radius:14px;"></video>
 
   <!-- Big centre play button (shown when paused) -->
   <div class="cvid-big-play" id="${pid}_bigplay">
     <button class="cvid-big-play-btn" id="${pid}_bigbtn"
-      onclick="cvidToggle('${pid}')">▶</button>
+      data-onclick="cvidToggle('${pid}')">▶</button>
   </div>
 
   <!-- Bottom controls bar -->
@@ -3606,9 +4332,9 @@ function buildChatVideoPlayer(src, msgId) {
       min="0" max="100" step="0.1" value="0"
       oninput="cvidSeek('${pid}')">
     <div class="cvid-row">
-      <button class="cvid-btn" id="${pid}_playbtn" onclick="cvidToggle('${pid}')">▶</button>
+      <button class="cvid-btn" id="${pid}_playbtn" data-onclick="cvidToggle('${pid}')">▶</button>
       <span class="cvid-time" id="${pid}_time">0:00 / 0:00</span>
-      <button class="cvid-fs-btn" onclick="cvidFullscreen('${pid}')">⛶ Full</button>
+      <button class="cvid-fs-btn" data-onclick="cvidFullscreen('${pid}')">⛶ Full</button>
     </div>
   </div>
 </div>`;
@@ -3691,7 +4417,7 @@ window.cvidFullscreen = (pid) => {
     overlay.id = "_vidFsOverlay";
     overlay.style.cssText = "display:none;position:fixed;inset:0;background:#000;z-index:9999990;flex-direction:column;align-items:center;justify-content:center;";
     overlay.innerHTML = `
-      <button onclick="cvidExitFullscreen()" style="
+      <button data-onclick="cvidExitFullscreen()" style="
         position:absolute;top:env(safe-area-inset-top,14px);left:14px;
         background:rgba(0,0,0,.6);border:none;color:#fff;
         width:40px;height:40px;border-radius:50%;font-size:18px;
@@ -3851,6 +4577,7 @@ function hashPass(s) {
 /* ---- navigation ---- */
 function backToHub() {
   if (chatUnsubscribe) { chatUnsubscribe(); chatUnsubscribe = null; }
+  stopTypingFeature();
   activeRoom = null;
   document.getElementById("chatView").style.display = "none";
   document.getElementById("chatHub").style.display = "block";
@@ -3869,20 +4596,45 @@ async function openRoom(collPath, title) {
   view.style.flexDirection = "column";
   document.getElementById("chatViewTitle").innerText = title;
 
+  // 🆕 UPGRADE: start typing indicator for this room
+  startTypingFeature(collPath);
+
+  // 🆕 UPGRADE: reset pagination window each time a room is (re)opened
+  chatLoadedLimit = 100;
+  attachChatListener(collPath);
+}
+
+// 🆕 UPGRADE: pagination — starts at 100, grows when user taps "Load older"
+let chatLoadedLimit = 100;
+
+function attachChatListener(collPath) {
+  if (chatUnsubscribe) { chatUnsubscribe(); chatUnsubscribe = null; }
+
   // 🔥 FIX: was loading the ENTIRE message history with no cap, so the whole
   // list got rebuilt from scratch on every single update as a chat grew —
-  // that's what made scrolling break/stutter after ~10 messages. Cap to the
-  // most recent 100 messages.
-  const q = query(collection(db, collPath), orderBy("time", "asc"), limitToLast(100));
+  // that's what made scrolling break/stutter after ~10 messages. Cap to a
+  // growable window (starts at 100, "Load older" increases it).
+  const q = query(collection(db, collPath), orderBy("time", "asc"), limitToLast(chatLoadedLimit));
 
   chatUnsubscribe = onSnapshot(q, (snap) => {
     // 🔥 FIX: remember whether the user was already near the bottom BEFORE
     // we touch the DOM, so we only auto-scroll for people who were already
     // following the conversation — not yank someone back down mid-read.
     const wasNearBottom = (msgs.scrollHeight - msgs.scrollTop - msgs.clientHeight) < 120;
+    const prevScrollHeight = msgs.scrollHeight;
+    const prevScrollTop = msgs.scrollTop;
     let html = "";
     let newMsgCount = 0;
     let lastDateLabel = ""; // track last rendered date label
+
+    // 🆕 UPGRADE: "Load older messages" button when there may be more history
+    if (snap.docs.length >= chatLoadedLimit) {
+      html += `<div style="text-align:center;padding:8px;">
+        <button data-onclick="loadOlderMessages('${collPath}')"
+          style="background:#1a1a1a;border:1px solid #333;color:#aaa;font-size:12px;
+                 padding:6px 14px;border-radius:14px;cursor:pointer;">⬆ Load older messages</button>
+      </div>`;
+    }
 
     // Helper: returns "Today", "Yesterday", or formatted date
     function getDateLabel(ts) {
@@ -3970,15 +4722,20 @@ async function openRoom(collPath, title) {
   <div style="max-width:82%;padding:${d.chatImg||d.chatVid?"6px":"12px 18px"};border-radius:17px;background:${mine?"#ff2d55":"#111"};color:#fff;position:relative;">
     ${(!d.chatImg && !d.chatVid) ? `<b style="font-size:13px;">${showName} : </b><br>` : `<div style="font-size:11px;padding:4px 6px 2px;opacity:.7;">${showName}</div>`}
     ${d.audio ? `<audio controls src="${d.audio}" style="width:200px;margin-top:4px;"></audio>` : ""}
-    ${d.chatImg ? `<img class="chat-img-bubble" src="${d.chatImg}" onclick="openViewer('${d.chatImg}','image')">` : ""}
+    ${d.chatImg ? `<img loading="lazy" class="chat-img-bubble" src="${d.chatImg}" data-onclick="openViewer('${d.chatImg}','image')">` : ""}
     ${d.chatVid ? buildChatVideoPlayer(d.chatVid, m.id) : ""}
     ${(!d.audio && !d.chatImg && !d.chatVid) ? (d.t || "") : (d.t ? `<div style="padding:4px 6px 2px;font-size:13px;">${d.t}</div>` : "")}
     <div style="font-size:9px;color:${mine?"rgba(255,255,255,.7)":"#777"};margin-top:5px;text-align:right;padding:${d.chatImg||d.chatVid?"0 6px 4px":""}">${formatTime(d.time)}</div>
-    <button onclick="openDeleteOptions('${m.id}','${collPath}')"
+    <button data-onclick="openDeleteOptions('${m.id}','${collPath}')"
       style="position:absolute;top:-9px;right:-9px;background:#333;border:1px solid #555;color:#fff;
              width:22px;height:22px;border-radius:50%;font-size:11px;cursor:pointer;
              display:${mine ? 'flex' : 'none'};align-items:center;justify-content:center;z-index:5;line-height:1;">✕</button>
+    <button class="react-btn" data-onclick="toggleReactionPicker('${m.id}','${collPath}',this)"
+      style="position:absolute;bottom:-9px;${mine?'left':'right'}:-9px;background:#222;border:1px solid #444;color:#fff;
+             width:20px;height:20px;border-radius:50%;font-size:10px;cursor:pointer;
+             display:flex;align-items:center;justify-content:center;z-index:5;line-height:1;">😊</button>
   </div>
+  <div class="msg-reactions" id="reactions-${m.id}" style="display:flex;gap:4px;flex-wrap:wrap;margin-top:5px;">${buildReactionsHTML(d.reactions, m.id, collPath)}</div>
   <div style="margin-top:4px;">${tickHTML}</div>
 </div>`;
     }
@@ -4002,11 +4759,22 @@ async function openRoom(collPath, title) {
         // Double RAF to ensure content is fully rendered
         requestAnimationFrame(() => { msgs.scrollTop = msgs.scrollHeight; });
       });
-    } else if (scrollBtn) {
-      scrollBtn.style.display = "block";
+    } else {
+      // 🔥 FIX: replacing innerHTML resets scrollTop to 0 by default — restore
+      // the user's exact reading position (accounting for any height change,
+      // e.g. from prepended older messages) instead of yanking them to the top.
+      requestAnimationFrame(() => {
+        msgs.scrollTop = prevScrollTop + (msgs.scrollHeight - prevScrollHeight);
+      });
+      if (scrollBtn) scrollBtn.style.display = "block";
     }
   });
 }
+
+window.loadOlderMessages = (collPath) => {
+  chatLoadedLimit += 100;
+  attachChatListener(collPath);
+};
 
 /* ---- open global group chat ---- */
 window.openGroupRoom = (groupId, password, isGlobal) => {
@@ -4083,12 +4851,15 @@ window.sendMsg = async () => {
   if (!text && !hasMedia) return;
   if (!activeRoom) return;
 
+  setTypingStatus(false); // 🆕 UPGRADE: stop showing "typing..." once sent
+
   if (hasMedia) {
     await sendChatMedia();
     return;
   }
 
-  await addDoc(collection(db, activeRoom.collPath), {
+  const collPath = activeRoom.collPath;
+  const payload = {
     uid: auth.currentUser.uid,
     u: auth.currentUser.email,
     name: profileName.innerText.trim(),
@@ -4097,9 +4868,114 @@ window.sendMsg = async () => {
     deletedFor: [],
     deletedForEveryone: false,
     time: serverTimestamp()
-  });
-  msg.value = "";
+  };
+
+  msg.value = ""; // clear immediately so retries don't duplicate typing
+
+  try {
+    await withFirebaseTimeout(addDoc(collection(db, collPath), payload), "Sending message");
+  } catch (err) {
+    if (err.message === "offline") {
+      showToast("No internet — tap to retry sending", "error", () => {
+        msg.value = text;
+        sendMsg();
+      });
+    } else {
+      showToast("Message failed to send — tap to retry", "error", () => {
+        msg.value = text;
+        sendMsg();
+      });
+    }
+  }
 };
+
+/* ═══ 🆕 UPGRADE: TYPING INDICATOR ═══
+   Stores a small "typing" doc per user in a sibling `typing` subcollection
+   next to the room's messages (e.g. chat_rooms/{id}/typing/{uid}), auto-
+   expires after a few seconds of inactivity, and shows "X is typing…"
+   to everyone else in the room. */
+let typingUnsub = null;
+let typingHideTimer = null;
+let typingStopTimer = null;
+let currentTypingPath = null;
+let isCurrentlyTyping = false;
+
+function typingPathFor(collPath) {
+  // chat_rooms/{id}/messages -> chat_rooms/{id}/typing
+  // dms/{id}/messages        -> dms/{id}/typing
+  return collPath.replace(/\/messages$/, "/typing");
+}
+
+async function setTypingStatus(isTyping) {
+  if (!currentTypingPath || !auth.currentUser) return;
+  if (isTyping === isCurrentlyTyping) return;
+  isCurrentlyTyping = isTyping;
+  try {
+    await setDoc(
+      doc(db, currentTypingPath, auth.currentUser.uid),
+      {
+        typing: isTyping,
+        name: (profileName?.innerText || "Someone").trim(),
+        time: serverTimestamp()
+      },
+      { merge: true }
+    );
+  } catch (e) { /* non-critical, ignore */ }
+}
+
+function onMsgInputForTyping() {
+  if (!currentTypingPath) return;
+  setTypingStatus(true);
+  clearTimeout(typingStopTimer);
+  // stop showing "typing…" after 3s of no keystrokes
+  typingStopTimer = setTimeout(() => setTypingStatus(false), 3000);
+}
+
+function startTypingFeature(collPath) {
+  stopTypingFeature();
+  currentTypingPath = typingPathFor(collPath);
+
+  const indicator = document.getElementById("typingIndicator");
+
+  typingUnsub = onSnapshot(collection(db, currentTypingPath), (snap) => {
+    if (!indicator) return;
+    const now = Date.now();
+    const names = [];
+    snap.forEach(d => {
+      if (d.id === auth.currentUser?.uid) return; // ignore self
+      const v = d.data();
+      const t = v.time?.toMillis?.() || 0;
+      // only count as "typing" if flagged AND updated in the last 6s
+      if (v.typing && (now - t) < 6000) names.push(v.name || "Someone");
+    });
+
+    if (names.length) {
+      indicator.textContent = names.length === 1
+        ? `${names[0]} is typing…`
+        : `${names.join(", ")} are typing…`;
+      indicator.style.display = "block";
+    } else {
+      indicator.style.display = "none";
+    }
+  });
+
+  // hook the input box once listeners are set (safe to re-bind, idempotent)
+  const msgEl = document.getElementById("msg");
+  if (msgEl && !msgEl._typingBound) {
+    msgEl._typingBound = true;
+    msgEl.addEventListener("input", onMsgInputForTyping);
+  }
+}
+
+function stopTypingFeature() {
+  if (typingUnsub) { typingUnsub(); typingUnsub = null; }
+  clearTimeout(typingStopTimer);
+  setTypingStatus(false);
+  currentTypingPath = null;
+  isCurrentlyTyping = false;
+  const indicator = document.getElementById("typingIndicator");
+  if (indicator) indicator.style.display = "none";
+}
 
 /* ═══ CHAT MEDIA SEND FUNCTIONS ═══ */
 let _chatMediaFile = null;
@@ -4145,17 +5021,7 @@ async function sendChatMedia() {
   if (sendBtn) { sendBtn.innerText = "..."; sendBtn.disabled = true; }
 
   try {
-    const fd = new FormData();
-    fd.append("file", _chatMediaFile);
-    fd.append("upload_preset", "Fiveer");
-
-    const uploadUrl = _chatMediaType === "image"
-      ? "https://api.cloudinary.com/v1_1/dlsfr0ies/image/upload"
-      : "https://api.cloudinary.com/v1_1/dlsfr0ies/video/upload";
-
-    const res = await fetch(uploadUrl, { method: "POST", body: fd });
-    const data = await res.json();
-    if (!data.secure_url) throw new Error("Upload failed");
+    const data = await uploadToCloudinary(_chatMediaFile, _chatMediaType === "image" ? "image" : "video");
 
     const msgData = {
       uid: auth.currentUser.uid,
@@ -4177,11 +5043,13 @@ async function sendChatMedia() {
     const txt = msg.value.trim();
     if (txt) msgData.t = txt;
 
-    await addDoc(collection(db, activeRoom.collPath), msgData);
+    await withFirebaseTimeout(addDoc(collection(db, activeRoom.collPath), msgData), "Sending message");
     msg.value = "";
     cancelChatMedia();
   } catch(err) {
-    showToast("Media send failed ❌", "error");
+    if (err.message !== "offline" && !String(err.message).includes("timed out")) {
+      showToast("Media send failed ❌", "error");
+    }
   }
 
   if (sendBtn) { sendBtn.innerText = "Send"; sendBtn.disabled = false; }
@@ -4237,23 +5105,27 @@ window.joinGroup = async () => {
 };
 
 /* ---- Load group list ---- */
+let _groupVList = null;
 function loadGroupList() {
+  if (!_groupVList) {
+    _groupVList = createVirtualList(document.getElementById("groupList"), 64);
+  }
   onSnapshot(collection(db, "groups"), snap => {
-    let html = "";
-    snap.forEach(d => {
-      const g = d.data();
-      html += `
-<div class="card" style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
-  <div style="font-size:24px;cursor:pointer;" onclick="promptJoinGroup('${d.id}','${g.name}')">🔒</div>
-  <div style="flex:1;cursor:pointer;" onclick="promptJoinGroup('${d.id}','${g.name}')">
+    const items = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    _groupVList.setItems(
+      items,
+      g => `
+<div class="card" style="display:flex;align-items:center;gap:10px;margin-bottom:6px;height:52px;">
+  <div style="font-size:24px;cursor:pointer;" data-onclick="promptJoinGroup('${g.id}','${g.name}')">🔒</div>
+  <div style="flex:1;cursor:pointer;" data-onclick="promptJoinGroup('${g.id}','${g.name}')">
     <b>${g.name}</b><br><small style="color:#aaa;">Password protected</small>
   </div>
   ${g.createdBy === auth.currentUser.uid
-    ? `<button onclick="deleteGroup('${d.id}')" style="background:#333;border:none;color:#ff4444;padding:6px 10px;border-radius:8px;font-size:15px;">⛌</button>`
+    ? `<button data-onclick="deleteGroup('${g.id}')" style="background:#333;border:none;color:#ff4444;padding:6px 10px;border-radius:8px;font-size:15px;">⛌</button>`
     : ""}
-</div>`;
-    });
-    document.getElementById("groupList").innerHTML = html;
+</div>`,
+      "<small style='color:#555;padding:10px;display:block;'>No groups yet</small>"
+    );
   });
 }
 
@@ -4289,8 +5161,11 @@ window.deleteGroup = async (groupId) => {
   }
 };
 
-/* ---- Load DM list ---- */
+let _dmVList = null;
 function loadDmList() {
+  if (!_dmVList) {
+    _dmVList = createVirtualList(document.getElementById("dmList"), 68);
+  }
   // No orderBy to avoid composite index requirement — sort client-side
   onSnapshot(
     query(collection(db, "dms"), where("uids", "array-contains", auth.currentUser.uid)),
@@ -4300,7 +5175,7 @@ function loadDmList() {
         const bt = b.data().updatedAt?.seconds || 0;
         return bt - at;
       });
-      let html = "";
+      const items = [];
       for (const d of docs) {
         const uids = d.data().uids;
         const otherId = uids.find(u => u !== auth.currentUser.uid);
@@ -4328,21 +5203,26 @@ function loadDmList() {
           });
         } catch(e) {}
 
-        html += `
-<div class="card" onclick="openDm('${otherId}')" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:6px;position:relative;overflow:hidden;transition:transform 0.15s ease,background 0.15s ease;" onmousedown="this.style.transform='scale(0.98)'" onmouseup="this.style.transform=''">
+        items.push({ otherId, name, photo, online, unreadCount, lastMsgText });
+      }
+
+      _dmVList.setItems(
+        items,
+        it => `
+<div class="card" data-onclick="openDm('${it.otherId}')" style="cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:6px;position:relative;overflow:hidden;transition:transform 0.15s ease,background 0.15s ease;height:56px;" data-onmousedown="this.style.transform='scale(0.98)'" data-onmouseup="this.style.transform=''">
   <div style="position:relative;flex-shrink:0;">
-    <img src="${photo}" style="width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid ${unreadCount>0?'#ff2d55':'#222'};">
-    <div style="position:absolute;bottom:1px;right:1px;width:11px;height:11px;border-radius:50%;background:${online?"#00e676":"#555"};border:2px solid #121212;"></div>
+    <img loading="lazy" src="${it.photo}" style="width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid ${it.unreadCount>0?'#ff2d55':'#222'};">
+    <div style="position:absolute;bottom:1px;right:1px;width:11px;height:11px;border-radius:50%;background:${it.online?"#00e676":"#555"};border:2px solid #121212;"></div>
   </div>
   <div style="flex:1;min-width:0;">
-    <b style="font-size:14px;${unreadCount>0?'color:#fff;':'color:#ccc;'}">${name}</b>
+    <b style="font-size:14px;${it.unreadCount>0?'color:#fff;':'color:#ccc;'}">${it.name}</b>
     <br>
-    <small style="color:${unreadCount>0?'#aaa':'#555'};font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;max-width:180px;">${lastMsgText || (online?"● Online":"● Offline")}</small>
+    <small style="color:${it.unreadCount>0?'#aaa':'#555'};font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;max-width:180px;">${it.lastMsgText || (it.online?"● Online":"● Offline")}</small>
   </div>
-  ${unreadCount > 0 ? `<span class="dm-unread-badge">${unreadCount > 9 ? "9+" : unreadCount} new</span>` : ""}
-</div>`;
-      }
-      document.getElementById("dmList").innerHTML = html || "<small style='color:#555;padding:10px;display:block;'>No DMs yet — search for a user above</small>";
+  ${it.unreadCount > 0 ? `<span class="dm-unread-badge">${it.unreadCount > 9 ? "9+" : it.unreadCount} new</span>` : ""}
+</div>`,
+        "<small style='color:#555;padding:10px;display:block;'>No DMs yet — search for a user above</small>"
+      );
     }
   );
 }
@@ -4363,13 +5243,14 @@ window.searchDmUsers = async () => {
     if (!name.toLowerCase().includes(q) && !email.toLowerCase().includes(q)) return;
     const photo = u.photo || "https://i.imgur.com/6VBx3io.png";
     html += `
-<div class="card" onclick="openDm('${u.uid}')" style="cursor:pointer;display:flex;align-items:center;gap:10px;margin-bottom:6px;">
-  <img src="${photo}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;">
+<div class="card" data-onclick="openDm('${u.uid}')" style="cursor:pointer;display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+  <img loading="lazy" src="${photo}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;">
   <div><b>${name || email.split("@")[0]}</b><br><small style="color:#aaa;">${email}</small></div>
 </div>`;
   });
   box.innerHTML = html || "<small style='color:#555;padding:6px;display:block;'>No users found</small>";
 };
+window.debouncedSearchDmUsers = debounce(() => window.searchDmUsers(), 300);
 
 /* ---- delete for active room ---- */
 let _activeMsgId = null;
@@ -4523,7 +5404,24 @@ function updateOnlineUI() {
 
 /* ========= CHAT LOAD ========= */
 
+// 🔥 PERF: seed USER_CACHE from localStorage instantly on load so avatars/names
+// render correctly before the first Firestore snapshot arrives (avoids the
+// default-avatar flash), and so repeat visits reuse already-known photo URLs.
 let USER_CACHE = {};
+try {
+  const seeded = JSON.parse(localStorage.getItem("USER_CACHE_v1") || "{}");
+  if (seeded && typeof seeded === "object") USER_CACHE = seeded;
+} catch (e) {}
+
+// In-memory set of photo URLs already warmed into the browser's HTTP cache,
+// so we don't re-issue an Image() fetch for a URL we've already primed.
+const _WARMED_AVATARS = new Set();
+function warmAvatarCache(url) {
+  if (!url || _WARMED_AVATARS.has(url)) return;
+  _WARMED_AVATARS.add(url);
+  const img = new Image();
+  img.src = url; // browser caches it; no need to attach it to the DOM
+}
 
 onSnapshot(collection(db, "users"), (snap) => {
 
@@ -4532,15 +5430,20 @@ onSnapshot(collection(db, "users"), (snap) => {
   snap.forEach(docu => {
     const d = docu.data();
     if (d.uid) {
+      const photo = d.photo || "https://i.imgur.com/6VBx3io.png";
       USER_CACHE[d.uid] = {
         name: d.name || (d.email ? d.email.split("@")[0] : "User"),
-        photo: d.photo || "https://i.imgur.com/6VBx3io.png",
+        photo,
         badges: d.badges || {}
       };
+      warmAvatarCache(photo);
       // keep BADGES_CACHE in sync
       BADGES_CACHE[d.uid] = d.badges || {};
     }
   });
+
+  // Persist a lightweight copy for instant load next time (best-effort — ignore quota errors)
+  try { localStorage.setItem("USER_CACHE_v1", JSON.stringify(USER_CACHE)); } catch (e) {}
 
   // 🔥 FIX 2: After cache loads, patch all reel names/photos that show "User"
   document.querySelectorAll(".reel").forEach(reelEl => {
@@ -4748,7 +5651,7 @@ async function _renderStories(snap) {
   <div style="position:absolute;top:-8px;left:50%;transform:translateX(-50%);font-size:10px;padding:2px 7px;border-radius:12px;background:linear-gradient(45deg,#ff2d55,#ff6a00);box-shadow:0 0 10px rgba(255,45,85,.5);border:1px solid rgba(255,45,85,.3);color:#fff;font-weight:700;white-space:nowrap;z-index:5;letter-spacing:.5px;">
     🔴 LIVE
   </div>
-  <div class="storyRing live-ring"><img src="${user.photo}"></div>
+  <div class="storyRing live-ring"><img loading="lazy" src="${user.photo}"></div>
   <div class="small">${user.name}</div>
   <div class="live-badge">LIVE</div>`;
       frag.appendChild(el);
@@ -4771,7 +5674,7 @@ async function _renderStories(snap) {
       el.onclick = () => openStory(d.uid);
       el.innerHTML = `
   <div style="position:absolute;top:-8px;left:50%;transform:translateX(-50%);font-size:10px;padding:2px 7px;border-radius:12px;background:linear-gradient(45deg,#111,#222);box-shadow:0 0 8px rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.06);color:#fff;font-weight:600;white-space:nowrap;z-index:5;">${timeAgo(d.time)}</div>
-  <div class="storyRing"><img src="${user.photo}"></div>
+  <div class="storyRing"><img loading="lazy" src="${user.photo}"></div>
   <div class="small">${user.name}</div>`;
       frag.appendChild(el);
     });
@@ -4834,7 +5737,7 @@ function loadMine() {
         const wrapper = document.createElement('div');
         wrapper.style.cssText = 'position:relative;aspect-ratio:1/1;overflow:hidden;border-radius:4px;background:#111;cursor:pointer;';
 
-        const deleteBtn = `<button onclick="event.stopPropagation();delPost('${id}')"
+        const deleteBtn = `<button data-onclick="event.stopPropagation();delPost('${id}')"
           style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,0.6);border:none;color:#fff;
                  width:24px;height:24px;border-radius:50%;font-size:13px;cursor:pointer;
                  display:flex;align-items:center;justify-content:center;z-index:2;">✕</button>`;
@@ -4842,17 +5745,17 @@ function loadMine() {
         if (p.video) {
           const thumb = p.thumbnail || '';
           wrapper.innerHTML = thumb
-            ? `<img class="postMini" src="${thumb}" onclick="openViewer('${p.video}','video')"
+            ? `<img loading="lazy" class="postMini" src="${thumb}" data-onclick="openViewer('${p.video}','video')"
                 style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;">
                <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:20px;pointer-events:none;color:#fff;">▶</div>
                ${deleteBtn}`
-            : `<video class="postMini" src="${p.video}" muted onclick="openViewer('${p.video}','video')"
+            : `<video class="postMini" src="${p.video}" muted data-onclick="openViewer('${p.video}','video')"
                 style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;"></video>
                <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:20px;pointer-events:none;color:#fff;">▶</div>
                ${deleteBtn}`;
         } else if (p.photo) {
           wrapper.innerHTML = `
-            <img class="postMini" src="${p.photo}" onclick="openViewer('${p.photo}','image')"
+            <img loading="lazy" class="postMini" src="${p.photo}" data-onclick="openViewer('${p.photo}','image')"
               style="width:100%;height:100%;object-fit:cover;">
             ${deleteBtn}`;
         } else {
@@ -4961,7 +5864,13 @@ window.initAutoPlay = () => {
         if (!v.src && v.dataset.src) { v.src = v.dataset.src; v.load(); }
 
         // Pause all others (use cached list — no DOM query)
-        videos.forEach(x => { if (x !== v) x.pause(); });
+        videos.forEach(x => {
+          if (x !== v) {
+            x.pause();
+            const xa = x.closest('.reel')?.querySelector('.reelAudioTrack');
+            if (xa && !xa.paused) xa.pause();
+          }
+        });
 
         activeReelVideo = v;
         v.play().catch(() => {});
@@ -4971,6 +5880,8 @@ window.initAutoPlay = () => {
       } else {
         // ── FIX 2: Pause immediately when leaving viewport ──
         if (!v.paused) v.pause();
+        const a = v.closest('.reel')?.querySelector('.reelAudioTrack');
+        if (a && !a.paused) a.pause();
       }
     });
   }, {
@@ -4995,35 +5906,38 @@ window.saveProfile = async () => {
   let photoURL = "";
   const file = dpFile.files[0];
 
-  if (file) {
-    const fd = new FormData();
-    fd.append("file", file);
-    fd.append("upload_preset", "Fiveer");
-    const res = await fetch("https://api.cloudinary.com/v1_1/dlsfr0ies/image/upload", { method:"POST", body:fd });
-    const data = await res.json();
-    photoURL = data.secure_url || "";
+  try {
+    if (file) {
+      const data = await uploadToCloudinary(file, "image");
+      photoURL = data.secure_url || "";
+    }
+
+    const finalName = document.getElementById("newName").value.trim() || user.email.split("@")[0];
+    const finalBio  = document.getElementById("newBio")?.value.trim() || "";
+
+    await withFirebaseTimeout(setDoc(doc(db, "users", user.uid), {
+      uid: user.uid, email: user.email,
+      name: finalName, bio: finalBio,
+      ...(photoURL ? { photo: photoURL } : {})
+    }, { merge: true }), "Saving profile");
+
+    localStorage.setItem("myName", finalName);
+    userBox.textContent = finalName;
+    profileName.innerText = finalName;
+    document.getElementById("profileBio").innerText = finalBio;
+    if (photoURL) { topDp.src = photoURL; profileBig.src = photoURL; }
+
+    showToast("Profile updated ✅", "success");
+    // 🔥 Hide edit panel after saving
+    document.getElementById("ownerControls").style.display = "none";
+    loadStories();
+  } catch (err) {
+    if (err.message !== "offline" && !String(err.message).includes("timed out")) {
+      showToast("Profile save failed ❌", "error");
+    }
   }
 
-  const finalName = document.getElementById("newName").value.trim() || user.email.split("@")[0];
-  const finalBio  = document.getElementById("newBio")?.value.trim() || "";
-
-  await setDoc(doc(db, "users", user.uid), {
-    uid: user.uid, email: user.email,
-    name: finalName, bio: finalBio,
-    ...(photoURL ? { photo: photoURL } : {})
-  }, { merge: true });
-
-  localStorage.setItem("myName", finalName);
-  userBox.textContent = finalName;
-  profileName.innerText = finalName;
-  document.getElementById("profileBio").innerText = finalBio;
-  if (photoURL) { topDp.src = photoURL; profileBig.src = photoURL; }
-
   if (btn) { btn.innerText = "Save Profile"; btn.disabled = false; }
-  showToast("Profile updated ✅", "success");
-  // 🔥 Hide edit panel after saving
-  document.getElementById("ownerControls").style.display = "none";
-  loadStories();
 };
 /* 4. ADD THIS NEW FUNCTION */
 
@@ -5088,16 +6002,32 @@ window.toggleSound = (video) => {
 };
 
 function syncReelAudio() {
-  
+
   document.querySelectorAll('.reelVideo').forEach(v => {
-    
-    // only active video gets sound
-    if (reelsSound && v === activeReelVideo) {
+
+    const reel    = v.closest('.reel');
+    const audioEl = reel ? reel.querySelector('.reelAudioTrack') : null;
+    const isActive = v === activeReelVideo;
+
+    if (audioEl) {
+      // 🎵 this reel has a custom audio track — it fully replaces native video sound
+      v.muted = true;
+      if (isActive && reelsSound) {
+        audioEl.muted = false;
+        if (audioEl.paused) {
+          audioEl.currentTime = v.currentTime || 0;
+          audioEl.play().catch(() => {});
+        }
+      } else {
+        audioEl.muted = true;
+        if (!audioEl.paused) audioEl.pause();
+      }
+    } else if (reelsSound && isActive) {
       v.muted = false;
     } else {
       v.muted = true;
     }
-    
+
   });
 }
 //story
@@ -5164,7 +6094,10 @@ function showStory() {
   
   storyUserName.innerText = u.name;
   storyUserPic.src = u.photo;
-  
+
+  /* 🗳️ poll / quiz sticker */
+  renderStoryInteractive(s);
+
   /* progress bar */
   storyProgress.innerHTML = "";
   
@@ -5264,6 +6197,7 @@ window.closeStory = () => {
   }
   
   document.getElementById("storyViewer").style.display = "none";
+  document.getElementById("storyInteractive").innerHTML = "";
   
   stories = [];
   storyIndex = 0;
@@ -5288,6 +6222,192 @@ window.toggleStorySound = () => {
   
   storyVideo.play().catch(() => {});
 };
+/* ══════════════════════════════════════════════════════════
+   STORY STICKERS — poll & quiz builder
+   ══════════════════════════════════════════════════════════ */
+
+let _stickerBuilder = { type: "poll", options: ["", ""], correctIndex: 0 };
+
+window.openStickerBuilder = () => {
+  _stickerBuilder = pendingStorySticker
+    ? {
+        type: pendingStorySticker.type,
+        options: pendingStorySticker.options.map(o => o.text),
+        correctIndex: pendingStorySticker.correctIndex || 0,
+        question: pendingStorySticker.question
+      }
+    : { type: "poll", options: ["", ""], correctIndex: 0 };
+
+  document.getElementById("stickerQuestion").value = _stickerBuilder.question || "";
+  window.setStickerType(_stickerBuilder.type);
+  renderStickerOptionsRows();
+  document.getElementById("stickerBuilderModal").style.display = "flex";
+};
+
+window.closeStickerBuilder = () => {
+  document.getElementById("stickerBuilderModal").style.display = "none";
+};
+
+window.setStickerType = (type) => {
+  _stickerBuilder.type = type;
+  document.getElementById("stickerTypePoll").style.background = type === "poll" ? "#A856FB" : "#1c1c1c";
+  document.getElementById("stickerTypeQuiz").style.background = type === "quiz" ? "#A856FB" : "#1c1c1c";
+  document.getElementById("stickerQuizHint").style.display = type === "quiz" ? "block" : "none";
+  renderStickerOptionsRows();
+};
+
+function renderStickerOptionsRows() {
+  const list = document.getElementById("stickerOptionsList");
+  list.innerHTML = _stickerBuilder.options.map((val, i) => `
+    <div style="display:flex;align-items:center;gap:8px;">
+      ${_stickerBuilder.type === "quiz" ? `
+        <button data-onclick="setStickerCorrect(${i})"
+          style="background:none;border:none;font-size:17px;cursor:pointer;color:${_stickerBuilder.correctIndex === i ? "#ffd60a" : "#444"};">
+          ${_stickerBuilder.correctIndex === i ? "★" : "☆"}
+        </button>` : ""}
+      <input class="inp" style="margin:0;flex:1;" placeholder="Option ${i + 1}" value="${val.replace(/"/g, "&quot;")}"
+        oninput="updateStickerOption(${i}, this.value)">
+      ${_stickerBuilder.options.length > 2 ? `
+        <button data-onclick="removeStickerOption(${i})" style="background:none;border:none;color:#888;font-size:15px;cursor:pointer;">✕</button>` : ""}
+    </div>
+  `).join("");
+}
+
+window.updateStickerOption = (i, val) => { _stickerBuilder.options[i] = val; };
+
+window.setStickerCorrect = (i) => {
+  _stickerBuilder.correctIndex = i;
+  renderStickerOptionsRows();
+};
+
+window.addStickerOption = () => {
+  if (_stickerBuilder.options.length >= 4) return showToast("Max 4 options");
+  _stickerBuilder.options.push("");
+  renderStickerOptionsRows();
+};
+
+window.removeStickerOption = (i) => {
+  _stickerBuilder.options.splice(i, 1);
+  if (_stickerBuilder.correctIndex >= _stickerBuilder.options.length) _stickerBuilder.correctIndex = 0;
+  renderStickerOptionsRows();
+};
+
+window.saveStorySticker = () => {
+  const question = document.getElementById("stickerQuestion").value.trim();
+  const options = _stickerBuilder.options.map(o => o.trim()).filter(Boolean);
+  if (!question) return showToast("Add a question first", "error");
+  if (options.length < 2) return showToast("Add at least 2 options", "error");
+
+  pendingStorySticker = {
+    type: _stickerBuilder.type,
+    question,
+    options: options.map(text => ({ text, votes: 0 })),
+    voters: {},
+    ...(_stickerBuilder.type === "quiz" ? { correctIndex: Math.min(_stickerBuilder.correctIndex, options.length - 1) } : {})
+  };
+
+  const chip = document.getElementById("stickerChip");
+  chip.style.display = "flex";
+  document.getElementById("stickerChipText").innerText =
+    `${_stickerBuilder.type === "quiz" ? "🧠 Quiz" : "📊 Poll"}: ${question}`;
+
+  window.closeStickerBuilder();
+};
+
+window.removeStorySticker = () => {
+  pendingStorySticker = null;
+  document.getElementById("stickerChip").style.display = "none";
+};
+
+/* ── Vote on a story's poll/quiz sticker ── */
+window.voteStorySticker = async (storyId, optionIndex, ev) => {
+  if (ev) ev.stopPropagation();
+  const s = stories[storyIndex];
+  if (!s || s.id !== storyId || !s.interactive) return;
+  const uid = auth.currentUser?.uid;
+  if (!uid) return;
+  if (String(s.uid) === String(uid)) return;          // owners just view results
+  if (s.interactive.voters && s.interactive.voters[uid] != null) return; // already voted
+
+  // optimistic local update so the UI reacts instantly
+  s.interactive.voters = s.interactive.voters || {};
+  s.interactive.voters[uid] = optionIndex;
+  s.interactive.options[optionIndex].votes = (s.interactive.options[optionIndex].votes || 0) + 1;
+  renderStoryInteractive(s);
+
+  // NOTE: Firestore's dotted-path update syntax (e.g. "interactive.options.0.votes")
+  // only works for nested MAPS — it does NOT support indexing into an ARRAY, and
+  // silently corrupts the array into a map object if used that way. So instead we
+  // read the whole `interactive` object inside a transaction, mutate it in JS, and
+  // write the whole object back as one field. This is also safe under concurrent votes.
+  try {
+    const ref = doc(db, "stories", storyId);
+    await runTransaction(db, async (tx) => {
+      const snap = await tx.get(ref);
+      if (!snap.exists()) return;
+      const data = snap.data();
+      const it = data.interactive;
+      if (!it || !Array.isArray(it.options)) return;
+
+      it.voters = it.voters || {};
+      if (it.voters[uid] != null) return; // someone else's vote already landed first
+
+      it.voters[uid] = optionIndex;
+      it.options[optionIndex] = {
+        ...it.options[optionIndex],
+        votes: (it.options[optionIndex].votes || 0) + 1
+      };
+
+      tx.update(ref, { interactive: it });
+    });
+  } catch (e) { console.error("voteStorySticker failed", e); }
+};
+
+/* ── Render the poll/quiz sticker for the story currently on screen ── */
+function renderStoryInteractive(s) {
+  const box = document.getElementById("storyInteractive");
+  box.innerHTML = "";
+  if (!s || !s.interactive) return;
+
+  const it = s.interactive;
+  if (!Array.isArray(it.options) || !it.options.length) return; // malformed/legacy sticker — don't crash the viewer
+  const uid = auth.currentUser?.uid;
+  const isOwner = String(s.uid) === String(uid);
+  const myVote = it.voters ? it.voters[uid] : undefined;
+  const hasVoted = myVote != null || isOwner;
+  const totalVotes = it.options.reduce((sum, o) => sum + (o.votes || 0), 0);
+
+  const optionsHTML = it.options.map((o, i) => {
+    const pct = totalVotes ? Math.round(((o.votes || 0) / totalVotes) * 100) : 0;
+    let barColor = "rgba(255,255,255,0.18)";
+    if (hasVoted && it.type === "quiz") {
+      if (i === it.correctIndex) barColor = "rgba(52,199,89,0.55)";
+      else if (i === myVote) barColor = "rgba(255,59,48,0.55)";
+    } else if (hasVoted) {
+      barColor = i === myVote ? "rgba(168,86,251,0.55)" : "rgba(255,255,255,0.18)";
+    }
+
+    return `
+      <div ${hasVoted ? "" : `data-onclick="voteStorySticker('${s.id}',${i},event)"`}
+        style="position:relative;border:1px solid rgba(255,255,255,0.35);border-radius:10px;padding:10px 12px;margin-bottom:8px;overflow:hidden;cursor:${hasVoted ? "default" : "pointer"};">
+        ${hasVoted ? `<div style="position:absolute;left:0;top:0;bottom:0;width:${pct}%;background:${barColor};transition:width .4s ease;"></div>` : ""}
+        <div style="position:relative;display:flex;align-items:center;justify-content:space-between;color:#fff;font-size:13.5px;font-weight:600;">
+          <span>${o.text}${hasVoted && it.type === "quiz" && i === it.correctIndex ? " ✓" : ""}</span>
+          ${hasVoted ? `<span style="font-size:12px;font-weight:700;">${pct}%</span>` : ""}
+        </div>
+      </div>`;
+  }).join("");
+
+  box.innerHTML = `
+    <div style="background:rgba(0,0,0,0.35);backdrop-filter:blur(10px);border-radius:16px;padding:14px;">
+      <div style="color:#fff;font-size:14.5px;font-weight:700;margin-bottom:10px;text-align:center;">
+        ${it.type === "quiz" ? "🧠" : "📊"} ${it.question}
+      </div>
+      ${optionsHTML}
+      ${isOwner ? `<div style="text-align:center;color:#ccc;font-size:11px;margin-top:2px;">${totalVotes} vote${totalVotes !== 1 ? "s" : ""} · your story</div>` : ""}
+    </div>`;
+}
+
 //atory upload code
 
 window.uploadStory = async () => {
@@ -5309,51 +6429,26 @@ window.uploadStory = async () => {
   
   try {
     const isImg = f.type.startsWith("image");
-    
-    const fd = new FormData();
-    fd.append("file", f);
-    fd.append("upload_preset", "Fiveer");
-    
-    const uploadUrl = isImg ?
-      "https://api.cloudinary.com/v1_1/dlsfr0ies/image/upload" :
-      "https://api.cloudinary.com/v1_1/dlsfr0ies/video/upload";
-    
+
     status.innerText = "Uploading to server...";
-    
-    // 🔥 XHR with real progress
-    const data = await new Promise((resolve, reject) => {
-      const xhr = new XMLHttpRequest();
-      xhr.open("POST", uploadUrl);
-      
-      xhr.upload.onprogress = (e) => {
-        if (e.lengthComputable) {
-          const pct = Math.round((e.loaded / e.total) * 100);
-          progressBar.style.width = pct + "%";
-          progressText.innerText = pct + "%";
-        }
-      };
-      
-      xhr.onload = () => {
-        try { resolve(JSON.parse(xhr.responseText)); }
-        catch(e) { reject(new Error("Parse failed")); }
-      };
-      
-      xhr.onerror = () => reject(new Error("Upload failed"));
-      xhr.send(fd);
+
+    // Resilient upload: timeout + automatic retry + real progress
+    const data = await uploadToCloudinaryWithProgress(f, isImg ? "image" : "video", pct => {
+      progressBar.style.width = pct + "%";
+      progressText.innerText = pct + "%";
     });
-    
-    if (!data.secure_url) throw new Error("No URL returned");
-    
+
     status.innerText = "Saving story...";
-    
-    await addDoc(collection(db, "stories"), {
+
+    await withFirebaseTimeout(addDoc(collection(db, "stories"), {
       uid: auth.currentUser.uid,
       url: data.secure_url,
       type: isImg ? "image" : "video",
       time: serverTimestamp(),
       views: [],
-      expireAt: Date.now() + 86400000
-    });
+      expireAt: Date.now() + 86400000,
+      ...(pendingStorySticker ? { interactive: pendingStorySticker } : {})
+    }), "Saving story");
     
     // ✅ SUCCESS
     status.innerText = "Uploaded ✅";
@@ -5367,6 +6462,7 @@ window.uploadStory = async () => {
     // Fix 3: hide cancel button
     const cancelStoryBtn = document.getElementById("cancelStoryPreview");
     if (cancelStoryBtn) cancelStoryBtn.style.display = "none";
+    window.removeStorySticker();
     
     setTimeout(() => {
       status.innerText = "";
@@ -5378,7 +6474,9 @@ window.uploadStory = async () => {
     console.error(err);
     status.innerText = "Upload failed ❌";
     progressWrap.style.display = "none";
-    showToast("Upload failed", "error");
+    if (err.message !== "offline" && !String(err.message).includes("timed out")) {
+      showToast("Upload failed", "error");
+    }
   }
   
   btn.innerText = "Upload Story";
@@ -5461,21 +6559,21 @@ window.openCustomPlayer = (url, type, postId) => {
 
   if (type === "video") {
     overlay.innerHTML = `
-<button onclick="closeCustomPlayer()" style="position:absolute;top:14px;right:18px;font-size:28px;background:none;border:none;color:#fff;z-index:2;">✕</button>
+<button data-onclick="closeCustomPlayer()" style="position:absolute;top:14px;right:18px;font-size:28px;background:none;border:none;color:#fff;z-index:2;">✕</button>
 <video id="customPlayerVideo" src="${url}" autoplay playsinline
   style="width:100%;max-height:80vh;object-fit:contain;border-radius:8px;"
   controls></video>
 <div style="display:flex;gap:18px;margin-top:14px;padding:0 16px;width:100%;justify-content:center;">
-  <button onclick="likePost('${postId || ''}')" style="background:rgba(255,255,255,.12);border:none;color:#fff;font-size:22px;padding:10px 20px;border-radius:20px;cursor:pointer;">❤️ Like</button>
-  <button onclick="commentPost('${postId || ''}')" style="background:rgba(255,255,255,.12);border:none;color:#fff;font-size:22px;padding:10px 20px;border-radius:20px;cursor:pointer;">💬 Comment</button>
+  <button data-onclick="likePost('${postId || ''}')" style="background:rgba(255,255,255,.12);border:none;color:#fff;font-size:22px;padding:10px 20px;border-radius:20px;cursor:pointer;">❤️ Like</button>
+  <button data-onclick="commentPost('${postId || ''}')" style="background:rgba(255,255,255,.12);border:none;color:#fff;font-size:22px;padding:10px 20px;border-radius:20px;cursor:pointer;">💬 Comment</button>
 </div>`;
   } else {
     overlay.innerHTML = `
-<button onclick="closeCustomPlayer()" style="position:absolute;top:14px;right:18px;font-size:28px;background:none;border:none;color:#fff;z-index:2;">✕</button>
-<img src="${url}" style="width:100%;max-height:80vh;object-fit:contain;border-radius:8px;">
+<button data-onclick="closeCustomPlayer()" style="position:absolute;top:14px;right:18px;font-size:28px;background:none;border:none;color:#fff;z-index:2;">✕</button>
+<img loading="lazy" src="${url}" style="width:100%;max-height:80vh;object-fit:contain;border-radius:8px;">
 <div style="display:flex;gap:18px;margin-top:14px;padding:0 16px;width:100%;justify-content:center;">
-  <button onclick="likePost('${postId || ''}')" style="background:rgba(255,255,255,.12);border:none;color:#fff;font-size:22px;padding:10px 20px;border-radius:20px;cursor:pointer;">❤️ Like</button>
-  <button onclick="commentPost('${postId || ''}')" style="background:rgba(255,255,255,.12);border:none;color:#fff;font-size:22px;padding:10px 20px;border-radius:20px;cursor:pointer;">💬 Comment</button>
+  <button data-onclick="likePost('${postId || ''}')" style="background:rgba(255,255,255,.12);border:none;color:#fff;font-size:22px;padding:10px 20px;border-radius:20px;cursor:pointer;">❤️ Like</button>
+  <button data-onclick="commentPost('${postId || ''}')" style="background:rgba(255,255,255,.12);border:none;color:#fff;font-size:22px;padding:10px 20px;border-radius:20px;cursor:pointer;">💬 Comment</button>
 </div>`;
   }
 
@@ -5721,7 +6819,7 @@ window.loadUserPosts = (uid) => {
       wrapper.style.cssText = "position:relative;aspect-ratio:1/1;overflow:hidden;border-radius:4px;background:#111;cursor:pointer;";
 
       const deleteBtn = isMe
-        ? `<button onclick="event.stopPropagation();delPost('${id}')"
+        ? `<button data-onclick="event.stopPropagation();delPost('${id}')"
              style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,0.6);border:none;color:#fff;
                     width:24px;height:24px;border-radius:50%;font-size:13px;cursor:pointer;
                     display:flex;align-items:center;justify-content:center;z-index:2;">✕</button>`
@@ -5730,29 +6828,29 @@ window.loadUserPosts = (uid) => {
       if (p.video) {
         const thumb = p.thumbnail || "";
         wrapper.innerHTML = thumb
-          ? `<img src="${thumb}" loading="lazy" class="postMini" onclick="${isMe ? `openViewer('${p.video}','video')` : `openCustomPlayer('${p.video}','video','${id}')`}"
+          ? `<img src="${thumb}" loading="lazy" class="postMini" data-onclick="${isMe ? `openViewer('${p.video}','video')` : `openCustomPlayer('${p.video}','video','${id}')`}"
               style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;">
              <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:20px;pointer-events:none;color:#fff;">▶</div>
              ${!isMe ? `<div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.7));padding:8px 6px 4px;display:flex;gap:10px;align-items:center;">
-               <button onclick="event.stopPropagation();likePost('${id}')" style="background:none;border:none;color:#fff;font-size:16px;cursor:pointer;">❤️</button>
-               <button onclick="event.stopPropagation();commentPost('${id}')" style="background:none;border:none;color:#fff;font-size:16px;cursor:pointer;">💬</button>
+               <button data-onclick="event.stopPropagation();likePost('${id}')" style="background:none;border:none;color:#fff;font-size:16px;cursor:pointer;">❤️</button>
+               <button data-onclick="event.stopPropagation();commentPost('${id}')" style="background:none;border:none;color:#fff;font-size:16px;cursor:pointer;">💬</button>
              </div>` : ""}
              ${deleteBtn}`
-          : `<video class="postMini" src="${p.video}" muted onclick="${isMe ? `openViewer('${p.video}','video')` : `openCustomPlayer('${p.video}','video','${id}')`}"
+          : `<video class="postMini" src="${p.video}" muted data-onclick="${isMe ? `openViewer('${p.video}','video')` : `openCustomPlayer('${p.video}','video','${id}')`}"
               style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;"></video>
              <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:20px;pointer-events:none;color:#fff;">▶</div>
              ${!isMe ? `<div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.7));padding:8px 6px 4px;display:flex;gap:10px;align-items:center;">
-               <button onclick="event.stopPropagation();likePost('${id}')" style="background:none;border:none;color:#fff;font-size:16px;cursor:pointer;">❤️</button>
-               <button onclick="event.stopPropagation();commentPost('${id}')" style="background:none;border:none;color:#fff;font-size:16px;cursor:pointer;">💬</button>
+               <button data-onclick="event.stopPropagation();likePost('${id}')" style="background:none;border:none;color:#fff;font-size:16px;cursor:pointer;">❤️</button>
+               <button data-onclick="event.stopPropagation();commentPost('${id}')" style="background:none;border:none;color:#fff;font-size:16px;cursor:pointer;">💬</button>
              </div>` : ""}
              ${deleteBtn}`;
       } else if (p.photo) {
         wrapper.innerHTML = `
-          <img class="postMini" loading="lazy" src="${p.photo}" onclick="${isMe ? `openViewer('${p.photo}','image')` : `openCustomPlayer('${p.photo}','image','${id}')`}"
+          <img class="postMini" loading="lazy" src="${p.photo}" data-onclick="${isMe ? `openViewer('${p.photo}','image')` : `openCustomPlayer('${p.photo}','image','${id}')`}"
             style="width:100%;height:100%;object-fit:cover;">
           ${!isMe ? `<div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.7));padding:8px 6px 4px;display:flex;gap:10px;align-items:center;">
-            <button onclick="event.stopPropagation();likePost('${id}')" style="background:none;border:none;color:#fff;font-size:16px;cursor:pointer;">❤️</button>
-            <button onclick="event.stopPropagation();commentPost('${id}')" style="background:none;border:none;color:#fff;font-size:16px;cursor:pointer;">💬</button>
+            <button data-onclick="event.stopPropagation();likePost('${id}')" style="background:none;border:none;color:#fff;font-size:16px;cursor:pointer;">❤️</button>
+            <button data-onclick="event.stopPropagation();commentPost('${id}')" style="background:none;border:none;color:#fff;font-size:16px;cursor:pointer;">💬</button>
           </div>` : ""}
           ${deleteBtn}`;
       } else {
@@ -5863,10 +6961,10 @@ async function openFollowListPopupWithUIDs(uids, title) {
     const listBadgeHTML = getBadgeHTML(u.badges || {});
 
     html += `
-<div class="card" onclick="openMiniProfile('${uid}')"
+<div class="card" data-onclick="openMiniProfile('${uid}')"
   style="display:flex;align-items:center;gap:12px;cursor:pointer;margin-bottom:6px;">
   <div style="position:relative;">
-    <img src="${photo}" style="width:50px;height:50px;border-radius:50%;object-fit:cover;border:2px solid #ff2d55;">
+    <img loading="lazy" src="${photo}" style="width:50px;height:50px;border-radius:50%;object-fit:cover;border:2px solid #ff2d55;">
     <div style="position:absolute;bottom:1px;right:1px;width:11px;height:11px;border-radius:50%;
       background:${online?"#00e676":"#555"};border:2px solid #111;"></div>
   </div>
@@ -5953,10 +7051,10 @@ window.openMiniProfile = async (uid) => {
     const pid = d.id;
     if (p.photo) grid.innerHTML += `
 <div style="aspect-ratio:1/1;overflow:hidden;border-radius:4px;position:relative;background:#111;">
-  <img class="postMini" src="${p.photo}" onclick="openCustomPlayer('${p.photo}','image','${pid}')" style="width:100%;height:100%;object-fit:cover;cursor:pointer;">
+  <img loading="lazy" class="postMini" src="${p.photo}" data-onclick="openCustomPlayer('${p.photo}','image','${pid}')" style="width:100%;height:100%;object-fit:cover;cursor:pointer;">
   <div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.7));padding:8px 6px 4px;display:flex;gap:10px;align-items:center;">
-    <button onclick="event.stopPropagation();likePost('${pid}')" style="background:none;border:none;color:#fff;font-size:18px;cursor:pointer;">❤️ <span id="like-${pid}"></span></button>
-    <button onclick="event.stopPropagation();commentPost('${pid}')" style="background:none;border:none;color:#fff;font-size:18px;cursor:pointer;">💬</button>
+    <button data-onclick="event.stopPropagation();likePost('${pid}')" style="background:none;border:none;color:#fff;font-size:18px;cursor:pointer;">❤️ <span id="like-${pid}"></span></button>
+    <button data-onclick="event.stopPropagation();commentPost('${pid}')" style="background:none;border:none;color:#fff;font-size:18px;cursor:pointer;">💬</button>
   </div>
 </div>`;
     if (p.video) {
@@ -5964,12 +7062,12 @@ window.openMiniProfile = async (uid) => {
       grid.innerHTML += `
 <div style="position:relative;aspect-ratio:1/1;overflow:hidden;border-radius:4px;background:#111;">
   ${thumb
-    ? `<img src="${thumb}" style="width:100%;height:100%;object-fit:cover;cursor:pointer;" onclick="openCustomPlayer('${p.video}','video','${pid}')">`
-    : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;cursor:pointer;" onclick="openCustomPlayer('${p.video}','video','${pid}')"><span style="font-size:32px;color:#fff;">▶</span></div>`}
+    ? `<img loading="lazy" src="${thumb}" style="width:100%;height:100%;object-fit:cover;cursor:pointer;" data-onclick="openCustomPlayer('${p.video}','video','${pid}')">`
+    : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;cursor:pointer;" data-onclick="openCustomPlayer('${p.video}','video','${pid}')"><span style="font-size:32px;color:#fff;">▶</span></div>`}
   <div style="position:absolute;top:6px;right:8px;font-size:14px;color:#fff;pointer-events:none;">▶</div>
   <div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.7));padding:8px 6px 4px;display:flex;gap:10px;align-items:center;">
-    <button onclick="event.stopPropagation();likePost('${pid}')" style="background:none;border:none;color:#fff;font-size:18px;cursor:pointer;">❤️ <span id="like-${pid}"></span></button>
-    <button onclick="event.stopPropagation();commentPost('${pid}')" style="background:none;border:none;color:#fff;font-size:18px;cursor:pointer;">💬</button>
+    <button data-onclick="event.stopPropagation();likePost('${pid}')" style="background:none;border:none;color:#fff;font-size:18px;cursor:pointer;">❤️ <span id="like-${pid}"></span></button>
+    <button data-onclick="event.stopPropagation();commentPost('${pid}')" style="background:none;border:none;color:#fff;font-size:18px;cursor:pointer;">💬</button>
   </div>
 </div>`;
     }
@@ -6214,14 +7312,14 @@ async function loadSavedPosts() {
       if (p.photo) {
         html += `
 <div style="aspect-ratio:1/1;overflow:hidden;border-radius:4px;position:relative;background:#111;">
-  <img class="postMini" src="${p.photo}" onclick="openCustomPlayer('${p.photo}','image','${pid}')" style="width:100%;height:100%;object-fit:cover;cursor:pointer;">
+  <img loading="lazy" class="postMini" src="${p.photo}" data-onclick="openCustomPlayer('${p.photo}','image','${pid}')" style="width:100%;height:100%;object-fit:cover;cursor:pointer;">
   <div style="position:absolute;top:5px;right:6px;font-size:14px;color:#ff2d55;">🔖</div>
 </div>`;
       } else if (p.video) {
         const thumb = p.thumbnail || "";
         html += `
 <div style="position:relative;aspect-ratio:1/1;overflow:hidden;border-radius:4px;background:#111;">
-  ${thumb ? `<img src="${thumb}" style="width:100%;height:100%;object-fit:cover;cursor:pointer;" onclick="openCustomPlayer('${p.video}','video','${pid}')">` : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;cursor:pointer;" onclick="openCustomPlayer('${p.video}','video','${pid}')"><span style="font-size:32px;color:#fff;">▶</span></div>`}
+  ${thumb ? `<img loading="lazy" src="${thumb}" style="width:100%;height:100%;object-fit:cover;cursor:pointer;" data-onclick="openCustomPlayer('${p.video}','video','${pid}')">` : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;cursor:pointer;" data-onclick="openCustomPlayer('${p.video}','video','${pid}')"><span style="font-size:32px;color:#fff;">▶</span></div>`}
   <div style="position:absolute;top:5px;right:6px;font-size:14px;color:#ff2d55;">🔖</div>
 </div>`;
       }
@@ -6268,19 +7366,19 @@ function renderPostsFeed(s) {
     html += `
 <div class="ig-post-card">
   <div class="ig-post-header">
-    <img src="${uploaderPhoto}" data-post-avatar="${id}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;border:2px solid #ff2d55;cursor:pointer;"
-      onclick="openUserProfile('${p.uid||''}')">
-    <div style="flex:1;cursor:pointer;display:flex;align-items:center;flex-wrap:wrap;gap:4px;" onclick="openUserProfile('${p.uid||''}')">
+    <img loading="lazy" src="${uploaderPhoto}" data-post-avatar="${id}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;border:2px solid #ff2d55;cursor:pointer;"
+      data-onclick="openUserProfile('${p.uid||''}')">
+    <div style="flex:1;cursor:pointer;display:flex;align-items:center;flex-wrap:wrap;gap:4px;" data-onclick="openUserProfile('${p.uid||''}')">
       <b data-post-name="${id}" style="font-size:14px;">${uploaderName}</b>${badgeHTML}
     </div>
-    ${isOwner ? `<button onclick="delPost('${id}')" style="background:none;border:none;color:#aaa;font-size:22px;cursor:pointer;padding:4px 8px;">⋯</button>` : ""}
+    ${isOwner ? `<button data-onclick="delPost('${id}')" style="background:none;border:none;color:#aaa;font-size:22px;cursor:pointer;padding:4px 8px;">⋯</button>` : ""}
   </div>
-  <img class="ig-post-img" src="${p.photo}" onclick="openViewer('${p.photo}','image')">
+  <img loading="lazy" class="ig-post-img" src="${p.photo}" data-onclick="openViewer('${p.photo}','image')">
   <div class="ig-post-actions">
-    <button id="postLikeBtn-${id}" onclick="likePostFeed('${id}',this)">${isLiked ? "❤️" : "🤍"}</button>
-    <button onclick="commentPost('${id}')">💬</button>
-    ${isOwner ? `<button onclick="delPost('${id}')" style="font-size:20px;color:#ff4444;background:none;border:none;color:#ff4444;cursor:pointer;padding:0;line-height:1;">🗑</button>` : ""}
-    <button id="bookmarkBtn-${id}" class="bookmark-btn ${SAVED_POSTS.has(id)?'saved':''}" onclick="toggleSave('${id}',this)" title="Save post">${SAVED_POSTS.has(id)?'🔖':'🔖'}</button>
+    <button id="postLikeBtn-${id}" data-onclick="likePostFeed('${id}',this)">${isLiked ? "❤️" : "🤍"}</button>
+    <button data-onclick="commentPost('${id}')">💬</button>
+    ${isOwner ? `<button data-onclick="delPost('${id}')" style="font-size:20px;color:#ff4444;background:none;border:none;color:#ff4444;cursor:pointer;padding:0;line-height:1;">🗑</button>` : ""}
+    <button id="bookmarkBtn-${id}" class="bookmark-btn ${SAVED_POSTS.has(id)?'saved':''}" data-onclick="toggleSave('${id}',this)" title="Save post">${SAVED_POSTS.has(id)?'🔖':'🔖'}</button>
   </div>
   <div class="ig-post-likes"><span id="postLikeCount-${id}">${p.likes || 0}</span> likes</div>
   ${p.caption ? `<div class="ig-post-caption"><b style="color:#fff;">${uploaderName}</b>${badgeHTML} ${p.caption}</div>` : ""}
@@ -6444,7 +7542,7 @@ window.cancelStorySelection = () => {
 
 
 //toast message upload 
-window.showToast = (msg, type = "default") => {
+window.showToast = (msg, type = "default", onClick) => {
   let t = document.getElementById("globalToast");
   
   if (!t) {
@@ -6453,20 +7551,24 @@ window.showToast = (msg, type = "default") => {
     document.body.appendChild(t);
   }
   
-  t.innerText = msg;
+  t.innerText = onClick ? `${msg}` : msg;
   
   // 🎨 colors based on type
   if (type === "success") t.style.background = "#16a34a";
   else if (type === "error") t.style.background = "#dc2626";
   else t.style.background = "#111";
+
+  t.style.cursor = onClick ? "pointer" : "default";
+  t.onclick = onClick ? () => { onClick(); t.style.opacity = "0"; } : null;
   
   t.style.opacity = "1";
   t.style.transform = "translateX(-50%) translateY(0)";
-  
-  setTimeout(() => {
+
+  clearTimeout(t._hideTimer);
+  t._hideTimer = setTimeout(() => {
     t.style.opacity = "0";
     t.style.transform = "translateX(-50%) translateY(-20px)";
-  }, 3000);
+  }, onClick ? 5000 : 3000);
   
   if (navigator.vibrate) navigator.vibrate(50);
 };
@@ -6735,27 +7837,13 @@ recordTime.innerText = "0:00";
 async function sendAudioMessage() {
   
   const blob = new Blob(audioChunks, { type: "audio/webm" });
-  
-  const fd = new FormData();
-  fd.append("file", blob);
-  fd.append("upload_preset", "Fiveer");
-  
+
   try {
-    const res = await fetch(
-      "https://api.cloudinary.com/v1_1/dlsfr0ies/video/upload",
-      {
-        method: "POST",
-        body: fd
-      }
-    );
-    
-    const data = await res.json();
-    
-    if (!data.secure_url) throw new Error("Upload failed");
-    
+    const data = await uploadToCloudinary(blob, "video");
+
     // 🔥 SEND TO ACTIVE ROOM
     const collPath = activeRoom?.collPath || "chat_rooms/global/messages";
-    await addDoc(collection(db, collPath), {
+    await withFirebaseTimeout(addDoc(collection(db, collPath), {
       uid: auth.currentUser.uid,
       u: auth.currentUser.email,
       name: profileName.innerText.trim(),
@@ -6764,10 +7852,12 @@ async function sendAudioMessage() {
       deletedFor: [], // 🔥 NEW
       deletedForEveryone: false,//NEW
       time: serverTimestamp()
-    });
+    }), "Sending voice message");
     
   } catch (err) {
-    alert("Audio send failed");
+    if (err.message !== "offline" && !String(err.message).includes("timed out")) {
+      showToast("Audio send failed ❌", "error");
+    }
   }
 }
 
@@ -7308,7 +8398,7 @@ function startLiveChatListener(hostUid, boxId) {
       const bubble = document.createElement("div");
       bubble.className = "live-msg-bubble";
       bubble.innerHTML = `
-        <img src="${photo}" alt="">
+        <img loading="lazy" src="${photo}" alt="">
         <span><b style="color:${isMe ? "#ff7eb3" : "#fff"};font-size:12px;">${name}</b>
         <span style="color:rgba(255,255,255,0.85);"> ${msg.text}</span></span>`;
       box.appendChild(bubble);
@@ -7882,15 +8972,15 @@ async function loadSuggestedUsers() {
       const photo = u.photo||"https://i.imgur.com/6VBx3io.png";
       const online = ONLINE_USERS.has(uid);
       html += `<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #1a1a1a;">
-  <div style="position:relative;flex-shrink:0;cursor:pointer;" onclick="openMiniProfile('${uid}')">
-    <img src="${photo}" style="width:44px;height:44px;border-radius:50%;object-fit:cover;border:2px solid #222;">
+  <div style="position:relative;flex-shrink:0;cursor:pointer;" data-onclick="openMiniProfile('${uid}')">
+    <img loading="lazy" src="${photo}" style="width:44px;height:44px;border-radius:50%;object-fit:cover;border:2px solid #222;">
     <div style="position:absolute;bottom:1px;right:1px;width:10px;height:10px;border-radius:50%;background:${online?"#00e676":"#555"};border:2px solid #111;"></div>
   </div>
-  <div style="flex:1;min-width:0;cursor:pointer;" onclick="openMiniProfile('${uid}')">
+  <div style="flex:1;min-width:0;cursor:pointer;" data-onclick="openMiniProfile('${uid}')">
     <b style="font-size:13px;">${name}</b><br>
     <small style="color:#777;font-size:11px;">${online?"🟢 Online":"🔘 Offline"} · ${mutuals} mutual follow${mutuals>1?"s":""}</small>
   </div>
-  <button onclick="suggestedFollow('${uid}',this)" style="background:#ff2d55;border:none;color:#fff;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;flex-shrink:0;">Follow</button>
+  <button data-onclick="suggestedFollow('${uid}',this)" style="background:#ff2d55;border:none;color:#fff;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;flex-shrink:0;">Follow</button>
 </div>`;
     }
     list.innerHTML = html;
@@ -7928,9 +9018,9 @@ window.suggestedFollow = async (uid, btn) => {
     </div>
     <div style="display:flex;align-items:center;gap:8px;pointer-events:all;">
       <!-- Flip camera button like Instagram -->
-      <button onclick="flipLiveCamera()" title="Flip camera"
+      <button data-onclick="flipLiveCamera()" title="Flip camera"
         style="width:40px;height:40px;border-radius:50%;background:rgba(0,0,0,0.55);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:none;color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;">🔄</button>
-      <button onclick="endLive()" style="background:rgba(0,0,0,0.55);backdrop-filter:blur(10px);border:1.5px solid #ff2d55;color:#ff2d55;font-size:13px;font-weight:700;padding:7px 16px;border-radius:20px;cursor:pointer;">End Live</button>
+      <button data-onclick="endLive()" style="background:rgba(0,0,0,0.55);backdrop-filter:blur(10px);border:1.5px solid #ff2d55;color:#ff2d55;font-size:13px;font-weight:700;padding:7px 16px;border-radius:20px;cursor:pointer;">End Live</button>
     </div>
   </div>
 
@@ -7943,7 +9033,7 @@ window.suggestedFollow = async (uid, btn) => {
   <div style="position:absolute;bottom:0;left:0;width:100%;display:flex;align-items:center;gap:10px;padding:12px 14px 20px;z-index:10;background:linear-gradient(to top,rgba(0,0,0,0.6) 0%,transparent 100%);">
     <input id="liveHostMsgInput" placeholder="Say something…" maxlength="200"
       style="flex:1;padding:11px 18px;border-radius:30px;border:none;background:rgba(255,255,255,0.15);backdrop-filter:blur(10px);color:#fff;font-size:14px;outline:none;">
-    <button onclick="sendLiveMsg('host')"
+    <button data-onclick="sendLiveMsg('host')"
       style="width:46px;height:46px;border-radius:50%;background:#ff2d55;border:none;color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(255,45,85,.4);">➤</button>
   </div>
 </div>
@@ -7971,7 +9061,7 @@ window.suggestedFollow = async (uid, btn) => {
 
     <!-- LEFT: avatar + name + LIVE pill -->
     <div style="display:flex;align-items:center;gap:10px;background:rgba(0,0,0,0.55);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-radius:40px;padding:6px 14px 6px 6px;pointer-events:all;max-width:70%;">
-      <img id="liveViewHostPic" src="https://i.imgur.com/6VBx3io.png"
+      <img loading="lazy" id="liveViewHostPic" src="https://i.imgur.com/6VBx3io.png"
         style="width:38px;height:38px;border-radius:50%;object-fit:cover;border:2px solid #A856FB;flex-shrink:0;">
       <div style="display:flex;flex-direction:column;gap:2px;min-width:0;">
         <span id="liveViewHostName" style="color:#fff;font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Live</span>
@@ -7987,7 +9077,7 @@ window.suggestedFollow = async (uid, btn) => {
       <div style="background:rgba(0,0,0,0.55);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-radius:20px;padding:6px 12px;display:flex;align-items:center;gap:5px;color:#fff;font-size:13px;font-weight:600;">
         👁 <span id="liveViewViewerCount">0</span>
       </div>
-      <button onclick="exitLive()"
+      <button data-onclick="exitLive()"
         style="width:36px;height:36px;border-radius:50%;background:rgba(0,0,0,0.55);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:none;color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:300;">✕</button>
     </div>
   </div>
@@ -8001,7 +9091,7 @@ window.suggestedFollow = async (uid, btn) => {
   <div style="position:absolute;bottom:0;left:0;width:100%;display:flex;align-items:center;gap:10px;padding:12px 14px 20px;z-index:10;background:linear-gradient(to top,rgba(0,0,0,0.6) 0%,transparent 100%);">
     <input id="liveViewMsgInput" placeholder="Comment on live…" maxlength="200"
       style="flex:1;padding:11px 18px;border-radius:30px;border:none;background:rgba(255,255,255,0.15);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:#fff;font-size:14px;outline:none;">
-    <button onclick="sendLiveMsg('viewer')"
+    <button data-onclick="sendLiveMsg('viewer')"
       style="width:46px;height:46px;border-radius:50%;background:#ff2d55;border:none;color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(255,45,85,.4);">➤</button>
   </div>
 
@@ -8012,7 +9102,7 @@ window.suggestedFollow = async (uid, btn) => {
 </div>
 <span id="notiBadge" style="display:none;">0</span>
 <div id="commentBackdrop"
-onclick="closeCommentBox()"
+data-onclick="closeCommentBox()"
 style="
 display:none;
 position:fixed;
@@ -8060,11 +9150,11 @@ margin:12px 0;">
 </div>
 
 <div style="display:flex;gap:6px;margin-bottom:8px;height:30px;"id="emojibtns">
-<button onclick="addEmoji('😂')">😂</button>
-<button onclick="addEmoji('🔥')">🔥</button>
-<button onclick="addEmoji('❤️')">❤️</button>
-<button onclick="addEmoji('😍')">😍</button>
-<button onclick="addEmoji('😭')">😭</button>
+<button data-onclick="addEmoji('😂')">😂</button>
+<button data-onclick="addEmoji('🔥')">🔥</button>
+<button data-onclick="addEmoji('❤️')">❤️</button>
+<button data-onclick="addEmoji('😍')">😍</button>
+<button data-onclick="addEmoji('😭')">😭</button>
 </div>
 
 <div style="display:flex;gap:8px;">
@@ -8078,7 +9168,7 @@ border-radius:12px;
 background:#222;
 color:#fff;">
 
-<button onclick="sendComment()"
+<button data-onclick="sendComment()"
 style="
 background:#ff2d55;
 color:#fff;
@@ -8101,7 +9191,7 @@ Send
 <div id="viewer"
 style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#000;z-index:9999;justify-content:center;align-items:center;">
 
-<button onclick="closeViewer()"
+<button data-onclick="closeViewer()"
 style="position:absolute;top:12px;right:18px;font-size:30px;background:none;border:none;color:#fff;z-index:2;">✕</button>
 
 
@@ -8109,12 +9199,12 @@ style="position:absolute;top:12px;right:18px;font-size:30px;background:none;bord
 <video id="bigVideo"
 controls
 style="max-width:100%;max-height:100%;display:none;"></video>
-<img id="bigImg"
+<img loading="lazy" id="bigImg"
 style="max-width:100%;max-height:100%;display:none;"></div>
 <!-- ADD after <body> tag -->
 <div id="splash" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#000;z-index:999999;display:flex;justify-content:center;align-items:center;flex-direction:column;color:#fff;font-family:Arial;transition:opacity .45s cubic-bezier(0.22,1,0.36,1),transform .45s cubic-bezier(0.22,1,0.36,1);">
   <div style="font-size:55px;animation:splashPop .5s cubic-bezier(0.34,1.56,0.64,1) both;">
-  <img src="/images/logo.jpg"style="height:60px; width:60px;border-radius:50%;object-fit:cover;border:2px solid red ;box-shadow:0 0 24px rgba(168,86,251,.4)";>
+  <img loading="lazy" src="/images/logo.jpg"style="height:60px; width:60px;border-radius:50%;object-fit:cover;border:2px solid red ;box-shadow:0 0 24px rgba(168,86,251,.4)";>
   </div>
   <h1 style="margin-top:2px;background:linear-gradient(135deg,#fff,hotpink);-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:splashPop .55s .08s cubic-bezier(0.34,1.56,0.64,1) both;opacity:0;">Brooz</h1>
   <i style="margin-top:4px;font-size:10px;color:pink;animation:splashPop .55s .15s cubic-bezier(0.34,1.56,0.64,1) both;opacity:0;">Made By Pratik</i>
@@ -8139,18 +9229,18 @@ style="max-width:100%;max-height:100%;display:none;"></div>
 <input id="passLogin" type="password" placeholder="Password"
 style="width:100%;padding:14px;border:none;border-radius:12px;background:#111;color:#fff;max-width:340px;">
 
-<button onclick="emailLoginFn()" style="width:100%;max-width:340px;padding:14px;border:none;border-radius:12px;background:#ff2d55;color:#fff;font-size:16px;">Login</button>
-<button onclick="signupFn()" style="width:100%;max-width:340px;padding:14px;border:none;border-radius:12px;background:#222;color:#fff;font-size:16px;">Create Account</button>
-<button onclick="forgotPasswordFn()" style="width:100%;max-width:340px;padding:8px;border:none;background:none;color:#aaa;font-size:13px;text-decoration:underline;cursor:pointer;">Forgot Password?</button>
+<button data-onclick="emailLoginFn()" style="width:100%;max-width:340px;padding:14px;border:none;border-radius:12px;background:#ff2d55;color:#fff;font-size:16px;">Login</button>
+<button data-onclick="signupFn()" style="width:100%;max-width:340px;padding:14px;border:none;border-radius:12px;background:#222;color:#fff;font-size:16px;">Create Account</button>
+<button data-onclick="forgotPasswordFn()" style="width:100%;max-width:340px;padding:8px;border:none;background:none;color:#aaa;font-size:13px;text-decoration:underline;cursor:pointer;">Forgot Password?</button>
 
-<button onclick="login()" style="width:100%;max-width:340px;padding:14px;
+<button data-onclick="login()" style="width:100%;max-width:340px;padding:14px;
 border:none;border-radius:12px;background:#4285F4;color:#fff;font-size:16px;">Continue with Google</button>
 </div>
 
 <!--story-->
 <div style="position:absolute;bottom:20px;left:15px;display:flex;align-items:center;gap:10px;z-index:5;">
   
-  <img id="storyUserPic"
+  <img loading="lazy" id="storyUserPic"
   style="width:40px;height:40px;border-radius:50%;object-fit:cover;">
   
   <span id="storyUserName"
@@ -8164,7 +9254,7 @@ border:none;border-radius:12px;background:#4285F4;color:#fff;font-size:16px;">Co
   z-index:9999999;flex-direction:column;align-items:center;justify-content:center;gap:24px;
   animation:callFadeIn .3s ease;">
   <div style="text-align:center;">
-    <img id="callerPhoto" src="https://i.imgur.com/6VBx3io.png"
+    <img loading="lazy" id="callerPhoto" src="https://i.imgur.com/6VBx3io.png"
       style="width:100px;height:100px;border-radius:50%;object-fit:cover;border:3px solid #fff;box-shadow:0 0 0 0 rgba(255,255,255,0.3);animation:callerPulse 1.5s infinite;">
     <h2 id="callerName" style="margin:16px 0 4px;font-size:22px;letter-spacing:.3px;">Unknown</h2>
     <p id="callTypeLabel" style="color:#aaa;font-size:15px;margin:0;">Incoming voice call…</p>
@@ -8172,7 +9262,7 @@ border:none;border-radius:12px;background:#4285F4;color:#fff;font-size:16px;">Co
   <div style="display:flex;gap:36px;margin-top:16px;">
     <!-- Reject -->
     <div style="text-align:center;">
-      <button onclick="rejectCall()"
+      <button data-onclick="rejectCall()"
         style="width:68px;height:68px;border-radius:50%;background:#ff3b30;border:none;color:#fff;font-size:26px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 24px rgba(255,59,48,.5);transition:.2s;margin:0 auto;">
         <i class="fa-solid fa-phone-slash"></i>
       </button>
@@ -8180,7 +9270,7 @@ border:none;border-radius:12px;background:#4285F4;color:#fff;font-size:16px;">Co
     </div>
     <!-- Accept -->
     <div style="text-align:center;">
-      <button onclick="acceptCall()"
+      <button data-onclick="acceptCall()"
         style="width:68px;height:68px;border-radius:50%;background:#34c759;border:none;color:#fff;font-size:26px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 24px rgba(52,199,89,.5);transition:.2s;margin:0 auto;">
         <i id="acceptCallIcon" class="fa-solid fa-phone"></i>
       </button>
@@ -8197,7 +9287,7 @@ border:none;border-radius:12px;background:#4285F4;color:#fff;font-size:16px;">Co
   <!-- Top: caller info -->
   <div style="text-align:center;">
     <div id="callStatusText" style="color:#aaa;font-size:13px;margin-bottom:16px;letter-spacing:.5px;">Calling…</div>
-    <img id="activeCallPhoto" src="https://i.imgur.com/6VBx3io.png"
+    <img loading="lazy" id="activeCallPhoto" src="https://i.imgur.com/6VBx3io.png"
       style="width:110px;height:110px;border-radius:50%;object-fit:cover;border:3px solid #222;">
     <h2 id="activeCallName" style="margin:14px 0 4px;font-size:22px;"></h2>
     <p id="activeCallTimer" style="color:#aaa;font-size:15px;margin:0;">0:00</p>
@@ -8210,21 +9300,21 @@ border:none;border-radius:12px;background:#4285F4;color:#fff;font-size:16px;">Co
   <!-- Bottom: control buttons -->
   <div style="display:flex;gap:28px;align-items:center;">
     <div style="text-align:center;">
-      <button id="muteBtn" onclick="toggleMute()"
+      <button id="muteBtn" data-onclick="toggleMute()"
         style="width:56px;height:56px;border-radius:50%;background:#333;border:none;color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;margin:0 auto;transition:.2s;">
         <i class="fa-solid fa-microphone"></i>
       </button>
       <span style="color:#aaa;font-size:11px;margin-top:6px;display:block;">Mute</span>
     </div>
     <div style="text-align:center;">
-      <button onclick="endCall()"
+      <button data-onclick="endCall()"
         style="width:68px;height:68px;border-radius:50%;background:#ff3b30;border:none;color:#fff;font-size:26px;cursor:pointer;display:flex;align-items:center;justify-content:center;margin:0 auto;box-shadow:0 4px 20px rgba(255,59,48,.4);transition:.2s;">
         <i class="fa-solid fa-phone-slash"></i>
       </button>
       <span style="color:#aaa;font-size:11px;margin-top:6px;display:block;">End</span>
     </div>
     <div style="text-align:center;">
-      <button id="speakerBtn" onclick="toggleSpeaker()"
+      <button id="speakerBtn" data-onclick="toggleSpeaker()"
         style="width:56px;height:56px;border-radius:50%;background:#333;border:none;color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;margin:0 auto;transition:.2s;">
         <i class="fa-solid fa-volume-high"></i>
       </button>
@@ -8244,7 +9334,7 @@ border:none;border-radius:12px;background:#4285F4;color:#fff;font-size:16px;">Co
 <div id="storyViewer" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#000;z-index:99999;overflow:hidden;">
   
 <button id="storyDeleteBtn"
-onclick="deleteStory()"
+data-onclick="deleteStory()"
 style="position:absolute;bottom:20px;left:15px;z-index:5;background:#ff2d55;border:none;color:#fff;padding:8px 12px;border-radius:10px;display:none;">
 × Delete
 </button>
@@ -8255,29 +9345,110 @@ style="position:absolute;bottom:20px;left:15px;z-index:5;background:#ff2d55;bord
   <div id="storyViewsCount" style="display:none;position:absolute;bottom:22px;right:15px;background:rgba(0,0,0,0.55);backdrop-filter:blur(6px);color:#fff;padding:6px 12px;border-radius:20px;font-size:13px;font-weight:600;pointer-events:none;">👁 0 views</div>
 
   <!-- Close button -->
-<button onclick="event.stopPropagation(); closeStory()" 
+<button data-onclick="event.stopPropagation(); closeStory()" 
   style="position:absolute;top:18px;right:18px;font-size:26px;background:none;border:none;color:#fff;z-index:999;">
 ✕
 </button>
     
     <!-- LEFT TAP (previous story) -->
-<div onclick="nextStory(event)"
+<div data-onclick="nextStory(event)"
 style="position:absolute;right:0;top:0;width:50%;height:100%;z-index:3;"></div>
 
-<div onclick="prevStory(event)"
+<div data-onclick="prevStory(event)"
 style="position:absolute;left:0;top:0;width:50%;height:100%;z-index:3;"></div>
 
 <button id="soundBtn"
-onclick="toggleStorySound()"
+data-onclick="toggleStorySound()"
 style="position:absolute;bottom:70px;right:15px;z-index:5;background:#111;color:#fff;border:none;padding:8px 12px;border-radius:10px;">
  🔇Sound OFF
 </button>
 <!--views: shown inline in progress bar area for owner only-->
   <!-- Story media -->
-  <img id="storyImg" style="width:100%;height:100%;object-fit:cover;display:none;">
+  <img loading="lazy" id="storyImg" style="width:100%;height:100%;object-fit:cover;display:none;">
   <video id="storyVideo" style="width:100%;height:100%;object-fit:cover;display:none;" autoplay playsinline></video>
 
+  <!-- 🎯 Poll/Quiz sticker overlay, shown when the current story has one -->
+  <div id="storyInteractive" style="position:absolute;left:0;width:100%;bottom:100px;z-index:10;padding:0 20px;"></div>
 
+</div>
+
+<!-- 🎵 AUDIO PICKER MODAL -->
+<div id="audioPickerModal" style="display:none;position:fixed;inset:0;background:#000;z-index:999999;flex-direction:column;">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #1c1c1c;">
+    <b style="font-size:15px;">Choose Audio</b>
+    <button data-onclick="closeAudioPicker()" style="background:none;border:none;color:#fff;font-size:22px;cursor:pointer;">✕</button>
+  </div>
+  <div style="padding:10px 16px;">
+    <input id="audioSearchInput" placeholder="Search audio…" oninput="filterAudioList(this.value)"
+      class="inp" style="margin:0;">
+  </div>
+  <div style="display:flex;gap:8px;padding:0 16px 10px;">
+    <button id="audioTabTrending" class="audioTabActive" data-onclick="switchAudioTab('trending')"
+      style="flex:1;padding:8px;border-radius:8px;border:none;background:#1c1c1c;color:#fff;font-size:12.5px;cursor:pointer;">🔥 Trending</button>
+    <button id="audioTabSaved" data-onclick="switchAudioTab('saved')"
+      style="flex:1;padding:8px;border-radius:8px;border:none;background:#1c1c1c;color:#fff;font-size:12.5px;cursor:pointer;">🔖 Saved</button>
+  </div>
+  <div id="audioListContainer" style="flex:1;overflow-y:auto;padding:0 16px;"></div>
+  <audio id="audioPreviewPlayer" style="display:none;"></audio>
+</div>
+<style>#audioTabTrending.audioTabActive,#audioTabSaved.audioTabActive{background:#ff2d55 !important;}</style>
+
+<!-- 🗳️ POLL / QUIZ STICKER BUILDER MODAL -->
+<div id="stickerBuilderModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:999999;align-items:flex-end;justify-content:center;">
+  <div style="width:100%;max-width:480px;background:#111;border-radius:18px 18px 0 0;padding:18px;max-height:85vh;overflow-y:auto;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+      <b style="font-size:15px;">Add Poll / Quiz</b>
+      <button data-onclick="closeStickerBuilder()" style="background:none;border:none;color:#fff;font-size:20px;cursor:pointer;">✕</button>
+    </div>
+
+    <div style="display:flex;gap:8px;margin-bottom:12px;">
+      <button id="stickerTypePoll" data-onclick="setStickerType('poll')"
+        style="flex:1;padding:9px;border-radius:8px;border:none;background:#A856FB;color:#fff;font-size:12.5px;cursor:pointer;">📊 Poll</button>
+      <button id="stickerTypeQuiz" data-onclick="setStickerType('quiz')"
+        style="flex:1;padding:9px;border-radius:8px;border:none;background:#1c1c1c;color:#fff;font-size:12.5px;cursor:pointer;">🧠 Quiz</button>
+    </div>
+
+    <input id="stickerQuestion" class="inp" placeholder="Ask a question…" style="margin:0 0 10px;">
+
+    <div id="stickerOptionsList" style="display:flex;flex-direction:column;gap:8px;"></div>
+
+    <button data-onclick="addStickerOption()"
+      style="width:100%;margin-top:10px;padding:8px;border-radius:8px;border:1px dashed #444;background:none;color:#aaa;font-size:12px;cursor:pointer;">
+      + Add option
+    </button>
+
+    <div id="stickerQuizHint" style="display:none;font-size:11px;color:#888;margin-top:8px;">
+      Tap the ⭐ next to the correct answer.
+    </div>
+
+    <button data-onclick="saveStorySticker()" class="btn" style="margin-top:16px;">
+      Save Sticker
+    </button>
+  </div>
+</div>
+
+<!-- 🎵 AUDIO DETAIL OVERLAY — browse reels by audio track -->
+<div id="audioPageOverlay" style="display:none;position:fixed;inset:0;background:#000;z-index:999998;flex-direction:column;">
+  <div style="display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid #1c1c1c;">
+    <button data-onclick="closeAudioPage()" style="background:none;border:none;color:#fff;font-size:20px;cursor:pointer;">←</button>
+    <div id="audioPageCover" style="width:44px;height:44px;border-radius:10px;background:#111 center/cover;flex-shrink:0;"></div>
+    <div style="flex:1;min-width:0;">
+      <div id="audioPageTitle" style="font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Track</div>
+      <div id="audioPageArtist" style="font-size:11.5px;color:#888;"></div>
+      <div id="audioPageCount" style="font-size:11px;color:#666;"></div>
+    </div>
+    <button id="audioPageSaveBtn" data-onclick="toggleSaveAudioFromPage()"
+      style="background:#1c1c1c;color:#fff;border:none;border-radius:8px;padding:8px 10px;font-size:11.5px;cursor:pointer;white-space:nowrap;">
+      <i class="fa-regular fa-bookmark"></i> Save
+    </button>
+    <button id="audioPageUseBtn" data-onclick="useAudioFromPage()"
+      style="background:#fff;color:#000;border:none;border-radius:8px;padding:8px 10px;font-size:11.5px;font-weight:700;cursor:pointer;white-space:nowrap;">
+      Use audio
+    </button>
+  </div>
+  <div id="audioPageGrid" style="flex:1;overflow-y:auto;display:grid;grid-template-columns:repeat(3,1fr);gap:3px;padding:3px;"></div>
+  <audio id="audioPageThumbPlayer" loop style="display:none;"></audio>
+</div>
 
 </body>
 </html>
