@@ -2777,6 +2777,51 @@ setTimeout(() => {
     }, 450);
   }
 }, 1200);
+// ── IP blacklist check + login activity logger (best-effort, non-blocking on failure) ──
+async function checkIpAndLogLogin(u) {
+  let ip = '', city = '', region = '', country = '';
+  try {
+    const ipRes = await fetch('https://api.ipify.org?format=json');
+    const ipData = await ipRes.json();
+    ip = ipData.ip || '';
+  } catch (e) { /* ip lookup best-effort */ }
+
+  try {
+    if (ip) {
+      const geoRes = await fetch(`https://ipapi.co/${ip}/json/`);
+      const geoData = await geoRes.json();
+      city = geoData.city || '';
+      region = geoData.region || '';
+      country = geoData.country_name || '';
+    }
+  } catch (e) { /* geo lookup best-effort */ }
+
+  // Check IP blacklist
+  if (ip) {
+    try {
+      const ipDocId = ip.replace(/\./g, '_').replace(/:/g, '-');
+      const ipSnap = await getDoc(doc(db, 'ipRules', ipDocId));
+      if (ipSnap.exists() && ipSnap.data().type === 'blacklist') {
+        alert(`🚫 Access denied from this network.\n\nReason: ${ipSnap.data().reason || 'Blocked by admin'}`);
+        await signOut(auth);
+        return true; // blocked
+      }
+    } catch (e) { /* blacklist check best-effort */ }
+  }
+
+  // Log this login (fire-and-forget)
+  addDoc(collection(db, 'loginLogs'), {
+    uid: u.uid,
+    email: u.email || '',
+    ip: ip || 'unknown',
+    city, region, country,
+    device: navigator.userAgent,
+    time: serverTimestamp()
+  }).catch(() => {});
+
+  return false; // not blocked
+}
+
 onAuthStateChanged(auth, async u => {
   /* NOT LOGIN */
   if (!u) {
@@ -2804,11 +2849,33 @@ onAuthStateChanged(auth, async u => {
     uid: u.uid
   }, { merge: true });
   const snap = await getDoc(doc(db, 'users', u.uid));
-  
+
   if (snap.exists()) {
-    
+
     const data = snap.data();
-    
+
+    // ── Ban / Suspension check ──
+    if (data.banned) {
+      const now = Date.now();
+      const isPermanent = data.banType === 'permanent';
+      const bannedUntilMs = data.bannedUntil?.seconds ? data.bannedUntil.seconds * 1000 : (typeof data.bannedUntil === 'number' ? data.bannedUntil : 0);
+      const stillBanned = isPermanent || (bannedUntilMs && bannedUntilMs > now);
+
+      if (stillBanned) {
+        const untilStr = isPermanent ? 'permanently' : `until ${new Date(bannedUntilMs).toLocaleDateString()}`;
+        alert(`🚫 Your account has been suspended ${untilStr}.\n\nReason: ${data.banReason || 'Violation of community guidelines'}`);
+        await signOut(auth);
+        return;
+      } else if (bannedUntilMs && bannedUntilMs <= now) {
+        // Temporary ban expired — auto-clear it
+        updateDoc(doc(db, 'users', u.uid), { banned: false }).catch(() => {});
+      }
+    }
+
+    // ── IP blacklist check + login activity logging (best-effort) ──
+    const blocked = await checkIpAndLogLogin(u);
+    if (blocked) return;
+
     const finalName =
       data.name ||
       (u.email ? u.email.split('@')[0] : "User");
@@ -3706,9 +3773,23 @@ transition:0.25s;">
       ${name}
     </b>
 
-    <div style="font-size:14px;margin-top:2px;">
-      ${d.t || ""}
-    </div>
+    ${
+      d.t
+      ? `<div style="font-size:14px;margin-top:2px;">${d.t}</div>`
+      : ""
+    }
+
+    ${
+      d.mediaUrl
+      ? `<div style="margin-top:6px;max-width:160px;border-radius:12px;overflow:hidden;">
+          ${
+            d.mediaType === "video"
+            ? `<video src="${d.mediaUrl}" style="width:100%;display:block;border-radius:12px;" muted loop autoplay playsinline></video>`
+            : `<img loading="lazy" src="${d.mediaUrl}" style="width:100%;display:block;border-radius:12px;">`
+          }
+        </div>`
+      : ""
+    }
 
     ${
       d.u === auth.currentUser.email
@@ -3800,6 +3881,87 @@ window.addEmoji = (emo) => {
   commentInput.focus();
 };
 
+/* ═══════════ GIF / STICKER PICKER (Instagram-style, admin-managed) ═══════════ */
+let _gifLibraryCache = [];
+let _gifLibraryLoaded = false;
+let _gifCategory = 'all';
+
+window.openGifPicker = async () => {
+  document.getElementById('gifPickerModal').style.display = 'flex';
+  document.getElementById('gifSearchInputUser').value = '';
+  _gifCategory = 'all';
+  document.querySelectorAll('#gifPickerModal [id^="gifCat"]').forEach(b => b.classList.remove('gifCatActive'));
+  document.getElementById('gifCatAll').classList.add('gifCatActive');
+
+  if (!_gifLibraryLoaded) {
+    document.getElementById('gifPickerGrid').innerHTML = '<div class="skel" style="grid-column:1/-1;height:120px;"></div>';
+    try {
+      const snap = await getDocs(
+        query(collection(db, "gifLibrary"), orderBy("createdAt", "desc"), limit(60))
+      );
+      _gifLibraryCache = [];
+      snap.forEach(d => _gifLibraryCache.push({ id: d.id, ...d.data() }));
+      _gifLibraryLoaded = true;
+    } catch (e) {
+      console.log("gif library load failed", e);
+      _gifLibraryCache = [];
+    }
+  }
+  renderGifPickerGrid();
+};
+
+window.closeGifPicker = () => {
+  document.getElementById('gifPickerModal').style.display = 'none';
+};
+
+window.switchGifCategory = (cat) => {
+  _gifCategory = cat;
+  document.querySelectorAll('#gifPickerModal [id^="gifCat"]').forEach(b => b.classList.remove('gifCatActive'));
+  const map = { all: 'gifCatAll', trending: 'gifCatTrending', reaction: 'gifCatReaction', sticker: 'gifCatSticker' };
+  document.getElementById(map[cat] || 'gifCatAll').classList.add('gifCatActive');
+  renderGifPickerGrid();
+};
+
+window.filterGifPicker = (val) => {
+  renderGifPickerGrid(val);
+};
+
+function renderGifPickerGrid(searchVal) {
+  const q = (searchVal !== undefined ? searchVal : document.getElementById('gifSearchInputUser').value)
+    .trim().toLowerCase();
+
+  let items = _gifLibraryCache;
+  if (_gifCategory !== 'all') items = items.filter(g => (g.category || 'trending') === _gifCategory);
+  if (q) items = items.filter(g => (g.tag || '').toLowerCase().includes(q));
+
+  const grid = document.getElementById('gifPickerGrid');
+  const empty = document.getElementById('gifPickerEmpty');
+
+  if (items.length === 0) {
+    grid.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+
+  grid.innerHTML = items.map(g => `
+    <div data-onclick="selectGif('${g.id}')"
+      style="position:relative;aspect-ratio:1/1;border-radius:8px;overflow:hidden;background:#111;cursor:pointer;">
+      ${
+        g.type === 'video'
+        ? `<video src="${g.url}" muted loop autoplay playsinline style="width:100%;height:100%;object-fit:cover;"></video>`
+        : `<img loading="lazy" src="${g.url}" style="width:100%;height:100%;object-fit:cover;">`
+      }
+    </div>`).join('');
+}
+
+window.selectGif = async (gifId) => {
+  const gif = _gifLibraryCache.find(g => g.id === gifId);
+  if (!gif) return;
+  closeGifPicker();
+  await sendComment({ mediaUrl: gif.url, mediaType: gif.type || 'gif' });
+};
+
 const userCache = {};
 
 window.getUserProfile = async (uid, email) => {
@@ -3824,10 +3986,12 @@ window.getUserProfile = async (uid, email) => {
   return null;
 };
 
-window.sendComment = async () => {
+window.sendComment = async (media) => {
   
   const t = commentInput.value.trim();
-  if (!t) return;
+  const isMedia = media && media.mediaUrl;
+  
+  if (!t && !isMedia) return;
   
   const user = auth.currentUser;
   
@@ -3836,15 +4000,22 @@ window.sendComment = async () => {
   
   const userData = userSnap.exists() ? userSnap.data() : {};
   
+  const payload = {
+    u: user.email,
+    uid: user.uid,
+    name: userData.name || user.email.split("@")[0],
+    t: t || "",
+    time: serverTimestamp()
+  };
+  
+  if (isMedia) {
+    payload.mediaUrl = media.mediaUrl;
+    payload.mediaType = media.mediaType || "gif"; // 'gif' or 'video'
+  }
+  
   await addDoc(
     collection(db, "posts", currentCommentPost, "comments"),
-    {
-      u: user.email,
-      uid: user.uid,
-      name: userData.name || user.email.split("@")[0],
-      t,
-      time: serverTimestamp()
-    }
+    payload
   );
   
   commentInput.value = "";
@@ -9190,6 +9361,21 @@ margin:12px 0;">
 </div>
 
 <div style="display:flex;gap:8px;">
+<button data-onclick="openGifPicker()"
+title="Send a GIF"
+style="
+background:#222;
+color:#fff;
+border:1px solid #444;
+padding:0 12px;
+border-radius:12px;
+font-size:11px;
+font-weight:800;
+letter-spacing:.3px;
+flex-shrink:0;">
+GIF
+</button>
+
 <input id="commentInput"
 placeholder="Write comment..."
 style="
@@ -9212,6 +9398,31 @@ Send
 </div>
 
 </div>
+
+<!-- 🎞️ GIF / STICKER PICKER MODAL (Instagram-style) -->
+<div id="gifPickerModal" style="display:none;position:fixed;inset:0;background:#000;z-index:999999999;flex-direction:column;">
+  <div style="display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid #1c1c1c;">
+    <button data-onclick="closeGifPicker()" style="background:none;border:none;color:#fff;font-size:20px;cursor:pointer;">✕</button>
+    <b style="font-size:15px;flex:1;">Send a GIF</b>
+  </div>
+  <div style="padding:10px 16px;">
+    <input id="gifSearchInputUser" placeholder="Search GIFs…" oninput="filterGifPicker(this.value)"
+      class="inp" style="margin:0;">
+  </div>
+  <div style="display:flex;gap:8px;padding:0 16px 10px;overflow-x:auto;">
+    <button id="gifCatAll" class="gifCatActive" data-onclick="switchGifCategory('all')"
+      style="flex-shrink:0;padding:8px 14px;border-radius:8px;border:none;background:#1c1c1c;color:#fff;font-size:12.5px;cursor:pointer;">All</button>
+    <button id="gifCatTrending" data-onclick="switchGifCategory('trending')"
+      style="flex-shrink:0;padding:8px 14px;border-radius:8px;border:none;background:#1c1c1c;color:#fff;font-size:12.5px;cursor:pointer;">🔥 Trending</button>
+    <button id="gifCatReaction" data-onclick="switchGifCategory('reaction')"
+      style="flex-shrink:0;padding:8px 14px;border-radius:8px;border:none;background:#1c1c1c;color:#fff;font-size:12.5px;cursor:pointer;">😂 Reaction</button>
+    <button id="gifCatSticker" data-onclick="switchGifCategory('sticker')"
+      style="flex-shrink:0;padding:8px 14px;border-radius:8px;border:none;background:#1c1c1c;color:#fff;font-size:12.5px;cursor:pointer;">✨ Sticker</button>
+  </div>
+  <div id="gifPickerGrid" style="flex:1;overflow-y:auto;display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:4px;"></div>
+  <div id="gifPickerEmpty" style="display:none;color:#888;text-align:center;padding:40px 20px;font-size:13px;">No GIFs found. Ask an admin to add some!</div>
+</div>
+<style>#gifCatAll.gifCatActive,#gifCatTrending.gifCatActive,#gifCatReaction.gifCatActive,#gifCatSticker.gifCatActive{background:#ff2d55 !important;}</style>
 
 
 
