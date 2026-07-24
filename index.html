@@ -3741,49 +3741,45 @@ window.likePostFeed = async (postId, btnEl) => {
 };
 
 let currentCommentPost = "";
+let currentPostOwnerUid = null;
+let currentPostOwnerEmail = null;
 
-window.commentPost = async (id) => {
-  
-  currentCommentPost = id;
-  
-  commentBackdrop.style.display = "block";
-  commentBox.style.display = "flex";
-  
-  requestAnimationFrame(() => {
-    commentBackdrop.style.opacity = "1";
-    commentBox.style.transform = "translateY(0)";
-  });
-  
-  commentInput.value = "";
-  skelComments(); // 🦴 show skeleton while loading
-  
-  const q = query(
-    collection(db, "posts", id, "comments"),
-    orderBy("time", "asc")
-  );
-  
-  
-  onSnapshot(q, (s) => {
-  
-  let html = "";
-  
-  s.forEach(x => {
-    const d = x.data();
-    
-    const name =
-      d.name ||
-      (d.u ? d.u.split("@")[0] : "user");
-    
-    html += `
-<div id="comment-${x.id}" class="comment-item" style="
+let commentsUnsub = null;
+let pinnedUnsub = null;
+
+let PINNED_COMMENTS = new Map();   // id -> data
+let RECENT_COMMENTS = new Map();   // id -> data  (realtime, always the latest page)
+let OLDER_COMMENTS = new Map();    // id -> data  (one-time loads via "Load more comments")
+let oldestCommentDoc = null;       // pagination cursor (oldest doc in the most-recent batch)
+let noMoreOlderComments = false;
+let loadingMoreComments = false;
+
+const COMMENTS_PAGE_SIZE = 20;
+
+function isPostOwner() {
+  const u = auth.currentUser;
+  if (!u) return false;
+  return (currentPostOwnerUid && u.uid === currentPostOwnerUid) ||
+         (currentPostOwnerEmail && u.email === currentPostOwnerEmail);
+}
+
+function buildCommentItemHTML(id, d, pinned) {
+  const name = d.name || (d.u ? d.u.split("@")[0] : "user");
+  const iAmOwner = auth.currentUser && d.u === auth.currentUser.email;
+  const iAmPostOwner = isPostOwner();
+  const liked = !!(d.likedBy && auth.currentUser && d.likedBy.includes(auth.currentUser.email));
+
+  return `
+<div id="comment-${id}" class="comment-item" style="
 display:flex;
 gap:10px;
 padding:10px 0;
 border-bottom:1px solid #222;
 align-items:flex-start;
-transition:0.25s;">
+transition:0.25s;
+${pinned ? "background:rgba(255,45,85,.05);border-radius:10px;padding-left:8px;padding-right:8px;" : ""}">
 
-  <img loading="lazy" id="img-${x.id}"
+  <img loading="lazy" id="img-${id}"
   src="https://i.imgur.com/6VBx3io.png"
   style="
   width:32px;
@@ -3793,6 +3789,14 @@ transition:0.25s;">
   flex-shrink:0;">
 
   <div style="flex:1;position:relative;min-width:0;">
+
+    ${
+      pinned
+      ? `<div style="font-size:10.5px;color:#ff2d55;font-weight:700;margin-bottom:2px;display:flex;align-items:center;gap:3px;">
+          <i class="fa-solid fa-thumbtack" style="font-size:9px;"></i> Pinned
+        </div>`
+      : ""
+    }
 
     <b style="font-size:13px;">
       ${name}
@@ -3817,10 +3821,10 @@ transition:0.25s;">
     }
 
     ${
-      d.u === auth.currentUser.email
+      iAmOwner
       ? `
       <button
-      data-onclick="deleteComment('${currentCommentPost}','${x.id}')"
+      data-onclick="deleteComment('${currentCommentPost}','${id}')"
       style="
       position:absolute;
       right:34px;
@@ -3835,12 +3839,32 @@ transition:0.25s;">
       : ""
     }
 
+    ${
+      iAmPostOwner
+      ? `
+      <button
+      title="${pinned ? 'Unpin comment' : 'Pin comment'}"
+      data-onclick="toggleCommentPin('${currentCommentPost}','${id}',${pinned ? "true" : "false"})"
+      style="
+      position:absolute;
+      right:60px;
+      top:0;
+      background:none;
+      border:none;
+      color:${pinned ? '#ff2d55' : '#888'};
+      font-size:15px;">
+      <i class="fa-solid fa-thumbtack"></i>
+      </button>
+      `
+      : ""
+    }
+
   </div>
 
   <div style="display:flex;flex-direction:column;align-items:center;gap:2px;flex-shrink:0;padding-top:2px;">
     <button
-    id="likeBtn-${x.id}"
-    data-onclick="toggleCommentLike('${currentCommentPost}','${x.id}',${!!(d.likedBy && auth.currentUser && d.likedBy.includes(auth.currentUser.email))})"
+    id="likeBtn-${id}"
+    data-onclick="toggleCommentLike('${currentCommentPost}','${id}',${liked})"
     style="
     background:none;
     border:none;
@@ -3848,54 +3872,186 @@ transition:0.25s;">
     font-size:16px;
     cursor:pointer;
     line-height:1;
-    color:${(d.likedBy && auth.currentUser && d.likedBy.includes(auth.currentUser.email)) ? '#ff2d55' : '#999'};">
-      <i class="${(d.likedBy && auth.currentUser && d.likedBy.includes(auth.currentUser.email)) ? 'fa-solid' : 'fa-regular'} fa-heart"></i>
+    color:${liked ? '#ff2d55' : '#999'};">
+      <i class="${liked ? 'fa-solid' : 'fa-regular'} fa-heart"></i>
     </button>
-    <span id="likeCount-${x.id}" style="font-size:10.5px;color:#999;min-height:12px;">${(d.likes || 0) > 0 ? d.likes : ""}</span>
+    <span id="likeCount-${id}" style="font-size:10.5px;color:#999;min-height:12px;">${(d.likes || 0) > 0 ? d.likes : ""}</span>
   </div>
 
 </div>`;
+}
+
+function renderCommentsList() {
+
+  let html = "";
+
+  // 📌 Pinned comments always float to the top, newest-pinned first
+  const pinnedArr = [...PINNED_COMMENTS.entries()]
+    .sort((a, b) => (b[1].pinnedAt?.seconds || 0) - (a[1].pinnedAt?.seconds || 0));
+
+  pinnedArr.forEach(([id, d]) => {
+    html += buildCommentItemHTML(id, d, true);
   });
-  
+
+  // "Load more comments" — only if there might be older, non-pinned comments left
+  if (!noMoreOlderComments) {
+    html += `
+    <div style="text-align:center;padding:10px 0;">
+      <button
+      id="loadMoreCommentsBtn"
+      data-onclick="loadMoreComments()"
+      style="background:#1c1c1c;border:1px solid #333;color:#ccc;font-size:12.5px;padding:7px 16px;border-radius:20px;cursor:pointer;">
+        ${loadingMoreComments ? "Loading…" : "⬆ Load more comments"}
+      </button>
+    </div>`;
+  }
+
+  // Regular comments, oldest → newest (skip anything already shown as pinned)
+  const mergedRegular = new Map([...OLDER_COMMENTS, ...RECENT_COMMENTS]); // RECENT wins on id clash
+  const regularArr = [...mergedRegular]
+    .filter(([id]) => !PINNED_COMMENTS.has(id))
+    .sort((a, b) => (a[1].time?.seconds || 0) - (b[1].time?.seconds || 0));
+
+  regularArr.forEach(([id, d]) => {
+    html += buildCommentItemHTML(id, d, false);
+  });
+
   commentList.innerHTML = html || "No comments yet";
-  
-  // 🔥 LOAD REAL PROFILE PICS AFTER RENDER
+
+  // 🔥 Load real profile pics after render
   setTimeout(async () => {
-  
-  s.forEach(async x => {
-    
-    const d = x.data();
-    const img = document.getElementById("img-" + x.id);
-    
-    if (!img) return;
-    
-    try {
-      
-      // SAFE UID check
-      if (!d.uid && !d.u) return;
-      
-      const uidToUse = d.uid || d.u;
-      
-      const userSnap = await getDoc(doc(db, "users", uidToUse));
-      
-      if (userSnap.exists()) {
-        const data = userSnap.data();
-        
-        if (data.photo) {
-          img.src = data.photo;
+    const all = [...pinnedArr, ...regularArr];
+    all.forEach(async ([id, d]) => {
+      const img = document.getElementById("img-" + id);
+      if (!img) return;
+      try {
+        if (!d.uid && !d.u) return;
+        const uidToUse = d.uid || d.u;
+        const userSnap = await getDoc(doc(db, "users", uidToUse));
+        if (userSnap.exists()) {
+          const data = userSnap.data();
+          if (data.photo) img.src = data.photo;
         }
+      } catch (e) {
+        console.log("profile image load failed for:", d.u || d.uid);
       }
-      
-    } catch (e) {
-      // don’t crash app
-      console.log("profile image load failed for:", d.u || d.uid);
+    });
+  }, 0);
+}
+
+window.loadMoreComments = async () => {
+  if (loadingMoreComments || noMoreOlderComments || !oldestCommentDoc || !currentCommentPost) return;
+  loadingMoreComments = true;
+  renderCommentsList();
+
+  try {
+    const moreQ = query(
+      collection(db, "posts", currentCommentPost, "comments"),
+      orderBy("time", "desc"),
+      startAfter(oldestCommentDoc),
+      limit(COMMENTS_PAGE_SIZE)
+    );
+    const snap = await getDocs(moreQ);
+
+    if (snap.empty) {
+      noMoreOlderComments = true;
+    } else {
+      snap.docs.forEach(docSnap => {
+        OLDER_COMMENTS.set(docSnap.id, docSnap.data());
+      });
+      oldestCommentDoc = snap.docs[snap.docs.length - 1];
+      if (snap.docs.length < COMMENTS_PAGE_SIZE) noMoreOlderComments = true;
     }
-    
+  } catch (e) {
+    console.log("loadMoreComments failed", e);
+  } finally {
+    loadingMoreComments = false;
+    renderCommentsList();
+  }
+};
+
+window.toggleCommentPin = async (postId, commentId, pinnedNow) => {
+  if (!isPostOwner()) return;
+  const ref = doc(db, "posts", postId, "comments", commentId);
+  try {
+    if (pinnedNow) {
+      await updateDoc(ref, { pinned: false, pinnedAt: null });
+      showToast("📌 Comment unpinned");
+    } else {
+      await updateDoc(ref, { pinned: true, pinnedAt: serverTimestamp() });
+      showToast("📌 Comment pinned to top");
+    }
+  } catch (e) {
+    console.log("pin toggle failed", e);
+  }
+};
+
+window.commentPost = async (id) => {
+
+  // tear down any listeners from a previously opened comment sheet
+  if (commentsUnsub) { commentsUnsub(); commentsUnsub = null; }
+  if (pinnedUnsub) { pinnedUnsub(); pinnedUnsub = null; }
+
+  currentCommentPost = id;
+  PINNED_COMMENTS = new Map();
+  RECENT_COMMENTS = new Map();
+  OLDER_COMMENTS = new Map();
+  oldestCommentDoc = null;
+  noMoreOlderComments = false;
+  loadingMoreComments = false;
+  currentPostOwnerUid = null;
+  currentPostOwnerEmail = null;
+
+  commentBackdrop.style.display = "block";
+  commentBox.style.display = "flex";
+
+  requestAnimationFrame(() => {
+    commentBackdrop.style.opacity = "1";
+    commentBox.style.transform = "translateY(0)";
   });
-  
-}, 0);
-  
-});
+
+  commentInput.value = "";
+  skelComments(); // 🦴 show skeleton while loading
+
+  // resolve post owner (so we know who's allowed to pin)
+  try {
+    const postSnap = await getDoc(doc(db, "posts", id));
+    if (postSnap.exists()) {
+      const pd = postSnap.data();
+      currentPostOwnerUid = pd.uid || null;
+      currentPostOwnerEmail = pd.user || null;
+    }
+  } catch (e) {
+    console.log("post owner lookup failed", e);
+  }
+
+  // 📌 realtime listener for pinned comments (small set, always fully synced)
+  const pinnedQ = query(
+    collection(db, "posts", id, "comments"),
+    where("pinned", "==", true)
+  );
+  pinnedUnsub = onSnapshot(pinnedQ, (s) => {
+    PINNED_COMMENTS = new Map();
+    s.forEach(x => PINNED_COMMENTS.set(x.id, x.data()));
+    renderCommentsList();
+  });
+
+  // 💬 realtime listener for only the most recent page of comments —
+  // older comments are fetched on-demand via "Load more comments"
+  // 🔥 PERF: previously this loaded EVERY comment on a post with no limit,
+  // which got slower the more a post was commented on.
+  const recentQ = query(
+    collection(db, "posts", id, "comments"),
+    orderBy("time", "desc"),
+    limit(COMMENTS_PAGE_SIZE)
+  );
+  commentsUnsub = onSnapshot(recentQ, (s) => {
+    RECENT_COMMENTS = new Map();
+    s.forEach(x => RECENT_COMMENTS.set(x.id, x.data()));
+    if (s.docs.length) oldestCommentDoc = s.docs[s.docs.length - 1];
+    if (s.docs.length < COMMENTS_PAGE_SIZE) noMoreOlderComments = true;
+    renderCommentsList();
+  });
 };
 
 const _commentLikeInProgress = new Set();
@@ -4111,7 +4267,10 @@ window.sendComment = async (media) => {
 
 
 window.closeCommentBox = () => {
-  
+
+  if (commentsUnsub) { commentsUnsub(); commentsUnsub = null; }
+  if (pinnedUnsub) { pinnedUnsub(); pinnedUnsub = null; }
+
   commentBackdrop.style.opacity = "0";
   commentBox.style.transform = "translateY(100%)";
   
