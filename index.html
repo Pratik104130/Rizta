@@ -4123,24 +4123,49 @@ window.closeCommentBox = () => {
 
 
 let startY = 0;
+let isDraggingClose = false;
 
 commentBox.addEventListener("touchstart", e => {
   startY = e.touches[0].clientY;
-});
+
+  const list = document.getElementById("commentList");
+  const onDragHandle = e.target.closest("#dragBar");
+
+  // 🔥 FIX: only allow the "swipe down to close" gesture when the touch
+  // starts on the drag handle, OR the comment list is already scrolled all
+  // the way to the top. Previously ANY downward finger movement anywhere in
+  // the box (including scrolling down then back up inside the list) would
+  // drag/close the whole sheet, because scrollTop was never checked.
+  isDraggingClose = !!onDragHandle || !list || list.scrollTop <= 0;
+}, { passive: true });
 
 commentBox.addEventListener("touchmove", e => {
-  
+
+  if (!isDraggingClose) return;
+
+  const list = document.getElementById("commentList");
+  // If the list has scrolled away from the top mid-gesture, hand control
+  // back to native list scrolling instead of dragging the sheet.
+  if (list && list.scrollTop > 0) {
+    isDraggingClose = false;
+    commentBox.style.transform = "translateY(0)";
+    return;
+  }
+
   const moveY = e.touches[0].clientY - startY;
-  
+
   if (moveY > 0) {
     commentBox.style.transform =
       `translateY(${moveY}px)`;
+    e.preventDefault();
   }
-  
+
 });
 
 commentBox.addEventListener("touchend", e => {
-  
+
+  if (!isDraggingClose) return;
+
   const moved =
     parseInt(
       commentBox.style.transform
@@ -4153,6 +4178,8 @@ commentBox.addEventListener("touchend", e => {
     commentBox.style.transform =
       "translateY(0)";
   }
+
+  isDraggingClose = false;
   
 });
 
