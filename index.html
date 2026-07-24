@@ -3425,11 +3425,25 @@ onSnapshot(pq, (s) => {
       REELS_LIST = REELS_LIST.filter(r => r.id !== id);
       
       const el = document.getElementById("reel-" + id);
-      if (el) el.remove();
+      if (el) {
+        // stop observing before removing so we don't hold a dangling ref
+        const vid = el.querySelector(".reelVideo");
+        if (vid && reelObserver) { try { reelObserver.unobserve(vid); } catch (e) {} }
+        el.remove();
+      }
     }
   });
   
-  initAutoPlay();
+  // 🔥 PERF FIX: previously this called initAutoPlay() (which disconnects +
+  // rebuilds the IntersectionObserver for ALL loaded reels) on *every*
+  // snapshot — including pure "likes" updates on posts that aren't even
+  // visible. That teardown/rebuild mid-scroll was a major source of the
+  // scroll/playback lag. Now: first load builds the observer once, and every
+  // subsequent "added" reel is observed individually (see addReelToDOM) —
+  // no full rebuild, no scroll-thread jank from unrelated like updates.
+  if (!reelObserver) {
+    initAutoPlay();
+  }
 });
 
 // 🆕 UPGRADE: "load more" reels — fetches the next batch of OLDER posts
@@ -3459,7 +3473,10 @@ window.loadMoreReels = async () => {
 
     REELS_LIST.sort((a, b) => b.time - a.time);
     lastReelDoc = snap.docs[snap.docs.length - 1];
-    initAutoPlay();
+    // 🔥 PERF: no full initAutoPlay() rebuild needed — each reel added above
+    // already observes itself via addReelToDOM. Only fall back to a full
+    // build if somehow the observer doesn't exist yet.
+    if (!reelObserver) initAutoPlay();
   } catch (e) {
     console.error("loadMoreReels failed", e);
   } finally {
@@ -3553,6 +3570,13 @@ function addReelToDOM(id, p) {
   `;
 
   insertReelSorted(div, id);
+
+  // 🔥 PERF: observe just this one new video instead of tearing down and
+  // rebuilding the observer for every reel currently loaded.
+  if (reelObserver) {
+    const vid = div.querySelector(".reelVideo");
+    if (vid) reelObserver.observe(vid);
+  }
 }
 
 function insertReelSorted(div, id) {
@@ -3723,7 +3747,7 @@ window.commentPost = async (id) => {
   currentCommentPost = id;
   
   commentBackdrop.style.display = "block";
-  commentBox.style.display = "block";
+  commentBox.style.display = "flex";
   
   requestAnimationFrame(() => {
     commentBackdrop.style.opacity = "1";
@@ -3765,9 +3789,10 @@ transition:0.25s;">
   width:32px;
   height:32px;
   border-radius:50%;
-  object-fit:cover;">
+  object-fit:cover;
+  flex-shrink:0;">
 
-  <div style="flex:1;position:relative;">
+  <div style="flex:1;position:relative;min-width:0;">
 
     <b style="font-size:13px;">
       ${name}
@@ -3781,11 +3806,11 @@ transition:0.25s;">
 
     ${
       d.mediaUrl
-      ? `<div style="margin-top:6px;max-width:160px;border-radius:12px;overflow:hidden;">
+      ? `<div style="margin-top:6px;width:140px;height:140px;border-radius:12px;overflow:hidden;background:#000;">
           ${
             d.mediaType === "video"
-            ? `<video src="${d.mediaUrl}" style="width:100%;display:block;border-radius:12px;" muted loop autoplay playsinline></video>`
-            : `<img loading="lazy" src="${d.mediaUrl}" style="width:100%;display:block;border-radius:12px;">`
+            ? `<video src="${d.mediaUrl}" style="width:100%;height:100%;object-fit:cover;display:block;" muted loop autoplay playsinline></video>`
+            : `<img loading="lazy" src="${d.mediaUrl}" style="width:100%;height:100%;object-fit:cover;display:block;">`
           }
         </div>`
       : ""
@@ -3798,7 +3823,7 @@ transition:0.25s;">
       data-onclick="deleteComment('${currentCommentPost}','${x.id}')"
       style="
       position:absolute;
-      right:0;
+      right:34px;
       top:0;
       background:none;
       border:none;
@@ -3810,6 +3835,23 @@ transition:0.25s;">
       : ""
     }
 
+  </div>
+
+  <div style="display:flex;flex-direction:column;align-items:center;gap:2px;flex-shrink:0;padding-top:2px;">
+    <button
+    id="likeBtn-${x.id}"
+    data-onclick="toggleCommentLike('${currentCommentPost}','${x.id}',${!!(d.likedBy && auth.currentUser && d.likedBy.includes(auth.currentUser.email))})"
+    style="
+    background:none;
+    border:none;
+    padding:0;
+    font-size:16px;
+    cursor:pointer;
+    line-height:1;
+    color:${(d.likedBy && auth.currentUser && d.likedBy.includes(auth.currentUser.email)) ? '#ff2d55' : '#999'};">
+      <i class="${(d.likedBy && auth.currentUser && d.likedBy.includes(auth.currentUser.email)) ? 'fa-solid' : 'fa-regular'} fa-heart"></i>
+    </button>
+    <span id="likeCount-${x.id}" style="font-size:10.5px;color:#999;min-height:12px;">${(d.likes || 0) > 0 ? d.likes : ""}</span>
   </div>
 
 </div>`;
@@ -3854,6 +3896,52 @@ transition:0.25s;">
 }, 0);
   
 });
+};
+
+const _commentLikeInProgress = new Set();
+
+window.toggleCommentLike = async (postId, commentId, likedNow) => {
+  const user = auth.currentUser;
+  if (!user) return;
+
+  const key = postId + "_" + commentId;
+  if (_commentLikeInProgress.has(key)) return;
+  _commentLikeInProgress.add(key);
+
+  // optimistic UI
+  const btn = document.getElementById("likeBtn-" + commentId);
+  const countEl = document.getElementById("likeCount-" + commentId);
+  if (btn) {
+    const icon = btn.querySelector("i");
+    if (likedNow) {
+      btn.style.color = "#999";
+      if (icon) icon.className = "fa-regular fa-heart";
+      btn.setAttribute("data-onclick", `toggleCommentLike('${postId}','${commentId}',false)`);
+      if (countEl) {
+        const n = Math.max(0, (parseInt(countEl.textContent) || 1) - 1);
+        countEl.textContent = n > 0 ? n : "";
+      }
+    } else {
+      btn.style.color = "#ff2d55";
+      if (icon) icon.className = "fa-solid fa-heart";
+      btn.setAttribute("data-onclick", `toggleCommentLike('${postId}','${commentId}',true)`);
+      if (countEl) countEl.textContent = (parseInt(countEl.textContent) || 0) + 1;
+    }
+  }
+
+  const ref = doc(db, "posts", postId, "comments", commentId);
+
+  try {
+    if (likedNow) {
+      await updateDoc(ref, { likes: increment(-1), likedBy: arrayRemove(user.email) });
+    } else {
+      await updateDoc(ref, { likes: increment(1), likedBy: arrayUnion(user.email) });
+    }
+  } catch (e) {
+    console.log("comment like failed", e);
+  } finally {
+    _commentLikeInProgress.delete(key);
+  }
 };
 
 window.deleteComment = async (postId, commentId) => {
@@ -6056,8 +6144,22 @@ window.initAutoPlay = () => {
 
         activeReelVideo = v;
         v.play().catch(() => {});
-        preloadNextVideo(v);
-        cleanupOldVideos(v);
+
+        // 🔥 PERF: preloadNextVideo/cleanupOldVideos touch .src/.load() which
+        // are expensive (media pipeline teardown/setup). Running them
+        // synchronously inside the IntersectionObserver callback — which
+        // itself fires mid-scroll — was blocking the compositor and causing
+        // stutter on fast swipes. Defer them to the next idle slot instead.
+        const runDeferred = () => {
+          preloadNextVideo(v);
+          cleanupOldVideos(v);
+        };
+        if (window.requestIdleCallback) {
+          requestIdleCallback(runDeferred, { timeout: 300 });
+        } else {
+          setTimeout(runDeferred, 0);
+        }
+
         syncReelAudio();
       } else {
         // ── FIX 2: Pause immediately when leaving viewport ──
@@ -9323,7 +9425,7 @@ position:fixed;
 left:0;
 right:0;
 bottom:0;
-height:70vh;
+height:82vh;
 z-index:99999999;
 background:#111;
 border-radius:22px 22px 0 0;
@@ -9331,7 +9433,8 @@ padding:14px;
 transform:translateY(100%);
 transition:transform .28s ease;
 box-shadow:0 -8px 30px rgba(0,0,0,.45);
-overflow:hidden;">
+overflow:hidden;
+flex-direction:column;">
 
 <div id="dragBar"
 style="
@@ -9339,18 +9442,22 @@ width:46px;
 height:5px;
 background:#555;
 border-radius:20px;
-margin:0 auto 12px;">
+margin:0 auto 12px;
+flex-shrink:0;">
 </div>
 
-<b style="color:#fff;">Comments</b>
+<b style="color:#fff;flex-shrink:0;">Comments</b>
 
 <div id="commentList"
 style="
-max-height:290px;
+flex:1;
+min-height:0;
 overflow:auto;
 color:#fff;
 margin:12px 0;">
 </div>
+
+<div style="flex-shrink:0;padding-top:8px;border-top:1px solid #222;">
 
 <div style="display:flex;gap:6px;margin-bottom:8px;height:30px;"id="emojibtns">
 <button data-onclick="addEmoji('😂')">😂</button>
@@ -9395,6 +9502,8 @@ padding:10px 14px;
 border-radius:12px;">
 Send
 </button>
+</div>
+
 </div>
 
 </div>
