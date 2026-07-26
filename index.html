@@ -1043,6 +1043,10 @@ to{opacity:1;transform:none;}
   transition: opacity 0.3s;
 }
 .cvid-bar.hidden { opacity: 0; pointer-events: none; }
+/* shared-post cards inside chat bubbles: shrink the player so it never
+   overflows the bubble's max-width instead of forcing the default 280x340 */
+.shared-post-card { width: 220px; max-width: 100%; }
+.shared-post-card .cvid-wrap { width: 100% !important; height: 260px !important; max-width: 100% !important; }
 .cvid-seek {
   -webkit-appearance: none;
   appearance: none;
@@ -3564,6 +3568,7 @@ function addReelToDOM(id, p) {
           ❤️ <span id="like-${id}">${p.likes || 0}</span>
         </button>
         <button class="btn" data-onclick="commentPost('${id}')">💬</button>
+        <button class="btn" data-onclick="sharePost('${id}')" title="Share to DM">📤</button>
         ${isOwner ? `<button class="btn" data-onclick="delPost('${id}')">✖</button>` : ""}
       </div>
     </div>
@@ -5018,6 +5023,36 @@ function cvidFmt(s) {
   obs.observe(document.body, { childList: true, subtree: true });
 })();
 
+/* ---- 📤 shared-post preview card renderer (used inside chat bubbles) ---- */
+function buildSharedPostCard(sp, mine, msgId) {
+  const isVideo = !!sp.video;
+  const img = sp.photo || sp.thumbnail || "https://i.imgur.com/6VBx3io.png";
+
+  if (isVideo) {
+    return `
+<div class="shared-post-card" style="background:#0d0d0d;border:1px solid rgba(255,255,255,.12);border-radius:14px;overflow:hidden;margin:2px 0;">
+  ${buildChatVideoPlayer(sp.video, "shared_" + (msgId || sp.id))}
+  <div style="padding:8px 10px;">
+    <b style="font-size:12px;">${sp.name || "User"}'s reel</b>
+    ${sp.caption ? `<div style="font-size:11.5px;color:#bbb;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${sp.caption}</div>` : ""}
+    <button data-onclick="openViewer('${sp.video}','video')"
+      style="margin-top:6px;width:100%;background:${mine ? 'rgba(255,255,255,.15)' : '#ff2d55'};border:none;color:#fff;padding:6px;border-radius:8px;font-size:11.5px;cursor:pointer;">Open Full Reel</button>
+  </div>
+</div>`;
+  }
+
+  return `
+<div class="shared-post-card" style="background:#0d0d0d;border:1px solid rgba(255,255,255,.12);border-radius:12px;overflow:hidden;margin:2px 0;">
+  <img loading="lazy" src="${img}" style="width:100%;height:200px;object-fit:cover;display:block;" data-onclick="openViewer('${img}','image')">
+  <div style="padding:8px 10px;">
+    <b style="font-size:12px;">${sp.name || "User"}'s post</b>
+    ${sp.caption ? `<div style="font-size:11.5px;color:#bbb;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${sp.caption}</div>` : ""}
+    <button data-onclick="openViewer('${img}','image')"
+      style="margin-top:6px;width:100%;background:${mine ? 'rgba(255,255,255,.15)' : '#ff2d55'};border:none;color:#fff;padding:6px;border-radius:8px;font-size:11.5px;cursor:pointer;">View Post</button>
+  </div>
+</div>`;
+}
+
 /* ---- helpers ---- */
 function getDmId(uid1, uid2) {
   return [uid1, uid2].sort().join("_");
@@ -5175,12 +5210,13 @@ function attachChatListener(collPath) {
 
       html += `
 <div style="padding:7px;display:flex;flex-direction:column;align-items:${mine?"flex-end":"flex-start"};" id="msgwrap-${m.id}">
-  <div style="max-width:82%;padding:${d.chatImg||d.chatVid?"6px":"12px 18px"};border-radius:17px;background:${mine?"#ff2d55":"#111"};color:#fff;position:relative;">
-    ${(!d.chatImg && !d.chatVid) ? `<b style="font-size:13px;">${showName} : </b><br>` : `<div style="font-size:11px;padding:4px 6px 2px;opacity:.7;">${showName}</div>`}
+  <div style="max-width:82%;padding:${d.chatImg||d.chatVid||d.sharedPost?"6px":"12px 18px"};border-radius:17px;background:${mine?"#ff2d55":"#111"};color:#fff;position:relative;">
+    ${(!d.chatImg && !d.chatVid && !d.sharedPost) ? `<b style="font-size:13px;">${showName} : </b><br>` : `<div style="font-size:11px;padding:4px 6px 2px;opacity:.7;">${showName}</div>`}
     ${d.audio ? `<audio controls src="${d.audio}" style="width:200px;margin-top:4px;"></audio>` : ""}
     ${d.chatImg ? `<img loading="lazy" class="chat-img-bubble" src="${d.chatImg}" data-onclick="openViewer('${d.chatImg}','image')">` : ""}
     ${d.chatVid ? buildChatVideoPlayer(d.chatVid, m.id) : ""}
-    ${(!d.audio && !d.chatImg && !d.chatVid) ? (d.t || "") : (d.t ? `<div style="padding:4px 6px 2px;font-size:13px;">${d.t}</div>` : "")}
+    ${d.sharedPost ? buildSharedPostCard(d.sharedPost, mine, m.id) : ""}
+    ${(!d.audio && !d.chatImg && !d.chatVid && !d.sharedPost) ? (d.t || "") : (d.t ? `<div style="padding:4px 6px 2px;font-size:13px;">${d.t}</div>` : "")}
     <div style="font-size:9px;color:${mine?"rgba(255,255,255,.7)":"#777"};margin-top:5px;text-align:right;padding:${d.chatImg||d.chatVid?"0 6px 4px":""}">${formatTime(d.time)}</div>
     <button data-onclick="openDeleteOptions('${m.id}','${collPath}')"
       style="position:absolute;top:-9px;right:-9px;background:#333;border:1px solid #555;color:#fff;
@@ -5298,6 +5334,176 @@ window.openDm = async (otherUid) => {
   setTimeout(_showDmHeaderStatus, 350);
   if (window._dmStatusInterval) clearInterval(window._dmStatusInterval);
   window._dmStatusInterval = setInterval(_showDmHeaderStatus, 15000);
+};
+
+/* ---- 📤 SHARE POST TO DM (with preview card) ---- */
+let SHARE_POST_CTX = null; // { id, photo, video, caption, name, ownerUid }
+let SHARE_ALL_USERS = [];
+
+window.sharePost = async (postId) => {
+  if (!auth.currentUser) return;
+  if (!postId) { showToast("Couldn't find that post", "error"); return; }
+
+  let p = null;
+
+  // Try the cached posts snapshot first to avoid an extra read
+  if (typeof POSTS_SNAPSHOT !== "undefined" && POSTS_SNAPSHOT) {
+    const found = POSTS_SNAPSHOT.docs.find(d => d.id === postId);
+    if (found) p = found.data();
+  }
+  if (!p) {
+    try {
+      const snap = await getDoc(doc(db, "posts", postId));
+      if (snap.exists()) p = snap.data();
+    } catch (e) {}
+  }
+  if (!p) { showToast("Post not found", "error"); return; }
+
+  const ownerName = (p.uid && USER_CACHE[p.uid]?.name) || p.name?.trim() || "User";
+  SHARE_POST_CTX = {
+    id: postId,
+    photo: p.photo || "",
+    video: p.video || "",
+    thumbnail: p.thumbnail || "",
+    caption: p.caption || "",
+    name: ownerName,
+    ownerUid: p.uid || ""
+  };
+
+  const previewImg = SHARE_POST_CTX.photo || SHARE_POST_CTX.thumbnail || "https://i.imgur.com/6VBx3io.png";
+  const preview = document.getElementById("sharePreviewCard");
+  preview.innerHTML = `
+    <img loading="lazy" src="${previewImg}" style="width:48px;height:48px;border-radius:8px;object-fit:cover;flex-shrink:0;">
+    <div style="min-width:0;">
+      <b style="font-size:13px;">${ownerName}'s ${SHARE_POST_CTX.video ? "reel" : "post"}</b>
+      <div style="font-size:12px;color:#aaa;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${SHARE_POST_CTX.caption || "Tap a contact to send"}</div>
+    </div>`;
+
+  document.getElementById("shareSearchInput").value = "";
+  document.getElementById("shareModal").style.display = "flex";
+  loadShareUserList();
+};
+
+window.closeShareModal = () => {
+  document.getElementById("shareModal").style.display = "none";
+  SHARE_POST_CTX = null;
+};
+
+async function loadShareUserList() {
+  const list = document.getElementById("shareUserList");
+  list.innerHTML = `<p style="color:#555;text-align:center;padding:10px;">Loading…</p>`;
+  try {
+    // Only people you follow can be shared to
+    const followSnap = await getDocs(query(collection(db, "follows"), where("from", "==", auth.currentUser.uid)));
+    const followingUids = followSnap.docs.map(d => d.data().to).filter(Boolean);
+
+    if (!followingUids.length) {
+      SHARE_ALL_USERS = [];
+      list.innerHTML = `<p style="color:#555;text-align:center;padding:10px;">You're not following anyone yet</p>`;
+      return;
+    }
+
+    const userDocs = await Promise.all(followingUids.map(uid => getDoc(doc(db, "users", uid))));
+    SHARE_ALL_USERS = [];
+    userDocs.forEach(snap => {
+      if (!snap.exists()) return;
+      const u = snap.data();
+      SHARE_ALL_USERS.push({
+        uid: u.uid || snap.id,
+        name: u.name || u.email?.split("@")[0] || "User",
+        photo: u.photo || "https://i.imgur.com/6VBx3io.png"
+      });
+    });
+    renderShareUserList(SHARE_ALL_USERS);
+  } catch (e) {
+    list.innerHTML = `<p style="color:#555;text-align:center;padding:10px;">Couldn't load contacts</p>`;
+  }
+}
+
+function renderShareUserList(users) {
+  const list = document.getElementById("shareUserList");
+  if (!users.length) {
+    list.innerHTML = `<p style="color:#555;text-align:center;padding:10px;">No users found</p>`;
+    return;
+  }
+  list.innerHTML = users.map(u => `
+    <div data-onclick="sendPostShare('${u.uid}')" style="display:flex;align-items:center;gap:10px;padding:8px;border-radius:10px;cursor:pointer;background:#1a1a1a;">
+      <img loading="lazy" src="${u.photo}" style="width:38px;height:38px;border-radius:50%;object-fit:cover;">
+      <b style="font-size:13.5px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${u.name}</b>
+      <span style="font-size:11px;color:#ff2d55;font-weight:700;flex-shrink:0;">Send</span>
+    </div>`).join("");
+}
+
+window.filterShareUserList = async (q) => {
+  q = q.trim().toLowerCase();
+
+  // Empty search box -> back to the following-only default list
+  if (!q) { renderShareUserList(SHARE_ALL_USERS); return; }
+
+  // First, narrow within people you already follow (fast, no network)
+  const localMatches = SHARE_ALL_USERS.filter(u => u.name.toLowerCase().includes(q));
+
+  // Then broaden to all users so you can find anyone, not just people you follow
+  const list = document.getElementById("shareUserList");
+  try {
+    const snap = await getDocs(collection(db, "users"));
+    const seen = new Set(localMatches.map(u => u.uid));
+    const extraMatches = [];
+    snap.forEach(d => {
+      const u = d.data();
+      if (!u.uid || u.uid === auth.currentUser.uid || seen.has(u.uid)) return;
+      const name = u.name || u.email?.split("@")[0] || "User";
+      if (!name.toLowerCase().includes(q)) return;
+      extraMatches.push({
+        uid: u.uid,
+        name,
+        photo: u.photo || "https://i.imgur.com/6VBx3io.png"
+      });
+    });
+    renderShareUserList([...localMatches, ...extraMatches]);
+  } catch (e) {
+    // network hiccup — still show whatever matched among people you follow
+    renderShareUserList(localMatches);
+  }
+};
+
+window.debouncedFilterShareUserList = debounce((val) => window.filterShareUserList(val), 300);
+
+window.sendPostShare = async (otherUid) => {
+  if (!auth.currentUser || !SHARE_POST_CTX) return;
+  const dmId = getDmId(auth.currentUser.uid, otherUid);
+
+  try {
+    await setDoc(doc(db, "dms", dmId), {
+      uids: [auth.currentUser.uid, otherUid],
+      updatedAt: serverTimestamp()
+    }, { merge: true });
+
+    await addDoc(collection(db, `dms/${dmId}/messages`), {
+      uid: auth.currentUser.uid,
+      u: auth.currentUser.email,
+      name: (profileName?.innerText || "").trim(),
+      t: "",
+      sharedPost: {
+        id: SHARE_POST_CTX.id,
+        photo: SHARE_POST_CTX.photo,
+        video: SHARE_POST_CTX.video,
+        thumbnail: SHARE_POST_CTX.thumbnail,
+        caption: SHARE_POST_CTX.caption,
+        name: SHARE_POST_CTX.name,
+        ownerUid: SHARE_POST_CTX.ownerUid
+      },
+      seen: false,
+      deletedFor: [],
+      deletedForEveryone: false,
+      time: serverTimestamp()
+    });
+
+    showToast("Post sent!", "success");
+    closeShareModal();
+  } catch (e) {
+    showToast("Couldn't send post — try again", "error");
+  }
 };
 
 /* ---- sendMsg (works for any room) ---- */
@@ -7036,6 +7242,7 @@ window.openCustomPlayer = (url, type, postId) => {
 <div style="display:flex;gap:18px;margin-top:14px;padding:0 16px;width:100%;justify-content:center;">
   <button data-onclick="likePost('${postId || ''}')" style="background:rgba(255,255,255,.12);border:none;color:#fff;font-size:22px;padding:10px 20px;border-radius:20px;cursor:pointer;">❤️ Like</button>
   <button data-onclick="commentPost('${postId || ''}')" style="background:rgba(255,255,255,.12);border:none;color:#fff;font-size:22px;padding:10px 20px;border-radius:20px;cursor:pointer;">💬 Comment</button>
+  <button data-onclick="sharePost('${postId || ''}')" style="background:rgba(255,255,255,.12);border:none;color:#fff;font-size:22px;padding:10px 20px;border-radius:20px;cursor:pointer;">📤 Share</button>
 </div>`;
   } else {
     overlay.innerHTML = `
@@ -7044,6 +7251,7 @@ window.openCustomPlayer = (url, type, postId) => {
 <div style="display:flex;gap:18px;margin-top:14px;padding:0 16px;width:100%;justify-content:center;">
   <button data-onclick="likePost('${postId || ''}')" style="background:rgba(255,255,255,.12);border:none;color:#fff;font-size:22px;padding:10px 20px;border-radius:20px;cursor:pointer;">❤️ Like</button>
   <button data-onclick="commentPost('${postId || ''}')" style="background:rgba(255,255,255,.12);border:none;color:#fff;font-size:22px;padding:10px 20px;border-radius:20px;cursor:pointer;">💬 Comment</button>
+  <button data-onclick="sharePost('${postId || ''}')" style="background:rgba(255,255,255,.12);border:none;color:#fff;font-size:22px;padding:10px 20px;border-radius:20px;cursor:pointer;">📤 Share</button>
 </div>`;
   }
 
@@ -7304,6 +7512,7 @@ window.loadUserPosts = (uid) => {
              ${!isMe ? `<div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.7));padding:8px 6px 4px;display:flex;gap:10px;align-items:center;">
                <button data-onclick="event.stopPropagation();likePost('${id}')" style="background:none;border:none;color:#fff;font-size:16px;cursor:pointer;">❤️</button>
                <button data-onclick="event.stopPropagation();commentPost('${id}')" style="background:none;border:none;color:#fff;font-size:16px;cursor:pointer;">💬</button>
+               <button data-onclick="event.stopPropagation();sharePost('${id}')" style="background:none;border:none;color:#fff;font-size:16px;cursor:pointer;">📤</button>
              </div>` : ""}
              ${deleteBtn}`
           : `<video class="postMini" src="${p.video}" muted data-onclick="${isMe ? `openViewer('${p.video}','video')` : `openCustomPlayer('${p.video}','video','${id}')`}"
@@ -7312,6 +7521,7 @@ window.loadUserPosts = (uid) => {
              ${!isMe ? `<div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.7));padding:8px 6px 4px;display:flex;gap:10px;align-items:center;">
                <button data-onclick="event.stopPropagation();likePost('${id}')" style="background:none;border:none;color:#fff;font-size:16px;cursor:pointer;">❤️</button>
                <button data-onclick="event.stopPropagation();commentPost('${id}')" style="background:none;border:none;color:#fff;font-size:16px;cursor:pointer;">💬</button>
+               <button data-onclick="event.stopPropagation();sharePost('${id}')" style="background:none;border:none;color:#fff;font-size:16px;cursor:pointer;">📤</button>
              </div>` : ""}
              ${deleteBtn}`;
       } else if (p.photo) {
@@ -7321,6 +7531,7 @@ window.loadUserPosts = (uid) => {
           ${!isMe ? `<div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.7));padding:8px 6px 4px;display:flex;gap:10px;align-items:center;">
             <button data-onclick="event.stopPropagation();likePost('${id}')" style="background:none;border:none;color:#fff;font-size:16px;cursor:pointer;">❤️</button>
             <button data-onclick="event.stopPropagation();commentPost('${id}')" style="background:none;border:none;color:#fff;font-size:16px;cursor:pointer;">💬</button>
+            <button data-onclick="event.stopPropagation();sharePost('${id}')" style="background:none;border:none;color:#fff;font-size:16px;cursor:pointer;">📤</button>
           </div>` : ""}
           ${deleteBtn}`;
       } else {
@@ -7525,6 +7736,7 @@ window.openMiniProfile = async (uid) => {
   <div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.7));padding:8px 6px 4px;display:flex;gap:10px;align-items:center;">
     <button data-onclick="event.stopPropagation();likePost('${pid}')" style="background:none;border:none;color:#fff;font-size:18px;cursor:pointer;">❤️ <span id="like-${pid}"></span></button>
     <button data-onclick="event.stopPropagation();commentPost('${pid}')" style="background:none;border:none;color:#fff;font-size:18px;cursor:pointer;">💬</button>
+    <button data-onclick="event.stopPropagation();sharePost('${pid}')" style="background:none;border:none;color:#fff;font-size:18px;cursor:pointer;">📤</button>
   </div>
 </div>`;
     if (p.video) {
@@ -7538,6 +7750,7 @@ window.openMiniProfile = async (uid) => {
   <div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.7));padding:8px 6px 4px;display:flex;gap:10px;align-items:center;">
     <button data-onclick="event.stopPropagation();likePost('${pid}')" style="background:none;border:none;color:#fff;font-size:18px;cursor:pointer;">❤️ <span id="like-${pid}"></span></button>
     <button data-onclick="event.stopPropagation();commentPost('${pid}')" style="background:none;border:none;color:#fff;font-size:18px;cursor:pointer;">💬</button>
+    <button data-onclick="event.stopPropagation();sharePost('${pid}')" style="background:none;border:none;color:#fff;font-size:18px;cursor:pointer;">📤</button>
   </div>
 </div>`;
     }
@@ -7868,6 +8081,7 @@ function renderPostsFeed(s) {
   <div class="ig-post-actions">
     <button id="postLikeBtn-${id}" data-onclick="likePostFeed('${id}',this)">${isLiked ? "❤️" : "🤍"}</button>
     <button data-onclick="commentPost('${id}')">💬</button>
+    <button data-onclick="sharePost('${id}')" title="Share to DM">📤</button>
     ${isOwner ? `<button data-onclick="delPost('${id}')" style="font-size:20px;color:#ff4444;background:none;border:none;color:#ff4444;cursor:pointer;padding:0;line-height:1;">🗑</button>` : ""}
     <button id="bookmarkBtn-${id}" class="bookmark-btn ${SAVED_POSTS.has(id)?'saved':''}" data-onclick="toggleSave('${id}',this)" title="Save post">${SAVED_POSTS.has(id)?'🔖':'🔖'}</button>
   </div>
@@ -9986,6 +10200,23 @@ style="position:absolute;bottom:70px;right:15px;z-index:5;background:#111;color:
   </div>
   <div id="audioPageGrid" style="flex:1;overflow-y:auto;display:grid;grid-template-columns:repeat(3,1fr);gap:3px;padding:3px;"></div>
   <audio id="audioPageThumbPlayer" loop style="display:none;"></audio>
+</div>
+
+<!-- 📤 SHARE POST TO DM MODAL -->
+<div id="shareModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:999999;align-items:flex-end;justify-content:center;">
+  <div style="width:100%;max-width:480px;background:#111;border-radius:18px 18px 0 0;padding:18px;max-height:82vh;display:flex;flex-direction:column;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+      <b style="font-size:15px;">Share to</b>
+      <button data-onclick="closeShareModal()" style="background:none;border:none;color:#fff;font-size:20px;cursor:pointer;">✕</button>
+    </div>
+
+    <!-- preview card of the post being shared -->
+    <div id="sharePreviewCard" style="display:flex;gap:10px;align-items:center;background:#1a1a1a;border-radius:12px;padding:8px;margin-bottom:12px;flex-shrink:0;"></div>
+
+    <input id="shareSearchInput" class="inp" placeholder="Search people…" style="margin:0 0 10px;flex-shrink:0;" oninput="debouncedFilterShareUserList(this.value)">
+
+    <div id="shareUserList" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:6px;"></div>
+  </div>
 </div>
 
 </body>
